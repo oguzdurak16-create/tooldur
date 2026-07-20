@@ -2,6 +2,8 @@ name: Migrate Tooldur from GitLab
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
   push:
     branches:
       - main
@@ -22,7 +24,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check migration payload
+        id: payload
+        shell: bash
+        run: |
+          if [ -d .bootstrap/overlay ]; then
+            echo 'ready=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'ready=false' >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Clone current Tooldur source from GitLab
+        if: steps.payload.outputs.ready == 'true'
         shell: bash
         env:
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
@@ -34,6 +47,7 @@ jobs:
           fi
 
       - name: Apply hydration v6 files
+        if: steps.payload.outputs.ready == 'true'
         shell: bash
         run: |
           cp -a .bootstrap/overlay /tmp/tooldur-overlay
@@ -42,6 +56,7 @@ jobs:
           rm -rf .bootstrap
 
       - name: Commit migrated project
+        if: steps.payload.outputs.ready == 'true'
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
