@@ -1,0 +1,21 @@
+{
+  "buildCommand": "pnpm run build",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "regions": [
+    "fra1"
+  ],
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "tooldur.com"
+        }
+      ],
+      "destination": "https://www.tooldur.com/$1",
+      "permanent": true
+    }
+  ]
+}

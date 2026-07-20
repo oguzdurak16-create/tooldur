@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" >
+    <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eef2f4"/><stop offset="1" stop-color="#dfe8ed"/></linearGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f9fbfc"/><stop offset=".28" stop-color="#bcc9d2"/><stop offset=".55" stop-color="#748794"/><stop offset=".82" stop-color="#d7e0e5"/><stop offset="1" stop-color="#8ea0ab"/></linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e26d3d"/><stop offset="1" stop-color="#e26d3d" stop-opacity=".55"/></linearGradient>
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse"><path d="M42 0H0V42" fill="none" stroke="#6d8291" stroke-width="1" opacity=".22"/></pattern>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#24313a" flood-opacity=".18"/></filter>
+    <filter id="smallShadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="7" stdDeviation="6" flood-color="#24313a" flood-opacity=".16"/></filter>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0 0L9 4.5L0 9z" fill="#e26d3d"/></marker>
+    <marker id="arrowStart" markerWidth="9" markerHeight="9" refX="2" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M9 0L0 4.5L9 9z" fill="#e26d3d"/></marker>
+    </defs>
+    <rect width="1200" height="680" fill="url(#bg)"/>
+    <rect width="1200" height="680" fill="url(#grid)"/>
+    <path d="M0 545C170 480 290 625 475 555S790 455 1200 545V680H0z" fill="#fff" opacity=".42"/>
+    <circle cx="1020" cy="110" r="190" fill="#e26d3d" opacity=".055"/>
+    <circle cx="180" cy="580" r="150" fill="#e26d3d" opacity=".035"/>
+    <g fill="#e26d3d" opacity=".10"><rect x="70" y="70" width="180" height="14" rx="7"/><rect x="70" y="94" width="105" height="8" rx="4"/><rect x="950" y="580" width="180" height="14" rx="7"/></g>
+    <g filter="url(#shadow)"><rect x="250" y="180" width="700" height="330" rx="28" fill="#fbfcfd" stroke="#687b88" stroke-width="5"/><path d="M300 365L350 285L405 400L460 250L520 390L580 300L635 410L700 270L760 385L820 305L900 360" fill="none" stroke="#e26d3d" stroke-width="10" stroke-linejoin="round"/><path d="M300 450h600M300 220h600" stroke="#9aa8b0" stroke-width="4" stroke-dasharray="12 10"/></g><path d="M310 545L900 545" stroke="#e26d3d" stroke-width="3" marker-start="url(#arrowStart)" marker-end="url(#arrow)" fill="none"/><text x="605.0" y="533.0" fill="#e26d3d" font-family="Arial,sans-serif" font-size="22" font-weight="700" text-anchor="middle">Ra</text>
+    </svg>

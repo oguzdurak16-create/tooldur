@@ -1,0 +1,58 @@
+# GitLab CI/CD for Vercel deployment
+# This file is optional if you use Vercel's GitLab integration
+
+stages:
+  - build
+  - deploy
+
+variables:
+  NODE_VERSION: "20"
+  PNPM_VERSION: "10.34.3"
+
+cache:
+  paths:
+    - .pnpm-store/
+    - .next/cache/
+
+before_script:
+  - corepack enable
+  - corepack prepare pnpm@${PNPM_VERSION} --activate
+  - pnpm config set store-dir .pnpm-store
+
+build:
+  stage: build
+  image: node:${NODE_VERSION}
+  script:
+    - pnpm install --frozen-lockfile
+    - pnpm run build
+  artifacts:
+    paths:
+      - .next/
+    expire_in: 1 hour
+  only:
+    - main
+    - develop
+
+# If using Vercel CLI for deployment
+deploy_production:
+  stage: deploy
+  image: node:${NODE_VERSION}
+  script:
+    - pnpm install --frozen-lockfile
+    - pnpm dlx vercel@latest pull --yes --environment=production --token=$VERCEL_TOKEN
+    - pnpm dlx vercel@latest build --prod --token=$VERCEL_TOKEN
+    - pnpm dlx vercel@latest deploy --prebuilt --prod --token=$VERCEL_TOKEN
+  only:
+    - main
+  when: manual
+
+deploy_preview:
+  stage: deploy
+  image: node:${NODE_VERSION}
+  script:
+    - pnpm install --frozen-lockfile
+    - pnpm dlx vercel@latest pull --yes --environment=preview --token=$VERCEL_TOKEN
+    - pnpm dlx vercel@latest build --token=$VERCEL_TOKEN
+    - pnpm dlx vercel@latest deploy --prebuilt --token=$VERCEL_TOKEN
+  only:
+    - develop

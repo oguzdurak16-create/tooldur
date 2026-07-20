@@ -1,0 +1,39 @@
+{
+  "name": "Tooldur - Ücretsiz Mekanik Tasarım Araçları",
+  "short_name": "Tooldur",
+  "description": "Metrik diş, kılavuz matkap, sac büküm, tolerans, ağırlık ve üretim hesapları için ücretsiz mühendislik çalışma alanı.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0f1a",
+  "theme_color": "#f59e0b",
+  "orientation": "any",
+  "scope": "/",
+  "id": "/",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "categories": [
+    "utilities",
+    "productivity",
+    "education"
+  ],
+  "lang": "tr",
+  "dir": "ltr"
+}

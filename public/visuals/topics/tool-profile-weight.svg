@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" >
+    <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f5f1eb"/><stop offset="1" stop-color="#eadfd3"/></linearGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f9fbfc"/><stop offset=".28" stop-color="#bcc9d2"/><stop offset=".55" stop-color="#748794"/><stop offset=".82" stop-color="#d7e0e5"/><stop offset="1" stop-color="#8ea0ab"/></linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d46f45"/><stop offset="1" stop-color="#d46f45" stop-opacity=".55"/></linearGradient>
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse"><path d="M42 0H0V42" fill="none" stroke="#7796af" stroke-width="1" opacity=".22"/></pattern>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#24313a" flood-opacity=".18"/></filter>
+    <filter id="smallShadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="7" stdDeviation="6" flood-color="#24313a" flood-opacity=".16"/></filter>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0 0L9 4.5L0 9z" fill="#d46f45"/></marker>
+    <marker id="arrowStart" markerWidth="9" markerHeight="9" refX="2" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M9 0L0 4.5L9 9z" fill="#d46f45"/></marker>
+    </defs>
+    <rect width="1200" height="680" fill="url(#bg)"/>
+    <rect width="1200" height="680" fill="url(#grid)"/>
+    <path d="M0 545C170 480 290 625 475 555S790 455 1200 545V680H0z" fill="#fff" opacity=".42"/>
+    <circle cx="1020" cy="110" r="190" fill="#d46f45" opacity=".055"/>
+    <circle cx="180" cy="580" r="150" fill="#d46f45" opacity=".035"/>
+    <g fill="#d46f45" opacity=".10"><rect x="70" y="70" width="180" height="14" rx="7"/><rect x="70" y="94" width="105" height="8" rx="4"/><rect x="950" y="580" width="180" height="14" rx="7"/></g>
+    <g transform="translate(650 345) scale(1.05)" filter="url(#shadow)"><path d="M-300-90H300V-20H50V80H300V150H-300V80H-50V-20H-300z" fill="url(#metal)" stroke="#687a86" stroke-width="6"/><path d="M-300-90L-250-140H350L300-90M300-90l50-50V100L300 150" fill="none" stroke="#9eabb2" stroke-width="6"/><path d="M-360-90v240" stroke="#d46f45" stroke-width="4"/><path d="M-380-90h40M-380 150h40" stroke="#d46f45" stroke-width="4"/></g><path d="M200 185L470 185" stroke="#d46f45" stroke-width="3" marker-start="url(#arrowStart)" marker-end="url(#arrow)" fill="none"/><text x="335.0" y="173.0" fill="#d46f45" font-family="Arial,sans-serif" font-size="22" font-weight="700" text-anchor="middle">kg/m</text>
+    </svg>

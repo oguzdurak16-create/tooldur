@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" >
+    <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f2f7f6"/><stop offset="1" stop-color="#dfeeea"/></linearGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f9fbfc"/><stop offset=".28" stop-color="#bcc9d2"/><stop offset=".55" stop-color="#748794"/><stop offset=".82" stop-color="#d7e0e5"/><stop offset="1" stop-color="#8ea0ab"/></linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#10a88f"/><stop offset="1" stop-color="#10a88f" stop-opacity=".55"/></linearGradient>
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse"><path d="M42 0H0V42" fill="none" stroke="#77a7a0" stroke-width="1" opacity=".22"/></pattern>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#24313a" flood-opacity=".18"/></filter>
+    <filter id="smallShadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="7" stdDeviation="6" flood-color="#24313a" flood-opacity=".16"/></filter>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M0 0L9 4.5L0 9z" fill="#10a88f"/></marker>
+    <marker id="arrowStart" markerWidth="9" markerHeight="9" refX="2" refY="4.5" orient="auto" markerUnits="strokeWidth"><path d="M9 0L0 4.5L9 9z" fill="#10a88f"/></marker>
+    </defs>
+    <rect width="1200" height="680" fill="url(#bg)"/>
+    <rect width="1200" height="680" fill="url(#grid)"/>
+    <path d="M0 545C170 480 290 625 475 555S790 455 1200 545V680H0z" fill="#fff" opacity=".42"/>
+    <circle cx="1020" cy="110" r="190" fill="#10a88f" opacity=".055"/>
+    <circle cx="180" cy="580" r="150" fill="#10a88f" opacity=".035"/>
+    <g fill="#10a88f" opacity=".10"><rect x="70" y="70" width="180" height="14" rx="7"/><rect x="70" y="94" width="105" height="8" rx="4"/><rect x="950" y="580" width="180" height="14" rx="7"/></g>
+    <g filter="url(#shadow)"><rect x="250" y="220" width="262.5" height="157.5" rx="28" fill="#fbfcfd" stroke="#697c87" stroke-width="5"/><rect x="691.0" y="304.0" width="262.5" height="157.5" rx="28" fill="#fbfcfd" stroke="#697c87" stroke-width="5"/><path d="M512.5 288.25C586.0 241.0 617.5 241.0 691.0 304.0" fill="none" stroke="#10a88f" stroke-width="13" marker-end="url(#arrow)"/><path d="M691.0 435.25C617.5 498.25 586.0 498.25 512.5 372.25" fill="none" stroke="#6d8291" stroke-width="10" marker-end="url(#arrow)"/><path d="M307.75 298.75h147.0" stroke="#10a88f" stroke-width="15" stroke-linecap="round"/><circle cx="822.25" cy="382.75" r="45" fill="none" stroke="#10a88f" stroke-width="12"/><path d="M822.25 335.5v90M775.0 382.75h90" stroke="#10a88f" stroke-width="8"/></g><path d="M250 545L920 545" stroke="#10a88f" stroke-width="3" marker-start="url(#arrowStart)" marker-end="url(#arrow)" fill="none"/><text x="585.0" y="533.0" fill="#10a88f" font-family="Arial,sans-serif" font-size="22" font-weight="700" text-anchor="middle">mm → in</text>
+    </svg>
