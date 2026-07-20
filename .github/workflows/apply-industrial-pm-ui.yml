@@ -34,13 +34,18 @@ jobs:
           tar -xzf /tmp/industrial-project-ui.tgz -C .
           python - <<'PY'
           from pathlib import Path
-          path = Path('src/app/proje-yonetimi/page.tsx')
-          text = path.read_text()
+
+          page = Path('src/app/proje-yonetimi/page.tsx')
+          text = page.read_text()
           text = text.replace('["kanban", "Kanban", <LayoutDashboard size={14} />]', '["kanban", "Kanban", <LayoutDashboard key="kanban" size={14} />]')
           text = text.replace('["liste", "Liste", <ListTodo size={14} />]', '["liste", "Liste", <ListTodo key="liste" size={14} />]')
           text = text.replace('["takvim", "Takvim", <CalendarDays size={14} />]', '["takvim", "Takvim", <CalendarDays key="takvim" size={14} />]')
           text = text.replace('["analiz", "Analiz", <BarChart3 size={14} />]', '["analiz", "Analiz", <BarChart3 key="analiz" size={14} />]')
-          path.write_text(text)
+          page.write_text(text)
+
+          db = Path('src/lib/pm-db-supabase.ts')
+          text = db.read_text().replace('.subscribe((status) => {', '.subscribe((status: string) => {')
+          db.write_text(text)
           PY
 
       - name: Validate restored files
@@ -53,7 +58,7 @@ jobs:
           echo '57ddad39705fef48801a37102ab9368ad15eb497  src/app/proje-yonetimi/layout.tsx' | sha1sum -c -
           echo '76ca9dcfee975a99307374156d11400a4bda7697  src/app/proje-yonetimi/pm.css' | sha1sum -c -
           echo '9e5d33999bcb19eee74f48cb2a2069e64af3486b  src/app/proje-yonetimi/pm-constants.ts' | sha1sum -c -
-          echo '86f254f513d8510dc878fb037b02c9b92045bb5d  src/lib/pm-db-supabase.ts' | sha1sum -c -
+          echo '98ec66096d108b9a7091515a1e9d9c138e724510  src/lib/pm-db-supabase.ts' | sha1sum -c -
 
       - name: Use Node.js 24
         uses: actions/setup-node@v4
