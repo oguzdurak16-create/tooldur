@@ -57,17 +57,23 @@ export default function GorevDetayModal({
   const [yuklemePct, setYuklemePct] = useState(0);
   const [kaydetYukleniyor, setKaydetYukleniyor] = useState(false);
   const [aktiviteler, setAktiviteler] = useState<PmAktivite[]>([]);
+  const [islemHatasi, setIslemHatasi] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const oncekiOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    const escapeKapat = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !kaydetYukleniyor && !ekYukleniyor) onKapat();
+    };
+    window.addEventListener('keydown', escapeKapat);
 
     return () => {
       document.body.style.overflow = oncekiOverflow;
+      window.removeEventListener('keydown', escapeKapat);
     };
-  }, []);
+  }, [ekYukleniyor, kaydetYukleniyor, onKapat]);
 
   useEffect(() => {
     const unsub = gorevAktiviteleriniDinle(gorev.id, setAktiviteler);
@@ -87,44 +93,55 @@ export default function GorevDetayModal({
   };
 
   const kaydet = async () => {
-    setKaydetYukleniyor(true);
-
-    const degisenler: string[] = [];
-    if (gorev.baslik !== baslik) degisenler.push('başlık');
-    if ((gorev.aciklama ?? '') !== aciklama) degisenler.push('açıklama');
-    if (gorev.durum !== durum) degisenler.push('durum');
-    if (gorev.oncelik !== oncelik) degisenler.push('öncelik');
-    if ((gorev.termin ?? '') !== termin) degisenler.push('termin');
-    if (JSON.stringify(gorev.etiketler ?? []) !== JSON.stringify(etiketler)) degisenler.push('etiketler');
-
-    const oncekiAtanan = JSON.stringify((gorev.atananlar ?? []).map(a => a.uid).sort());
-    const yeniAtanan = JSON.stringify((atananlar ?? []).map(a => a.uid).sort());
-    if (oncekiAtanan !== yeniAtanan) degisenler.push('atananlar');
-
-    await gorevGuncelle(gorev.id, {
-      baslik,
-      aciklama,
-      durum,
-      oncelik,
-      termin,
-      atananlar,
-      etiketler,
-      checklistler: checklist,
-    });
-
-    if (degisenler.length > 0) {
-      if (gorev.durum !== durum) {
-        await aktiviteEkle(
-          'durum_degisti',
-          `Durum değişti: ${KOLONLAR.find(k => k.id === gorev.durum)?.label || gorev.durum} → ${KOLONLAR.find(k => k.id === durum)?.label || durum}`
-        );
-      } else {
-        await aktiviteEkle('gorev_guncellendi', `Görev güncellendi: ${degisenler.join(', ')}`);
-      }
+    if (!baslik.trim()) {
+      setIslemHatasi('Görev başlığı boş bırakılamaz.');
+      return;
     }
 
-    setKaydetYukleniyor(false);
-    onKapat();
+    setKaydetYukleniyor(true);
+    setIslemHatasi('');
+
+    try {
+      const degisenler: string[] = [];
+      if (gorev.baslik !== baslik.trim()) degisenler.push('başlık');
+      if ((gorev.aciklama ?? '') !== aciklama) degisenler.push('açıklama');
+      if (gorev.durum !== durum) degisenler.push('durum');
+      if (gorev.oncelik !== oncelik) degisenler.push('öncelik');
+      if ((gorev.termin ?? '') !== termin) degisenler.push('termin');
+      if (JSON.stringify(gorev.etiketler ?? []) !== JSON.stringify(etiketler)) degisenler.push('etiketler');
+
+      const oncekiAtanan = JSON.stringify((gorev.atananlar ?? []).map(a => a.uid).sort());
+      const yeniAtanan = JSON.stringify((atananlar ?? []).map(a => a.uid).sort());
+      if (oncekiAtanan !== yeniAtanan) degisenler.push('atananlar');
+
+      await gorevGuncelle(gorev.id, {
+        baslik: baslik.trim(),
+        aciklama,
+        durum,
+        oncelik,
+        termin,
+        atananlar,
+        etiketler,
+        checklistler: checklist,
+      });
+
+      if (degisenler.length > 0) {
+        if (gorev.durum !== durum) {
+          await aktiviteEkle(
+            'durum_degisti',
+            `Durum değişti: ${KOLONLAR.find(k => k.id === gorev.durum)?.label || gorev.durum} → ${KOLONLAR.find(k => k.id === durum)?.label || durum}`
+          );
+        } else {
+          await aktiviteEkle('gorev_guncellendi', `Görev güncellendi: ${degisenler.join(', ')}`);
+        }
+      }
+
+      onKapat();
+    } catch (error) {
+      setIslemHatasi(error instanceof Error ? error.message : 'Görev kaydedilemedi. Lütfen tekrar deneyin.');
+    } finally {
+      setKaydetYukleniyor(false);
+    }
   };
 
   const checkEkle = async () => {
@@ -186,9 +203,14 @@ export default function GorevDetayModal({
       tarih: new Date().toISOString(),
     };
 
-    await yorumEkle(gorev.id, benimUid, benimAd, benimFoto, yorumMetni.trim(), projeId);
-    setLocalYorumlar(prev => [...prev, yeniYorum]);
-    setYorumMetni('');
+    setIslemHatasi('');
+    try {
+      await yorumEkle(gorev.id, benimUid, benimAd, benimFoto, yorumMetni.trim(), projeId);
+      setLocalYorumlar(prev => [...prev, yeniYorum]);
+      setYorumMetni('');
+    } catch (error) {
+      setIslemHatasi(error instanceof Error ? error.message : 'Yorum gönderilemedi.');
+    }
   };
 
   const dosyaSec = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -196,25 +218,30 @@ export default function GorevDetayModal({
     if (!file) return;
 
     if (file.size > 10 * 1024 * 1024) {
-      alert('Maksimum dosya boyutu 10 MB.');
+      setIslemHatasi('Maksimum dosya boyutu 10 MB.');
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
     setEkYukleniyor(true);
+    setIslemHatasi('');
 
-    const yeniEk = await dosyaYukle(
-      gorev.id,
-      benimUid,
-      file,
-      pct => setYuklemePct(pct),
-      { projeId, actorAd: benimAd, actorFoto: benimFoto }
-    );
-
-    setLocalEkler(prev => [...prev, yeniEk]);
-    setEkYukleniyor(false);
-    setYuklemePct(0);
-
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    try {
+      const yeniEk = await dosyaYukle(
+        gorev.id,
+        benimUid,
+        file,
+        pct => setYuklemePct(pct),
+        { projeId, actorAd: benimAd, actorFoto: benimFoto }
+      );
+      setLocalEkler(prev => [...prev, yeniEk]);
+    } catch (error) {
+      setIslemHatasi(error instanceof Error ? error.message : 'Dosya yüklenemedi.');
+    } finally {
+      setEkYukleniyor(false);
+      setYuklemePct(0);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   };
 
   const uyeToggle = async (uye: UyeRef) => {
@@ -284,7 +311,10 @@ export default function GorevDetayModal({
         padding: 'calc(14px + env(safe-area-inset-top)) 12px calc(20px + env(safe-area-inset-bottom))',
         overflowY: 'auto',
       }}
-      onClick={e => e.target === e.currentTarget && onKapat()}
+      onClick={e => e.target === e.currentTarget && !kaydetYukleniyor && !ekYukleniyor && onKapat()}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Görev detayları"
     >
       <style>{`
         .gdm-shell{
@@ -377,12 +407,12 @@ export default function GorevDetayModal({
           height:32px;
           border-radius:999px;
           flex-shrink:0;
-          background:var(--blue-soft);
+          background:rgba(255,177,27,.12);
           display:flex;
           align-items:center;
           justify-content:center;
           overflow:hidden;
-          color:var(--blue);
+          color:var(--amber);
           font-size:11px;
           font-weight:700;
         }
@@ -391,8 +421,8 @@ export default function GorevDetayModal({
           height:44px;
           border-radius:12px;
           border:1px solid var(--border);
-          background:var(--blue);
-          color:#fff;
+          background:linear-gradient(180deg,#ffc24a,#ffb11b);
+          color:#07111f;
           font-weight:700;
           cursor:pointer;
         }
@@ -424,6 +454,9 @@ export default function GorevDetayModal({
         .gdm-compose-row{min-width:0;}
         .gdm-compose-row .td-input{min-width:0;}
         .gdm-save-sticky{position:sticky; bottom:12px; z-index:4; box-shadow:0 14px 34px rgba(0,0,0,.28);}
+        .gdm-error{margin:12px 18px 0;padding:11px 12px;border-radius:14px;border:1px solid rgba(239,68,68,.24);background:rgba(239,68,68,.10);color:#fecaca;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;font-weight:750;}
+        .gdm-error button{width:28px;height:28px;flex-shrink:0;border:0;border-radius:9px;background:rgba(239,68,68,.12);color:#fecaca;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+        .gdm-close:disabled,.gdm-footer-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;}
         @media (max-width: 900px){
           .gdm-grid{
             grid-template-columns:1fr !important;
@@ -468,10 +501,17 @@ export default function GorevDetayModal({
             readOnly={!yetkili}
             className="gdm-head-input"
           />
-          <button onClick={onKapat} className="gdm-close">
+          <button onClick={onKapat} className="gdm-close" aria-label="Görev detayını kapat" disabled={kaydetYukleniyor || ekYukleniyor}>
             <X size={16} />
           </button>
         </div>
+
+        {!!islemHatasi && (
+          <div className="gdm-error" role="alert">
+            <span>{islemHatasi}</span>
+            <button onClick={() => setIslemHatasi('')} aria-label="Hata mesajını kapat"><X size={14} /></button>
+          </div>
+        )}
 
         <div className="gdm-grid">
           <div className="gdm-main">
@@ -501,10 +541,10 @@ export default function GorevDetayModal({
 
             <div className="gdm-block">
               <div style={sectionTitleRow}>
-                <CheckSquare size={14} style={{ color: 'var(--blue)' }} />
+                <CheckSquare size={14} style={{ color: 'var(--amber)' }} />
                 <span style={{ ...s, marginBottom: 0 }}>Checklist</span>
                 {checklist.length > 0 && (
-                  <span style={{ marginLeft: 'auto', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--blue)' }}>
+                  <span style={{ marginLeft: 'auto', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--amber)' }}>
                     %{checkPct}
                   </span>
                 )}
@@ -512,7 +552,7 @@ export default function GorevDetayModal({
 
               {checklist.length > 0 && (
                 <div style={{ height: 5, background: 'var(--border)', borderRadius: 99, overflow: 'hidden', marginBottom: 12 }}>
-                  <div style={{ height: '100%', width: `${checkPct}%`, background: 'var(--blue)', borderRadius: 99, transition: 'width .3s' }} />
+                  <div style={{ height: '100%', width: `${checkPct}%`, background: 'var(--amber)', borderRadius: 99, transition: 'width .3s' }} />
                 </div>
               )}
 
@@ -529,7 +569,7 @@ export default function GorevDetayModal({
                       type="checkbox"
                       checked={c.tamamlandi}
                       onChange={() => yetkili && checkToggle(c.id)}
-                      style={{ cursor: yetkili ? 'pointer' : 'default', accentColor: 'var(--blue)' }}
+                      style={{ cursor: yetkili ? 'pointer' : 'default', accentColor: 'var(--amber)' }}
                     />
                     <span
                       style={{
@@ -573,7 +613,7 @@ export default function GorevDetayModal({
 
             <div className="gdm-block">
               <div style={sectionTitleRow}>
-                <Paperclip size={14} style={{ color: 'var(--blue)' }} />
+                <Paperclip size={14} style={{ color: 'var(--amber)' }} />
                 <span style={{ ...s, marginBottom: 0 }}>Ekler</span>
 
                 {yetkili && (
@@ -589,7 +629,7 @@ export default function GorevDetayModal({
               {ekYukleniyor && (
                 <div style={{ marginBottom: 10 }}>
                   <div style={{ height: 5, background: 'var(--border)', borderRadius: 99, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${yuklemePct}%`, background: 'var(--blue)', borderRadius: 99, transition: 'width .2s' }} />
+                    <div style={{ height: '100%', width: `${yuklemePct}%`, background: 'var(--amber)', borderRadius: 99, transition: 'width .2s' }} />
                   </div>
                   <span style={{ fontSize: 11, color: 'var(--ink-4)', fontFamily: 'var(--font-mono)' }}>
                     Yükleniyor %{yuklemePct}
@@ -608,7 +648,7 @@ export default function GorevDetayModal({
                       style={{
                         flex: 1,
                         fontSize: 12,
-                        color: 'var(--blue)',
+                        color: 'var(--amber)',
                         textDecoration: 'none',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -649,7 +689,7 @@ export default function GorevDetayModal({
 
             <div className="gdm-block">
               <div style={sectionTitleRow}>
-                <Clock size={14} style={{ color: 'var(--blue)' }} />
+                <Clock size={14} style={{ color: 'var(--amber)' }} />
                 <span style={{ ...s, marginBottom: 0 }}>Aktivite Geçmişi</span>
               </div>
 
@@ -692,7 +732,7 @@ export default function GorevDetayModal({
 
             <div className="gdm-block" style={{ marginBottom: 0 }}>
               <div style={sectionTitleRow}>
-                <MessageSquare size={14} style={{ color: 'var(--blue)' }} />
+                <MessageSquare size={14} style={{ color: 'var(--amber)' }} />
                 <span style={{ ...s, marginBottom: 0 }}>Yorumlar</span>
               </div>
 
