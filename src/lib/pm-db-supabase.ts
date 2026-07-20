@@ -155,8 +155,24 @@ export async function projeEkle(uid: string, data: Omit<Proje, 'id' | 'olusturma
   return row;
 }
 
+export async function projeGuncelle(
+  projeId: string,
+  data: Partial<Pick<Proje, 'ad' | 'aciklama' | 'renk' | 'emoji'>>
+) {
+  const patch: Record<string, string> = {};
+  if (data.ad !== undefined) patch.ad = data.ad.trim();
+  if (data.aciklama !== undefined) patch.aciklama = data.aciklama.trim();
+  if (data.renk !== undefined) patch.renk = data.renk;
+  if (data.emoji !== undefined) patch.emoji = data.emoji;
+  if (!Object.keys(patch).length) return;
+
+  const { error } = await supabase.from('pm_projeler').update(patch).eq('id', projeId);
+  if (error) throw error;
+}
+
 export async function projeSil(projeId: string) {
-  await supabase.from('pm_projeler').delete().eq('id', projeId);
+  const { error } = await supabase.from('pm_projeler').delete().eq('id', projeId);
+  if (error) throw error;
 }
 
 export async function uyeDavetEt(projeId: string, email: string) {
@@ -167,7 +183,17 @@ export async function uyeDavetEt(projeId: string, email: string) {
     .eq('email', email)
     .maybeSingle();
   if (mevcut) return;
-  await supabase.from('pm_davetler').insert({ proje_id: projeId, email });
+  const { error } = await supabase.from('pm_davetler').insert({ proje_id: projeId, email });
+  if (error) throw error;
+}
+
+export async function projeDavetIptalEt(projeId: string, email: string) {
+  const { error } = await supabase
+    .from('pm_davetler')
+    .delete()
+    .eq('proje_id', projeId)
+    .eq('email', email.trim().toLowerCase());
+  if (error) throw error;
 }
 
 export interface BekleyenDavet {
@@ -271,7 +297,9 @@ export function gorevleriDinle(projeId: string, cb: (g: Gorev[]) => void): () =>
 export async function gorevEkle(
   uid: string,
   projeId: string,
-  data: Pick<Gorev, 'baslik' | 'aciklama' | 'durum' | 'oncelik' | 'termin' | 'etiketler' | 'checklistler'>,
+  data: Pick<Gorev, 'baslik' | 'aciklama' | 'durum' | 'oncelik' | 'termin' | 'etiketler' | 'checklistler'> & {
+    atananlar?: UyeRef[];
+  },
   activity?: { actorAd: string; actorFoto?: string }
 ) {
   const { data: row, error } = await supabase
@@ -279,9 +307,19 @@ export async function gorevEkle(
     .insert({
       proje_id: projeId,
       olusturan_uid: uid,
-      ...data,
+      baslik: data.baslik,
+      aciklama: data.aciklama,
+      durum: data.durum,
+      oncelik: data.oncelik,
       termin: data.termin || null,
-      atananlar: [],
+      etiketler: data.etiketler,
+      checklistler: data.checklistler,
+      atananlar: (data.atananlar ?? []).map((uye) => ({
+        uid: uye.uid,
+        email: uye.email,
+        displayName: uye.displayName,
+        photoURL: uye.photoURL || '',
+      })),
     })
     .select()
     .single();
