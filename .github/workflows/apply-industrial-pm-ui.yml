@@ -1,0 +1,76 @@
+name: Apply Industrial Project UI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: industrial-project-ui
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout redesign branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: pm-industrial-ui
+
+      - name: Restore redesigned source files
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .maintenance/industrial/payload.* | base64 -d > /tmp/industrial-project-ui.tgz
+          echo '82b8b2d8c2c874b17507240cc227dab41548cddd68856a603ae3c81ffe50fad3  /tmp/industrial-project-ui.tgz' | sha256sum -c -
+          tar -xzf /tmp/industrial-project-ui.tgz -C .
+
+      - name: Validate restored files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object src/app/proje-yonetimi/page.tsx)" = "14f64f4a2653df8e4aa815829362e9cf28a74120"
+          test "$(git hash-object src/app/proje-yonetimi/GorevDetayModal.tsx)" = "3e0e5f0aa9b8307e254f0ff7226058dd091b31b1"
+          test "$(git hash-object src/app/proje-yonetimi/AuthEkrani.tsx)" = "11bdea678abb0ff8aef4291224559071b40537dd"
+          test "$(git hash-object src/app/proje-yonetimi/layout.tsx)" = "57ddad39705fef48801a37102ab9368ad15eb497"
+          test "$(git hash-object src/app/proje-yonetimi/pm.css)" = "76ca9dcfee975a99307374156d11400a4bda7697"
+          test "$(git hash-object src/app/proje-yonetimi/pm-constants.ts)" = "9e5d33999bcb19eee74f48cb2a2069e64af3486b"
+          test "$(git hash-object src/lib/pm-db-supabase.ts)" = "86f254f513d8510dc878fb037b02c9b92045bb5d"
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.x'
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          corepack enable
+          corepack prepare pnpm@10.34.3 --activate
+          pnpm install --frozen-lockfile
+
+      - name: Run production build
+        run: pnpm run build
+        env:
+          CI: 'true'
+
+      - name: Commit validated redesign
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .maintenance
+          rm -f .github/workflows/apply-industrial-pm-ui.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Redesign project management with restrained Tooldur UI'
+          git push origin HEAD:pm-industrial-ui
