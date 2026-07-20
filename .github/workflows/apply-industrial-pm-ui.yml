@@ -37,13 +37,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git hash-object src/app/proje-yonetimi/page.tsx)" = "14f64f4a2653df8e4aa815829362e9cf28a74120"
-          test "$(git hash-object src/app/proje-yonetimi/GorevDetayModal.tsx)" = "3e0e5f0aa9b8307e254f0ff7226058dd091b31b1"
-          test "$(git hash-object src/app/proje-yonetimi/AuthEkrani.tsx)" = "11bdea678abb0ff8aef4291224559071b40537dd"
-          test "$(git hash-object src/app/proje-yonetimi/layout.tsx)" = "57ddad39705fef48801a37102ab9368ad15eb497"
-          test "$(git hash-object src/app/proje-yonetimi/pm.css)" = "76ca9dcfee975a99307374156d11400a4bda7697"
-          test "$(git hash-object src/app/proje-yonetimi/pm-constants.ts)" = "9e5d33999bcb19eee74f48cb2a2069e64af3486b"
-          test "$(git hash-object src/lib/pm-db-supabase.ts)" = "86f254f513d8510dc878fb037b02c9b92045bb5d"
+          echo '14f64f4a2653df8e4aa815829362e9cf28a74120  src/app/proje-yonetimi/page.tsx' | sha1sum -c -
+          echo '3e0e5f0aa9b8307e254f0ff7226058dd091b31b1  src/app/proje-yonetimi/GorevDetayModal.tsx' | sha1sum -c -
+          echo '11bdea678abb0ff8aef4291224559071b40537dd  src/app/proje-yonetimi/AuthEkrani.tsx' | sha1sum -c -
+          echo '57ddad39705fef48801a37102ab9368ad15eb497  src/app/proje-yonetimi/layout.tsx' | sha1sum -c -
+          echo '76ca9dcfee975a99307374156d11400a4bda7697  src/app/proje-yonetimi/pm.css' | sha1sum -c -
+          echo '9e5d33999bcb19eee74f48cb2a2069e64af3486b  src/app/proje-yonetimi/pm-constants.ts' | sha1sum -c -
+          echo '86f254f513d8510dc878fb037b02c9b92045bb5d  src/lib/pm-db-supabase.ts' | sha1sum -c -
 
       - name: Use Node.js 24
         uses: actions/setup-node@v4
