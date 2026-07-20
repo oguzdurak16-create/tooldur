@@ -1,0 +1,74 @@
+name: Apply Project Management Panel Upgrade
+
+on:
+  push:
+    branches:
+      - pm-panel-upgrade
+    paths:
+      - '.maintenance/pm-trigger'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pm-panel-upgrade
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout upgrade branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: pm-panel-upgrade
+
+      - name: Restore upgraded source files
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .maintenance/pm-page.* | base64 -d | gzip -d > src/app/proje-yonetimi/page.tsx
+          cat .maintenance/pm-gdm.* | base64 -d | gzip -d > src/app/proje-yonetimi/GorevDetayModal.tsx
+          cat .maintenance/pm-db.* | base64 -d | gzip -d > src/lib/pm-db-supabase.ts
+
+      - name: Validate restored files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object src/app/proje-yonetimi/page.tsx)" = "b0d53cd7ccf25c4bd81296b416e89533aa8b7ad8"
+          test "$(git hash-object src/app/proje-yonetimi/GorevDetayModal.tsx)" = "e56d106085b26a13828185c25df88fd1974e92a7"
+          test "$(git hash-object src/lib/pm-db-supabase.ts)" = "10c8496a6cc8ab424021d59c716c7bea33f567f1"
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.x'
+          cache: pnpm
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.34.3 --activate
+          pnpm install --frozen-lockfile
+
+      - name: Run production build
+        run: pnpm run build
+        env:
+          CI: 'true'
+
+      - name: Commit validated upgrade
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .maintenance
+          rm -f .github/workflows/apply-pm-panel-upgrade.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Improve project management panel UI and workflows'
+          git push origin HEAD:pm-panel-upgrade
