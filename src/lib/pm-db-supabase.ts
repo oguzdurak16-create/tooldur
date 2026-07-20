@@ -105,14 +105,17 @@ function dbToGorev(r: any): Gorev {
 
 /* ─── Projeler ─────────────────────────────────────────── */
 async function projeleriGetir(uid: string): Promise<Proje[]> {
-  const [{ data: sahip }, { data: uyeIds }] = await Promise.all([
+  const [{ data: sahip, error: sahipError }, { data: uyeIds, error: uyeError }] = await Promise.all([
     supabase.from('pm_projeler').select('*').eq('sahip_uid', uid).order('created_at', { ascending: false }),
     supabase.from('pm_proje_uyeler').select('proje_id').eq('user_id', uid),
   ]);
+  if (sahipError) throw sahipError;
+  if (uyeError) throw uyeError;
 
   let uyeProjeler: any[] = [];
   if (uyeIds?.length) {
-    const { data } = await supabase.from('pm_projeler').select('*').in('id', uyeIds.map((r: any) => r.proje_id));
+    const { data, error } = await supabase.from('pm_projeler').select('*').in('id', uyeIds.map((r: any) => r.proje_id));
+    if (error) throw error;
     uyeProjeler = data ?? [];
   }
 
@@ -120,30 +123,52 @@ async function projeleriGetir(uid: string): Promise<Proje[]> {
   const tekil = Array.from(new Map(all.map(p => [p.id, p])).values());
 
   return Promise.all(tekil.map(async p => {
-    const [{ data: uyeler }, { data: davetler }] = await Promise.all([
+    const [{ data: uyeler }, { data: davetler }, { data: sahipProfil }] = await Promise.all([
       supabase.from('pm_proje_uyeler').select('user_id, rol, pm_kullanici_profiller(uid,display_name,email,photo_url)').eq('proje_id', p.id),
       supabase.from('pm_davetler').select('email').eq('proje_id', p.id),
+      supabase.from('pm_kullanici_profiller').select('uid,display_name,email,photo_url').eq('uid', p.sahip_uid).maybeSingle(),
     ]);
+
+    const projeUyeleri: UyeRef[] = (uyeler ?? []).map((u: any) => ({
+      uid: u.user_id,
+      email: u.pm_kullanici_profiller?.email ?? '',
+      displayName: u.pm_kullanici_profiller?.display_name ?? '',
+      photoURL: u.pm_kullanici_profiller?.photo_url ?? '',
+      rol: (u.rol ?? 'uye') as 'sahip' | 'uye',
+    }));
+
+    if (!projeUyeleri.some((u) => u.uid === p.sahip_uid)) {
+      projeUyeleri.unshift({
+        uid: p.sahip_uid,
+        email: sahipProfil?.email ?? '',
+        displayName: sahipProfil?.display_name ?? sahipProfil?.email ?? 'Proje sahibi',
+        photoURL: sahipProfil?.photo_url ?? '',
+        rol: 'sahip',
+      });
+    }
+
     return dbToProje({
       ...p,
-      _uyeler: (uyeler ?? []).map((u: any) => ({
-        uid: u.user_id,
-        email: u.pm_kullanici_profiller?.email ?? '',
-        displayName: u.pm_kullanici_profiller?.display_name ?? '',
-        photoURL: u.pm_kullanici_profiller?.photo_url ?? '',
-        rol: (u.rol ?? 'uye') as 'sahip' | 'uye',
-      })),
+      _uyeler: projeUyeleri,
       _davetliler: (davetler ?? []).map((d: any) => d.email),
     });
   }));
 }
 
-export function projeleriDinle(uid: string, cb: (p: Proje[]) => void): () => void {
-  projeleriGetir(uid).then(cb);
+export function projeleriDinle(
+  uid: string,
+  cb: (p: Proje[]) => void,
+  onError?: (error: unknown) => void,
+): () => void {
+  const refresh = () => projeleriGetir(uid).then(cb).catch((error) => onError?.(error));
+  refresh();
   const ch = supabase.channel(`pm_proj_${uid}`)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'pm_projeler' }, () => projeleriGetir(uid).then(cb))
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'pm_proje_uyeler', filter: `user_id=eq.${uid}` }, () => projeleriGetir(uid).then(cb))
-    .subscribe();
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'pm_projeler' }, refresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'pm_proje_uyeler', filter: `user_id=eq.${uid}` }, refresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'pm_davetler' }, refresh)
+    .subscribe((status: string) => {
+      if (status === 'CHANNEL_ERROR') onError?.(new Error('Proje canlı bağlantısı kurulamadı.'));
+    });
   return () => { supabase.removeChannel(ch); };
 }
 
@@ -157,7 +182,7 @@ export async function projeEkle(uid: string, data: Omit<Proje, 'id' | 'olusturma
 
 export async function projeGuncelle(
   projeId: string,
-  data: Partial<Pick<Proje, 'ad' | 'aciklama' | 'renk' | 'emoji'>>
+  data: Partial<Pick<Proje, 'ad' | 'aciklama' | 'renk' | 'emoji'>>,
 ) {
   const patch: Record<string, string> = {};
   if (data.ad !== undefined) patch.ad = data.ad.trim();
@@ -165,7 +190,6 @@ export async function projeGuncelle(
   if (data.renk !== undefined) patch.renk = data.renk;
   if (data.emoji !== undefined) patch.emoji = data.emoji;
   if (!Object.keys(patch).length) return;
-
   const { error } = await supabase.from('pm_projeler').update(patch).eq('id', projeId);
   if (error) throw error;
 }
@@ -188,11 +212,7 @@ export async function uyeDavetEt(projeId: string, email: string) {
 }
 
 export async function projeDavetIptalEt(projeId: string, email: string) {
-  const { error } = await supabase
-    .from('pm_davetler')
-    .delete()
-    .eq('proje_id', projeId)
-    .eq('email', email.trim().toLowerCase());
+  const { error } = await supabase.from('pm_davetler').delete().eq('proje_id', projeId).eq('email', email);
   if (error) throw error;
 }
 
@@ -205,17 +225,19 @@ export interface BekleyenDavet {
 }
 
 export async function bekleyenDavetleriGetir(email: string): Promise<BekleyenDavet[]> {
-  const { data: davetRows } = await supabase
+  const { data: davetRows, error: davetError } = await supabase
     .from('pm_davetler')
     .select('proje_id, email')
     .eq('email', email);
+  if (davetError) throw davetError;
   if (!davetRows?.length) return [];
 
   const projeIds = davetRows.map((d: any) => d.proje_id);
-  const { data: projeler } = await supabase
+  const { data: projeler, error: projelerError } = await supabase
     .from('pm_projeler')
     .select('id, ad, emoji, sahip_uid')
     .in('id', projeIds);
+  if (projelerError) throw projelerError;
 
   type ProjeDavetRow = { id: string; ad?: string | null; emoji?: string | null; sahip_uid?: string | null };
   const projeMap = new Map<string, ProjeDavetRow>(
@@ -250,26 +272,33 @@ export async function bekleyenDavetleriGetir(email: string): Promise<BekleyenDav
 }
 
 export async function davetiKabulEt(projeId: string, uid: string, email: string, displayName: string) {
-  await supabase.from('pm_proje_uyeler').upsert({ proje_id: projeId, user_id: uid, rol: 'uye' });
-  await supabase.from('pm_davetler').delete().eq('proje_id', projeId).eq('email', email);
-  await supabase.from('pm_kullanici_profiller').upsert({
+  const { error: memberError } = await supabase.from('pm_proje_uyeler').upsert({ proje_id: projeId, user_id: uid, rol: 'uye' });
+  if (memberError) throw memberError;
+  const { error: inviteError } = await supabase.from('pm_davetler').delete().eq('proje_id', projeId).eq('email', email);
+  if (inviteError) throw inviteError;
+  const { error: profileError } = await supabase.from('pm_kullanici_profiller').upsert({
     uid, email, display_name: displayName, updated_at: new Date().toISOString(),
   });
+  if (profileError) throw profileError;
 }
 
 export async function davetiReddet(projeId: string, email: string) {
-  await supabase.from('pm_davetler').delete().eq('proje_id', projeId).eq('email', email);
+  const { error } = await supabase.from('pm_davetler').delete().eq('proje_id', projeId).eq('email', email);
+  if (error) throw error;
 }
 
 /* ─── Görevler ─────────────────────────────────────────── */
 async function gorevleriTamGetir(projeId: string): Promise<Gorev[]> {
-  const { data: gorevler } = await supabase.from('pm_gorevler').select('*').eq('proje_id', projeId).order('created_at');
+  const { data: gorevler, error: gorevError } = await supabase.from('pm_gorevler').select('*').eq('proje_id', projeId).order('created_at');
+  if (gorevError) throw gorevError;
   if (!gorevler?.length) return [];
   const ids = gorevler.map((g: any) => g.id);
-  const [{ data: yorumlar }, { data: ekler }] = await Promise.all([
+  const [{ data: yorumlar, error: yorumError }, { data: ekler, error: ekError }] = await Promise.all([
     supabase.from('pm_yorumlar').select('*').in('gorev_id', ids).order('created_at'),
     supabase.from('pm_ekler').select('*').in('gorev_id', ids).order('created_at'),
   ]);
+  if (yorumError) throw yorumError;
+  if (ekError) throw ekError;
   return gorevler.map((g: any) => dbToGorev({
     ...g,
     _atananlar: (g.atananlar ?? []),
@@ -284,22 +313,27 @@ async function gorevleriTamGetir(projeId: string): Promise<Gorev[]> {
   }));
 }
 
-export function gorevleriDinle(projeId: string, cb: (g: Gorev[]) => void): () => void {
-  gorevleriTamGetir(projeId).then(cb);
+export function gorevleriDinle(
+  projeId: string,
+  cb: (g: Gorev[]) => void,
+  onError?: (error: unknown) => void,
+): () => void {
+  const refresh = () => gorevleriTamGetir(projeId).then(cb).catch((error) => onError?.(error));
+  refresh();
   const ch = supabase.channel(`pm_gorev_${projeId}`)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'pm_gorevler', filter: `proje_id=eq.${projeId}` }, () => gorevleriTamGetir(projeId).then(cb))
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'pm_yorumlar' }, () => gorevleriTamGetir(projeId).then(cb))
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'pm_ekler' }, () => gorevleriTamGetir(projeId).then(cb))
-    .subscribe();
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'pm_gorevler', filter: `proje_id=eq.${projeId}` }, refresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'pm_yorumlar' }, refresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'pm_ekler' }, refresh)
+    .subscribe((status: string) => {
+      if (status === 'CHANNEL_ERROR') onError?.(new Error('Görev canlı bağlantısı kurulamadı.'));
+    });
   return () => { supabase.removeChannel(ch); };
 }
 
 export async function gorevEkle(
   uid: string,
   projeId: string,
-  data: Pick<Gorev, 'baslik' | 'aciklama' | 'durum' | 'oncelik' | 'termin' | 'etiketler' | 'checklistler'> & {
-    atananlar?: UyeRef[];
-  },
+  data: Pick<Gorev, 'baslik' | 'aciklama' | 'durum' | 'oncelik' | 'termin' | 'etiketler' | 'checklistler'> & { atananlar?: UyeRef[] },
   activity?: { actorAd: string; actorFoto?: string }
 ) {
   const { data: row, error } = await supabase
@@ -314,11 +348,11 @@ export async function gorevEkle(
       termin: data.termin || null,
       etiketler: data.etiketler,
       checklistler: data.checklistler,
-      atananlar: (data.atananlar ?? []).map((uye) => ({
-        uid: uye.uid,
-        email: uye.email,
-        displayName: uye.displayName,
-        photoURL: uye.photoURL || '',
+      atananlar: (data.atananlar ?? []).map((a) => ({
+        uid: a.uid,
+        email: a.email,
+        displayName: a.displayName,
+        photoURL: a.photoURL || '',
       })),
     })
     .select()
@@ -363,7 +397,8 @@ export async function gorevGuncelle(gorevId: string, data: Partial<Pick<Gorev, '
 }
 
 export async function gorevSil(gorevId: string) {
-  await supabase.from('pm_gorevler').delete().eq('id', gorevId);
+  const { error } = await supabase.from('pm_gorevler').delete().eq('id', gorevId);
+  if (error) throw error;
 }
 
 /* ─── Yorumlar ─────────────────────────────────────────── */
@@ -512,11 +547,12 @@ export async function ekSilVeLogla(params: {
 export async function kullanicilariAra(query: string, mevcutUyeUidler: string[]): Promise<UyeRef[]> {
   if (!query.trim() || query.length < 2) return [];
 
-  const { data: profil } = await supabase
+  const { data: profil, error } = await supabase
     .from('pm_kullanici_profiller')
     .select('uid, display_name, email, photo_url')
     .or(`display_name.ilike.%${query}%,email.ilike.%${query}%`)
     .limit(10);
+  if (error) throw error;
 
   return (profil ?? [])
     .filter((u: any) => !mevcutUyeUidler.includes(u.uid))
@@ -529,12 +565,15 @@ export async function kullanicilariAra(query: string, mevcutUyeUidler: string[])
 }
 
 export async function projeUyeEkle(projeId: string, uye: UyeRef) {
-  await supabase.from('pm_proje_uyeler').upsert({ proje_id: projeId, user_id: uye.uid, rol: 'uye' });
-  await supabase.from('pm_davetler').delete().eq('proje_id', projeId).eq('email', uye.email);
+  const { error: memberError } = await supabase.from('pm_proje_uyeler').upsert({ proje_id: projeId, user_id: uye.uid, rol: 'uye' });
+  if (memberError) throw memberError;
+  const { error: inviteError } = await supabase.from('pm_davetler').delete().eq('proje_id', projeId).eq('email', uye.email);
+  if (inviteError) throw inviteError;
 }
 
 export async function projeUyeKaldir(projeId: string, userId: string) {
-  await supabase.from('pm_proje_uyeler').delete().eq('proje_id', projeId).eq('user_id', userId);
+  const { error } = await supabase.from('pm_proje_uyeler').delete().eq('proje_id', projeId).eq('user_id', userId);
+  if (error) throw error;
 }
 
 /* ─── Kullanıcı Profilini Güncelle ────────────────────── */

@@ -1,20 +1,30 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import {
-  X, Plus, Trash2, Paperclip, MessageSquare, CheckSquare,
-  Upload, File as FileIcon, Clock
-} from 'lucide-react';
-import type { Gorev, Yorum, CheckItem, Ek, UyeRef, PmAktivite } from './pm-types';
+  Check,
+  CheckSquare,
+  Clock,
+  File as FileIcon,
+  MessageSquare,
+  Paperclip,
+  Plus,
+  Send,
+  Trash2,
+  Upload,
+  X,
+} from "lucide-react";
+
 import {
-  gorevGuncelle,
-  yorumEkle,
   dosyaYukle,
   ekSilVeLogla,
   gorevAktivitesiEkle,
   gorevAktiviteleriniDinle,
-} from '@/lib/pm-db-supabase';
-import { KOLONLAR, ONCELIK_MAP } from './pm-constants';
+  gorevGuncelle,
+  yorumEkle,
+} from "@/lib/pm-db-supabase";
+import { KOLONLAR, ONCELIK_MAP } from "./pm-constants";
+import type { CheckItem, Ek, Gorev, PmAktivite, UyeRef, Yorum } from "./pm-types";
 
 interface Props {
   gorev: Gorev;
@@ -27,6 +37,30 @@ interface Props {
   onKapat: () => void;
 }
 
+function normalizeError(error: unknown, fallback: string) {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === "string" && error.trim()) return error;
+  return fallback;
+}
+
+function PersonAvatar({ name, photo, size = 32 }: { name: string; photo?: string; size?: number }) {
+  const fallback = (name || "?").split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+  return (
+    <span className="pm-avatar" style={{ width: size, height: size, fontSize: Math.max(8, size * .3) }}>
+      {photo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={photo} alt="" loading="lazy" />
+      ) : fallback}
+    </span>
+  );
+}
+
+function formatTimestamp(value?: string) {
+  if (!value) return "";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "" : date.toLocaleString("tr-TR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
 export default function GorevDetayModal({
   gorev,
   projeId,
@@ -37,874 +71,397 @@ export default function GorevDetayModal({
   benimFoto,
   onKapat,
 }: Props) {
-  const atanmis = (gorev.atananlar ?? []).some(a => a.uid === benimUid);
-  const yetkili = benimUid === sahipUid || atanmis;
+  const assignedToMe = (gorev.atananlar ?? []).some((member) => member.uid === benimUid);
+  const authorized = benimUid === sahipUid || assignedToMe;
 
-  const [baslik, setBaslik] = useState(gorev.baslik);
-  const [aciklama, setAciklama] = useState(gorev.aciklama ?? '');
-  const [durum, setDurum] = useState(gorev.durum);
-  const [oncelik, setOncelik] = useState(gorev.oncelik);
-  const [termin, setTermin] = useState(gorev.termin ?? '');
-  const [atananlar, setAtananlar] = useState<UyeRef[]>(gorev.atananlar ?? []);
-  const [etiketler, setEtiketler] = useState<string[]>(gorev.etiketler ?? []);
-  const [yeniEtiket, setYeniEtiket] = useState('');
+  const [title, setTitle] = useState(gorev.baslik);
+  const [description, setDescription] = useState(gorev.aciklama ?? "");
+  const [status, setStatus] = useState(gorev.durum);
+  const [priority, setPriority] = useState(gorev.oncelik);
+  const [dueDate, setDueDate] = useState(gorev.termin ?? "");
+  const [assignees, setAssignees] = useState<UyeRef[]>(gorev.atananlar ?? []);
+  const [tags, setTags] = useState<string[]>(gorev.etiketler ?? []);
+  const [newTag, setNewTag] = useState("");
   const [checklist, setChecklist] = useState<CheckItem[]>(gorev.checklistler ?? []);
-  const [yeniCheckMetin, setYeniCheckMetin] = useState('');
-  const [yorumMetni, setYorumMetni] = useState('');
-  const [ekYukleniyor, setEkYukleniyor] = useState(false);
-  const [localEkler, setLocalEkler] = useState<Ek[]>(gorev.ekler ?? []);
-  const [localYorumlar, setLocalYorumlar] = useState<Yorum[]>(gorev.yorumlar ?? []);
-  const [yuklemePct, setYuklemePct] = useState(0);
-  const [kaydetYukleniyor, setKaydetYukleniyor] = useState(false);
-  const [aktiviteler, setAktiviteler] = useState<PmAktivite[]>([]);
-  const [islemHatasi, setIslemHatasi] = useState('');
-
+  const [newCheck, setNewCheck] = useState("");
+  const [comment, setComment] = useState("");
+  const [files, setFiles] = useState<Ek[]>(gorev.ekler ?? []);
+  const [comments, setComments] = useState<Yorum[]>(gorev.yorumlar ?? []);
+  const [activities, setActivities] = useState<PmAktivite[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [commentSending, setCommentSending] = useState(false);
+  const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const oncekiOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const escapeKapat = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !kaydetYukleniyor && !ekYukleniyor) onKapat();
-    };
-    window.addEventListener('keydown', escapeKapat);
-
-    return () => {
-      document.body.style.overflow = oncekiOverflow;
-      window.removeEventListener('keydown', escapeKapat);
-    };
-  }, [ekYukleniyor, kaydetYukleniyor, onKapat]);
+    setTitle(gorev.baslik);
+    setDescription(gorev.aciklama ?? "");
+    setStatus(gorev.durum);
+    setPriority(gorev.oncelik);
+    setDueDate(gorev.termin ?? "");
+    setAssignees(gorev.atananlar ?? []);
+    setTags(gorev.etiketler ?? []);
+    setChecklist(gorev.checklistler ?? []);
+    setFiles(gorev.ekler ?? []);
+    setComments(gorev.yorumlar ?? []);
+  }, [gorev]);
 
   useEffect(() => {
-    const unsub = gorevAktiviteleriniDinle(gorev.id, setAktiviteler);
-    return () => unsub?.();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !saving && !uploading) onKapat();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [onKapat, saving, uploading]);
+
+  useEffect(() => {
+    const unsubscribe = gorevAktiviteleriniDinle(gorev.id, setActivities);
+    return () => unsubscribe?.();
   }, [gorev.id]);
 
-  const aktiviteEkle = async (tip: PmAktivite['tip'], aciklamaText: string) => {
+  const completion = useMemo(() => checklist.length ? Math.round((checklist.filter((item) => item.tamamlandi).length / checklist.length) * 100) : 0, [checklist]);
+
+  const logActivity = async (tip: PmAktivite["tip"], text: string) => {
     await gorevAktivitesiEkle({
       projeId,
       gorevId: gorev.id,
       tip,
-      aciklama: aciklamaText,
+      aciklama: text,
       actorUid: benimUid,
       actorAd: benimAd,
       actorFoto: benimFoto,
     });
   };
 
-  const kaydet = async () => {
-    if (!baslik.trim()) {
-      setIslemHatasi('Görev başlığı boş bırakılamaz.');
-      return;
-    }
-
-    setKaydetYukleniyor(true);
-    setIslemHatasi('');
-
+  const save = async () => {
+    if (!authorized || !title.trim()) return;
+    setSaving(true);
+    setError("");
     try {
-      const degisenler: string[] = [];
-      if (gorev.baslik !== baslik.trim()) degisenler.push('başlık');
-      if ((gorev.aciklama ?? '') !== aciklama) degisenler.push('açıklama');
-      if (gorev.durum !== durum) degisenler.push('durum');
-      if (gorev.oncelik !== oncelik) degisenler.push('öncelik');
-      if ((gorev.termin ?? '') !== termin) degisenler.push('termin');
-      if (JSON.stringify(gorev.etiketler ?? []) !== JSON.stringify(etiketler)) degisenler.push('etiketler');
-
-      const oncekiAtanan = JSON.stringify((gorev.atananlar ?? []).map(a => a.uid).sort());
-      const yeniAtanan = JSON.stringify((atananlar ?? []).map(a => a.uid).sort());
-      if (oncekiAtanan !== yeniAtanan) degisenler.push('atananlar');
+      const changed: string[] = [];
+      if (gorev.baslik !== title.trim()) changed.push("başlık");
+      if ((gorev.aciklama ?? "") !== description.trim()) changed.push("açıklama");
+      if (gorev.durum !== status) changed.push("durum");
+      if (gorev.oncelik !== priority) changed.push("öncelik");
+      if ((gorev.termin ?? "") !== dueDate) changed.push("termin");
+      if (JSON.stringify(gorev.etiketler ?? []) !== JSON.stringify(tags)) changed.push("etiketler");
+      if (JSON.stringify((gorev.atananlar ?? []).map((item) => item.uid).sort()) !== JSON.stringify(assignees.map((item) => item.uid).sort())) changed.push("sorumlular");
 
       await gorevGuncelle(gorev.id, {
-        baslik: baslik.trim(),
-        aciklama,
-        durum,
-        oncelik,
-        termin,
-        atananlar,
-        etiketler,
+        baslik: title.trim(),
+        aciklama: description.trim(),
+        durum: status,
+        oncelik: priority,
+        termin: dueDate,
+        atananlar: assignees,
+        etiketler: tags,
         checklistler: checklist,
       });
 
-      if (degisenler.length > 0) {
-        if (gorev.durum !== durum) {
-          await aktiviteEkle(
-            'durum_degisti',
-            `Durum değişti: ${KOLONLAR.find(k => k.id === gorev.durum)?.label || gorev.durum} → ${KOLONLAR.find(k => k.id === durum)?.label || durum}`
-          );
-        } else {
-          await aktiviteEkle('gorev_guncellendi', `Görev güncellendi: ${degisenler.join(', ')}`);
-        }
+      if (gorev.durum !== status) {
+        const oldStatus = KOLONLAR.find((item) => item.id === gorev.durum)?.label ?? gorev.durum;
+        const newStatus = KOLONLAR.find((item) => item.id === status)?.label ?? status;
+        await logActivity("durum_degisti", `Durum değişti: ${oldStatus} → ${newStatus}`);
+      } else if (changed.length) {
+        await logActivity("gorev_guncellendi", `Görev güncellendi: ${changed.join(", ")}`);
       }
-
       onKapat();
-    } catch (error) {
-      setIslemHatasi(error instanceof Error ? error.message : 'Görev kaydedilemedi. Lütfen tekrar deneyin.');
+    } catch (err) {
+      setError(normalizeError(err, "Görev kaydedilemedi."));
     } finally {
-      setKaydetYukleniyor(false);
+      setSaving(false);
     }
   };
 
-  const checkEkle = async () => {
-    if (!yeniCheckMetin.trim()) return;
+  const persistChecklist = async (next: CheckItem[], activityText: string) => {
+    setChecklist(next);
+    try {
+      await gorevGuncelle(gorev.id, { checklistler: next });
+      await logActivity("checklist_degisti", activityText);
+    } catch (err) {
+      setChecklist(checklist);
+      setError(normalizeError(err, "Checklist güncellenemedi."));
+    }
+  };
 
-    const yeni: CheckItem = {
+  const addCheck = async () => {
+    const text = newCheck.trim();
+    if (!authorized || !text) return;
+    const item: CheckItem = { id: crypto.randomUUID(), metin: text, tamamlandi: false };
+    setNewCheck("");
+    await persistChecklist([...checklist, item], `Checklist maddesi eklendi: ${text}`);
+  };
+
+  const toggleCheck = async (id: string) => {
+    if (!authorized) return;
+    const target = checklist.find((item) => item.id === id);
+    const next = checklist.map((item) => item.id === id ? { ...item, tamamlandi: !item.tamamlandi } : item);
+    await persistChecklist(next, target ? `Checklist güncellendi: ${target.metin}` : "Checklist güncellendi");
+  };
+
+  const removeCheck = async (id: string) => {
+    if (!authorized) return;
+    const target = checklist.find((item) => item.id === id);
+    await persistChecklist(checklist.filter((item) => item.id !== id), target ? `Checklist maddesi silindi: ${target.metin}` : "Checklist maddesi silindi");
+  };
+
+  const toggleAssignee = async (member: UyeRef) => {
+    if (!authorized) return;
+    const exists = assignees.some((item) => item.uid === member.uid);
+    const next = exists ? assignees.filter((item) => item.uid !== member.uid) : [...assignees, member];
+    setAssignees(next);
+    try {
+      await gorevGuncelle(gorev.id, { atananlar: next });
+      await logActivity("gorev_guncellendi", exists ? `${member.displayName || member.email} görevden çıkarıldı` : `${member.displayName || member.email} göreve atandı`);
+    } catch (err) {
+      setAssignees(assignees);
+      setError(normalizeError(err, "Sorumlu listesi güncellenemedi."));
+    }
+  };
+
+  const addTag = () => {
+    if (!authorized) return;
+    const tag = newTag.trim().toLocaleLowerCase("tr-TR").replace(/^#/, "");
+    if (!tag || tags.includes(tag)) {
+      setNewTag("");
+      return;
+    }
+    setTags([...tags, tag]);
+    setNewTag("");
+  };
+
+  const sendComment = async () => {
+    const text = comment.trim();
+    if (!authorized || !text || commentSending) return;
+    setCommentSending(true);
+    setError("");
+    const optimistic: Yorum = {
       id: crypto.randomUUID(),
-      metin: yeniCheckMetin.trim(),
-      tamamlandi: false,
-    };
-
-    const liste = [...checklist, yeni];
-    setChecklist(liste);
-    setYeniCheckMetin('');
-
-    await gorevGuncelle(gorev.id, { checklistler: liste });
-    await aktiviteEkle('checklist_degisti', `Checklist maddesi eklendi: ${yeni.metin}`);
-  };
-
-  const checkToggle = async (id: string) => {
-    const hedef = checklist.find(c => c.id === id);
-    const liste = checklist.map(c =>
-      c.id === id ? { ...c, tamamlandi: !c.tamamlandi } : c
-    );
-
-    setChecklist(liste);
-    await gorevGuncelle(gorev.id, { checklistler: liste });
-    await aktiviteEkle(
-      'checklist_degisti',
-      hedef ? `Checklist güncellendi: ${hedef.metin}` : 'Checklist güncellendi'
-    );
-  };
-
-  const checkSil = async (id: string) => {
-    const hedef = checklist.find(c => c.id === id);
-    const liste = checklist.filter(c => c.id !== id);
-
-    setChecklist(liste);
-    await gorevGuncelle(gorev.id, { checklistler: liste });
-    await aktiviteEkle(
-      'checklist_degisti',
-      hedef ? `Checklist maddesi silindi: ${hedef.metin}` : 'Checklist maddesi silindi'
-    );
-  };
-
-  const checkPct = checklist.length
-    ? Math.round((checklist.filter(c => c.tamamlandi).length / checklist.length) * 100)
-    : 0;
-
-  const yorumGonder = async () => {
-    if (!yorumMetni.trim()) return;
-
-    const yeniYorum: Yorum = {
-      id: crypto.randomUUID(),
-      metin: yorumMetni.trim(),
+      metin: text,
       yazarUid: benimUid,
       yazarAd: benimAd,
       yazarFoto: benimFoto,
       tarih: new Date().toISOString(),
     };
-
-    setIslemHatasi('');
     try {
-      await yorumEkle(gorev.id, benimUid, benimAd, benimFoto, yorumMetni.trim(), projeId);
-      setLocalYorumlar(prev => [...prev, yeniYorum]);
-      setYorumMetni('');
-    } catch (error) {
-      setIslemHatasi(error instanceof Error ? error.message : 'Yorum gönderilemedi.');
+      await yorumEkle(gorev.id, benimUid, benimAd, benimFoto, text, projeId);
+      setComments((current) => [...current, optimistic]);
+      setComment("");
+    } catch (err) {
+      setError(normalizeError(err, "Yorum gönderilemedi."));
+    } finally {
+      setCommentSending(false);
     }
   };
 
-  const dosyaSec = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const uploadFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!authorized || !file) return;
     if (file.size > 10 * 1024 * 1024) {
-      setIslemHatasi('Maksimum dosya boyutu 10 MB.');
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      setError("Maksimum dosya boyutu 10 MB.");
+      event.target.value = "";
       return;
     }
-
-    setEkYukleniyor(true);
-    setIslemHatasi('');
-
+    setUploading(true);
+    setUploadProgress(0);
+    setError("");
     try {
-      const yeniEk = await dosyaYukle(
+      const uploaded = await dosyaYukle(
         gorev.id,
         benimUid,
         file,
-        pct => setYuklemePct(pct),
-        { projeId, actorAd: benimAd, actorFoto: benimFoto }
+        setUploadProgress,
+        { projeId, actorAd: benimAd, actorFoto: benimFoto },
       );
-      setLocalEkler(prev => [...prev, yeniEk]);
-    } catch (error) {
-      setIslemHatasi(error instanceof Error ? error.message : 'Dosya yüklenemedi.');
+      setFiles((current) => [...current, uploaded]);
+    } catch (err) {
+      setError(normalizeError(err, "Dosya yüklenemedi."));
     } finally {
-      setEkYukleniyor(false);
-      setYuklemePct(0);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      setUploading(false);
+      setUploadProgress(0);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
-  const uyeToggle = async (uye: UyeRef) => {
-    const varMi = atananlar.find(a => a.uid === uye.uid);
-    const yeniListe = varMi
-      ? atananlar.filter(a => a.uid !== uye.uid)
-      : [...atananlar, uye];
-
-    setAtananlar(yeniListe);
-    await gorevGuncelle(gorev.id, { atananlar: yeniListe });
-
-    await aktiviteEkle(
-      'gorev_guncellendi',
-      varMi
-        ? `${uye.displayName || uye.email} görevden çıkarıldı`
-        : `${uye.displayName || uye.email} göreve atandı`
-    );
-  };
-
-  const etiketEkle = () => {
-    const e = yeniEtiket.trim().toLowerCase();
-
-    if (!e || etiketler.includes(e)) {
-      setYeniEtiket('');
-      return;
+  const removeFile = async (file: Ek) => {
+    if (!authorized || !window.confirm(`"${file.ad}" silinsin mi?`)) return;
+    setError("");
+    try {
+      await ekSilVeLogla({
+        ekId: file.id,
+        url: file.url,
+        projeId,
+        gorevId: gorev.id,
+        actorUid: benimUid,
+        actorAd: benimAd,
+        actorFoto: benimFoto,
+        dosyaAdi: file.ad,
+      });
+      setFiles((current) => current.filter((item) => item.id !== file.id));
+    } catch (err) {
+      setError(normalizeError(err, "Dosya silinemedi."));
     }
-
-    setEtiketler([...etiketler, e]);
-    setYeniEtiket('');
-  };
-
-  const s = {
-    fontSize: 11,
-    fontFamily: 'var(--font-mono)',
-    letterSpacing: '.08em',
-    color: 'var(--ink-3)',
-    textTransform: 'uppercase' as const,
-    display: 'block',
-    marginBottom: 8,
-  };
-
-  const cardStyle: React.CSSProperties = {
-    background: 'var(--bg-muted)',
-    border: '1px solid var(--border)',
-    borderRadius: 12,
-  };
-
-  const sectionTitleRow: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        top: 0,
-        background: 'rgba(0,0,0,.45)',
-        backdropFilter: 'blur(4px)',
-        zIndex: 100000,
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        padding: 'calc(14px + env(safe-area-inset-top)) 12px calc(20px + env(safe-area-inset-bottom))',
-        overflowY: 'auto',
-      }}
-      onClick={e => e.target === e.currentTarget && !kaydetYukleniyor && !ekYukleniyor && onKapat()}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Görev detayları"
-    >
-      <style>{`
-        .gdm-shell{
-          width:min(1080px,100%);
-          max-width:100%;
-          max-height:calc(100svh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-          border-radius:24px;
-          overflow:auto;
-          overscroll-behavior:contain;
-          border:1px solid var(--border);
-          background:var(--bg-card);
-          box-shadow:var(--shadow-lg);
-        }
-        .gdm-head{
-          display:flex;
-          align-items:center;
-          gap:12px;
-          padding:16px 18px;
-          border-bottom:1px solid var(--border);
-          background:linear-gradient(180deg,var(--bg-card),var(--bg-muted));
-          position:sticky;
-          top:0;
-          z-index:5;
-        }
-        .gdm-head-input{
-          flex:1;
-          min-width:0;
-          font-family:var(--font-sans);
-          font-size:18px;
-          font-weight:700;
-          color:var(--ink);
-          background:none;
-          border:none;
-          outline:none;
-        }
-        .gdm-close{
-          position:relative;
-          z-index:10;
-          width:42px;
-          height:42px;
-          border-radius:12px;
-          border:1px solid var(--border);
-          background:var(--bg-muted);
-          color:var(--ink-3);
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          cursor:pointer;
-          flex-shrink:0;
-        }
-        .gdm-grid{
-          display:grid;
-          grid-template-columns:minmax(0,1fr) 300px;
-        }
-        .gdm-main{
-          padding:22px;
-          min-width:0;
-        }
-        .gdm-side{
-          padding:22px;
-          border-left:1px solid var(--border);
-          background:linear-gradient(180deg,var(--bg-card),var(--bg-muted));
-        }
-        .gdm-block{
-          margin-bottom:22px;
-        }
-        .gdm-list-item{
-          display:flex;
-          align-items:center;
-          gap:8px;
-          padding:8px 10px;
-          border-bottom:1px solid var(--border);
-          background:transparent;
-        }
-        .gdm-subtle{
-          font-size:12px;
-          color:var(--ink-4);
-        }
-        .gdm-comment,
-        .gdm-activity{
-          display:flex;
-          gap:10px;
-          padding:10px 12px;
-          background:var(--bg-muted);
-          border:1px solid var(--border);
-          border-radius:12px;
-        }
-        .gdm-avatar{
-          width:32px;
-          height:32px;
-          border-radius:999px;
-          flex-shrink:0;
-          background:rgba(255,177,27,.12);
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          overflow:hidden;
-          color:var(--amber);
-          font-size:11px;
-          font-weight:700;
-        }
-        .gdm-footer-btn{
-          width:100%;
-          height:44px;
-          border-radius:12px;
-          border:1px solid var(--border);
-          background:linear-gradient(180deg,#ffc24a,#ffb11b);
-          color:#07111f;
-          font-weight:700;
-          cursor:pointer;
-        }
-        .gdm-mini-btn{
-          height:34px;
-          min-width:34px;
-          padding:0 10px;
-          border-radius:10px;
-          border:1px solid var(--border);
-          background:var(--bg-muted);
-          color:var(--ink-2);
-          cursor:pointer;
-          display:inline-flex;
-          align-items:center;
-          justify-content:center;
-          gap:6px;
-        }
-        .gdm-tag{
-          display:inline-flex;
-          align-items:center;
-          gap:4px;
-          padding:5px 9px;
-          border-radius:999px;
-          background:var(--bg-muted);
-          border:1px solid var(--border);
-          font-size:11px;
-          color:var(--ink-2);
-        }
-        .gdm-compose-row{min-width:0;}
-        .gdm-compose-row .td-input{min-width:0;}
-        .gdm-save-sticky{position:sticky; bottom:12px; z-index:4; box-shadow:0 14px 34px rgba(0,0,0,.28);}
-        .gdm-error{margin:12px 18px 0;padding:11px 12px;border-radius:14px;border:1px solid rgba(239,68,68,.24);background:rgba(239,68,68,.10);color:#fecaca;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;font-weight:750;}
-        .gdm-error button{width:28px;height:28px;flex-shrink:0;border:0;border-radius:9px;background:rgba(239,68,68,.12);color:#fecaca;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-        .gdm-close:disabled,.gdm-footer-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;}
-        @media (max-width: 900px){
-          .gdm-grid{
-            grid-template-columns:1fr !important;
-          }
-          .gdm-side{
-            border-left:none;
-            border-top:1px solid var(--border);
-          }
-        }
-        @media (max-width: 640px){
-          .gdm-shell{
-            width:100%;
-            max-width:none;
-            max-height:calc(100svh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-            border-radius:0;
-          }
-          .gdm-head{
-            padding:14px;
-          }
-          .gdm-head-input{
-            font-size:16px;
-          }
-          .gdm-main,
-          .gdm-side{
-            padding:16px;
-          }
-          .gdm-side{padding-bottom:calc(24px + env(safe-area-inset-bottom));}
-          .gdm-compose-row{display:grid !important; grid-template-columns:minmax(0,1fr) auto; align-items:center;}
-          .gdm-compose-row .gdm-mini-btn{min-width:44px; height:42px;}
-          .gdm-comment,
-          .gdm-activity{
-            padding:10px;
-          }
-        }
-      `}</style>
+    <div className="pmd-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && !saving && onKapat()}>
+      <section className="pmd-shell" role="dialog" aria-modal="true" aria-label="Görev detayları">
+        <header className="pmd-header">
+          <input className="pmd-title-input" value={title} onChange={(event) => authorized && setTitle(event.target.value)} readOnly={!authorized} maxLength={160} aria-label="Görev başlığı" />
+          <button type="button" className="pm-icon-button" onClick={onKapat} disabled={saving || uploading} aria-label="Görev detayını kapat"><X size={17} /></button>
+        </header>
 
-      <div className="gdm-shell">
-        <div className="gdm-head">
-          <input
-            value={baslik}
-            onChange={e => yetkili && setBaslik(e.target.value)}
-            readOnly={!yetkili}
-            className="gdm-head-input"
-          />
-          <button onClick={onKapat} className="gdm-close" aria-label="Görev detayını kapat" disabled={kaydetYukleniyor || ekYukleniyor}>
-            <X size={16} />
-          </button>
-        </div>
+        <div className="pmd-layout">
+          <div className="pmd-main">
+            {error && <div className="pm-error-banner" style={{ marginBottom: 14 }}><span>{error}</span><button type="button" className="pm-task-mini" onClick={() => setError("")}><X size={13} /></button></div>}
 
-        {!!islemHatasi && (
-          <div className="gdm-error" role="alert">
-            <span>{islemHatasi}</span>
-            <button onClick={() => setIslemHatasi('')} aria-label="Hata mesajını kapat"><X size={14} /></button>
+            <section className="pmd-section">
+              <div className="pmd-section-head"><strong>Açıklama</strong>{!authorized && <span>Salt okunur</span>}</div>
+              <textarea className="pm-textarea" rows={5} value={description} onChange={(event) => authorized && setDescription(event.target.value)} readOnly={!authorized} placeholder="Görev açıklaması" />
+            </section>
+
+            <section className="pmd-section">
+              <div className="pmd-section-head"><strong><CheckSquare size={14} />Checklist</strong><span>%{completion}</span></div>
+              <div className="pmd-progress"><span style={{ width: `${completion}%` }} /></div>
+              <div className="pmd-checklist" style={{ marginTop: 9 }}>
+                {!checklist.length && <div className="pm-empty-state" style={{ border: 0, borderRadius: 0, padding: 18 }}><div><strong>Checklist boş</strong><span>Görevin alt adımlarını ekleyebilirsin.</span></div></div>}
+                {checklist.map((item) => (
+                  <div key={item.id} className={`pmd-check-row ${item.tamamlandi ? "is-done" : ""}`}>
+                    <button type="button" className="pm-task-mini" disabled={!authorized} onClick={() => toggleCheck(item.id)} aria-label={item.tamamlandi ? "Tamamlanmadı olarak işaretle" : "Tamamlandı olarak işaretle"}>{item.tamamlandi ? <Check size={14} /> : <span style={{ width: 12, height: 12, border: "1px solid var(--pm-border-strong)", borderRadius: 3 }} />}</button>
+                    <label>{item.metin}</label>
+                    {authorized && <button type="button" className="pm-task-mini" onClick={() => removeCheck(item.id)} aria-label="Checklist maddesini sil"><Trash2 size={13} /></button>}
+                  </div>
+                ))}
+              </div>
+              {authorized && (
+                <div className="pmd-inline-form" style={{ marginTop: 8 }}>
+                  <input className="pm-input" value={newCheck} onChange={(event) => setNewCheck(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addCheck(); } }} placeholder="Yeni checklist maddesi" />
+                  <button type="button" className="pm-button" onClick={addCheck}><Plus size={14} />Ekle</button>
+                </div>
+              )}
+            </section>
+
+            <section className="pmd-section">
+              <div className="pmd-section-head"><strong><Paperclip size={14} />Dosyalar</strong><span>Maksimum 10 MB</span></div>
+              {authorized && (
+                <>
+                  <input ref={fileInputRef} type="file" hidden onChange={uploadFile} />
+                  <button type="button" className="pm-button" disabled={uploading} onClick={() => fileInputRef.current?.click()}><Upload size={14} />{uploading ? `Yükleniyor %${uploadProgress}` : "Dosya yükle"}</button>
+                  {uploading && <div className="pmd-progress" style={{ marginTop: 8 }}><span style={{ width: `${uploadProgress}%` }} /></div>}
+                </>
+              )}
+              <div className="pmd-files" style={{ marginTop: 9 }}>
+                {files.map((file) => (
+                  <div key={file.id} className="pmd-file">
+                    <span className="pm-avatar" style={{ width: 32, height: 32 }}><FileIcon size={14} /></span>
+                    <div className="pmd-file-copy"><a href={file.url} target="_blank" rel="noreferrer"><strong>{file.ad}</strong></a><span>{Math.max(1, Math.round(file.boyut / 1024))} KB · {formatTimestamp(file.tarih)}</span></div>
+                    {authorized && <button type="button" className="pm-task-mini" onClick={() => removeFile(file)} aria-label="Dosyayı sil"><Trash2 size={13} /></button>}
+                  </div>
+                ))}
+                {!files.length && !uploading && <div className="pm-help">Henüz dosya eklenmedi.</div>}
+              </div>
+            </section>
+
+            <section className="pmd-section">
+              <div className="pmd-section-head"><strong><MessageSquare size={14} />Yorumlar</strong><span>{comments.length}</span></div>
+              <div className="pmd-comments">
+                {comments.map((item) => (
+                  <div key={item.id} className="pmd-comment">
+                    <PersonAvatar name={item.yazarAd} photo={item.yazarFoto} />
+                    <div className="pmd-comment-copy"><strong>{item.yazarAd || "Kullanıcı"}</strong><p>{item.metin}</p><span>{formatTimestamp(item.tarih)}</span></div>
+                  </div>
+                ))}
+                {!comments.length && <div className="pm-help">Henüz yorum yok.</div>}
+              </div>
+              {authorized && (
+                <div className="pmd-inline-form" style={{ marginTop: 9 }}>
+                  <input className="pm-input" value={comment} onChange={(event) => setComment(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); sendComment(); } }} placeholder="Yorum yaz" maxLength={5000} />
+                  <button type="button" className="pm-button is-primary" disabled={!comment.trim() || commentSending} onClick={sendComment}><Send size={14} />Gönder</button>
+                </div>
+              )}
+            </section>
+
+            <section className="pmd-section">
+              <div className="pmd-section-head"><strong><Clock size={14} />Aktivite</strong><span>Son {Math.min(activities.length, 20)} kayıt</span></div>
+              <div className="pmd-activity-list">
+                {activities.slice(0, 20).map((activity) => (
+                  <div key={activity.id} className="pmd-activity">
+                    <PersonAvatar name={activity.actorAd || "Sistem"} photo={activity.actorFoto} />
+                    <div className="pmd-activity-copy"><strong>{activity.actorAd || "Sistem"}</strong><span style={{ color: "var(--pm-text-2)", fontSize: 10 }}>{activity.aciklama}</span><span>{formatTimestamp(activity.createdAt)}</span></div>
+                  </div>
+                ))}
+                {!activities.length && <div className="pm-help">Henüz aktivite kaydı yok.</div>}
+              </div>
+            </section>
           </div>
-        )}
 
-        <div className="gdm-grid">
-          <div className="gdm-main">
-            <div className="gdm-block">
-              <label style={s}>Açıklama</label>
-              <textarea
-                value={aciklama}
-                onChange={e => yetkili && setAciklama(e.target.value)}
-                readOnly={!yetkili}
-                placeholder="Görev açıklaması..."
-                rows={4}
-                style={{
-                  width: '100%',
-                  padding: '12px 14px',
-                  border: '1.5px solid var(--border)',
-                  borderRadius: 12,
-                  background: 'var(--bg-input)',
-                  color: 'var(--ink)',
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: 13,
-                  lineHeight: 1.55,
-                  resize: 'vertical',
-                  outline: 'none',
-                }}
-              />
-            </div>
-
-            <div className="gdm-block">
-              <div style={sectionTitleRow}>
-                <CheckSquare size={14} style={{ color: 'var(--amber)' }} />
-                <span style={{ ...s, marginBottom: 0 }}>Checklist</span>
-                {checklist.length > 0 && (
-                  <span style={{ marginLeft: 'auto', fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--amber)' }}>
-                    %{checkPct}
-                  </span>
-                )}
+          <aside className="pmd-side">
+            <div className="pmd-side-grid">
+              <div>
+                <label className="pm-label" htmlFor="pmd-status">Durum</label>
+                <select id="pmd-status" className="pm-select" value={status} onChange={(event) => authorized && setStatus(event.target.value as Gorev["durum"])} disabled={!authorized}>
+                  {KOLONLAR.map((column) => <option key={column.id} value={column.id}>{column.label}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="pm-label" htmlFor="pmd-priority">Öncelik</label>
+                <select id="pmd-priority" className="pm-select" value={priority} onChange={(event) => authorized && setPriority(event.target.value as Gorev["oncelik"])} disabled={!authorized}>
+                  {Object.entries(ONCELIK_MAP).map(([key, item]) => <option key={key} value={key}>{item.label}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="pm-label" htmlFor="pmd-date">Termin</label>
+                <input id="pmd-date" className="pm-input" type="date" value={dueDate} onChange={(event) => authorized && setDueDate(event.target.value)} disabled={!authorized} />
               </div>
 
-              {checklist.length > 0 && (
-                <div style={{ height: 5, background: 'var(--border)', borderRadius: 99, overflow: 'hidden', marginBottom: 12 }}>
-                  <div style={{ height: '100%', width: `${checkPct}%`, background: 'var(--amber)', borderRadius: 99, transition: 'width .3s' }} />
-                </div>
-              )}
-
-              <div style={cardStyle}>
-                {checklist.length === 0 && (
-                  <div style={{ padding: '14px 12px', fontSize: 12, color: 'var(--ink-4)' }}>
-                    Henüz checklist maddesi yok.
-                  </div>
-                )}
-
-                {checklist.map(c => (
-                  <div key={c.id} className="gdm-list-item">
-                    <input
-                      type="checkbox"
-                      checked={c.tamamlandi}
-                      onChange={() => yetkili && checkToggle(c.id)}
-                      style={{ cursor: yetkili ? 'pointer' : 'default', accentColor: 'var(--amber)' }}
-                    />
-                    <span
-                      style={{
-                        flex: 1,
-                        fontSize: 13,
-                        color: 'var(--ink)',
-                        textDecoration: c.tamamlandi ? 'line-through' : 'none',
-                        opacity: c.tamamlandi ? 0.55 : 1,
-                      }}
-                    >
-                      {c.metin}
-                    </span>
-                    {yetkili && (
-                      <button
-                        onClick={() => checkSil(c.id)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink-4)', padding: 2 }}
-                      >
-                        <X size={12} />
+              <div>
+                <span className="pm-label">Sorumlular</span>
+                <div className="pmd-assignees">
+                  {uyeler.map((member) => {
+                    const active = assignees.some((item) => item.uid === member.uid);
+                    return (
+                      <button key={member.uid} type="button" className={`pmd-assignee ${active ? "is-active" : ""}`} disabled={!authorized} onClick={() => toggleAssignee(member)}>
+                        <PersonAvatar name={member.displayName || member.email} photo={member.photoURL} size={28} />
+                        <span>{member.displayName || member.email}</span>
+                        <span className="pm-checkmark">{active && <Check size={11} />}</span>
                       </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {yetkili && (
-                <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-                  <input
-                    className="td-input"
-                    value={yeniCheckMetin}
-                    onChange={e => setYeniCheckMetin(e.target.value)}
-                    placeholder="Yeni madde..."
-                    onKeyDown={e => e.key === 'Enter' && checkEkle()}
-                    style={{ flex: 1, fontSize: 12 }}
-                  />
-                  <button onClick={checkEkle} className="gdm-mini-btn">
-                    <Plus size={14} />
-                  </button>
+                    );
+                  })}
                 </div>
-              )}
-            </div>
-
-            <div className="gdm-block">
-              <div style={sectionTitleRow}>
-                <Paperclip size={14} style={{ color: 'var(--amber)' }} />
-                <span style={{ ...s, marginBottom: 0 }}>Ekler</span>
-
-                {yetkili && (
-                  <button onClick={() => fileInputRef.current?.click()} className="gdm-mini-btn" style={{ marginLeft: 'auto' }}>
-                    <Upload size={12} />
-                    Dosya Ekle
-                  </button>
-                )}
-
-                <input ref={fileInputRef} type="file" style={{ display: 'none' }} onChange={dosyaSec} />
               </div>
 
-              {ekYukleniyor && (
-                <div style={{ marginBottom: 10 }}>
-                  <div style={{ height: 5, background: 'var(--border)', borderRadius: 99, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${yuklemePct}%`, background: 'var(--amber)', borderRadius: 99, transition: 'width .2s' }} />
-                  </div>
-                  <span style={{ fontSize: 11, color: 'var(--ink-4)', fontFamily: 'var(--font-mono)' }}>
-                    Yükleniyor %{yuklemePct}
-                  </span>
-                </div>
-              )}
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {localEkler.map(ek => (
-                  <div key={ek.id} style={{ ...cardStyle, padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <FileIcon size={14} style={{ color: 'var(--ink-3)', flexShrink: 0 }} />
-                    <a
-                      href={ek.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{
-                        flex: 1,
-                        fontSize: 12,
-                        color: 'var(--amber)',
-                        textDecoration: 'none',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {ek.ad}
-                    </a>
-                    <span style={{ fontSize: 10, color: 'var(--ink-4)', flexShrink: 0 }}>
-                      {(ek.boyut / 1024).toFixed(0)} KB
-                    </span>
-                    <button
-                      onClick={async () => {
-                        await ekSilVeLogla({
-                          ekId: ek.id,
-                          url: ek.url,
-                          projeId,
-                          gorevId: gorev.id,
-                          actorUid: benimUid,
-                          actorAd: benimAd,
-                          actorFoto: benimFoto,
-                          dosyaAdi: ek.ad,
-                        });
-                        setLocalEkler(prev => prev.filter(x => x.id !== ek.id));
-                      }}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink-4)', padding: 2 }}
-                    >
-                      <Trash2 size={12} />
-                    </button>
-                  </div>
-                ))}
-
-                {localEkler.length === 0 && !ekYukleniyor && (
-                  <p style={{ fontSize: 12, color: 'var(--ink-4)', marginTop: 4 }}>Henüz ek yok.</p>
-                )}
-              </div>
-            </div>
-
-            <div className="gdm-block">
-              <div style={sectionTitleRow}>
-                <Clock size={14} style={{ color: 'var(--amber)' }} />
-                <span style={{ ...s, marginBottom: 0 }}>Aktivite Geçmişi</span>
-              </div>
-
-              {aktiviteler.length === 0 ? (
-                <p style={{ fontSize: 12, color: 'var(--ink-4)', marginTop: 4 }}>Henüz aktivite yok.</p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {aktiviteler.slice(0, 12).map(a => (
-                    <div key={a.id} className="gdm-activity">
-                      <div className="gdm-avatar">
-                        {a.actorFoto ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={a.actorFoto} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        ) : (
-                          (a.actorAd || '?').slice(0, 2).toUpperCase()
-                        )}
-                      </div>
-
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 12, color: 'var(--ink)', fontWeight: 700, marginBottom: 3 }}>
-                          {a.actorAd || 'Sistem'}
-                        </div>
-                        <div style={{ fontSize: 12, color: 'var(--ink-2)', lineHeight: 1.5 }}>
-                          {a.aciklama}
-                        </div>
-                        <div style={{ fontSize: 10, color: 'var(--ink-4)', fontFamily: 'var(--font-mono)', marginTop: 5 }}>
-                          {new Date(a.createdAt).toLocaleString('tr-TR', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </div>
-                      </div>
-                    </div>
+              <div>
+                <span className="pm-label">Etiketler</span>
+                <div className="pmd-tags">
+                  {tags.map((tag) => (
+                    <span key={tag} className="pm-tag">#{tag}{authorized && <button type="button" className="pm-task-mini" style={{ width: 18, height: 18 }} onClick={() => setTags((current) => current.filter((item) => item !== tag))}><X size={10} /></button>}</span>
                   ))}
                 </div>
-              )}
-            </div>
-
-            <div className="gdm-block" style={{ marginBottom: 0 }}>
-              <div style={sectionTitleRow}>
-                <MessageSquare size={14} style={{ color: 'var(--amber)' }} />
-                <span style={{ ...s, marginBottom: 0 }}>Yorumlar</span>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {localYorumlar.map(y => (
-                  <div key={y.id} className="gdm-comment">
-                    <div className="gdm-avatar">
-                      {y.yazarFoto ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={y.yazarFoto} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        y.yazarAd.slice(0, 2).toUpperCase()
-                      )}
-                    </div>
-
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'baseline', flexWrap: 'wrap', marginBottom: 4 }}>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)' }}>{y.yazarAd}</span>
-                        <span style={{ fontSize: 10, color: 'var(--ink-4)', fontFamily: 'var(--font-mono)' }}>
-                          {y.tarih
-                            ? new Date(y.tarih).toLocaleDateString('tr-TR', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })
-                            : ''}
-                        </span>
-                      </div>
-                      <p style={{ fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.6, margin: 0 }}>{y.metin}</p>
-                    </div>
+                {authorized && (
+                  <div className="pmd-inline-form" style={{ marginTop: 7 }}>
+                    <input className="pm-input" value={newTag} onChange={(event) => setNewTag(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addTag(); } }} placeholder="etiket" />
+                    <button type="button" className="pm-button" onClick={addTag}><Plus size={14} /></button>
                   </div>
-                ))}
+                )}
               </div>
 
-              {yetkili && (
-                <div className="gdm-compose-row" style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-                  <input
-                    className="td-input"
-                    value={yorumMetni}
-                    onChange={e => setYorumMetni(e.target.value)}
-                    placeholder="Yorum yaz..."
-                    onKeyDown={e => e.key === 'Enter' && yorumGonder()}
-                    style={{ flex: 1 }}
-                  />
-                  <button onClick={yorumGonder} className="gdm-mini-btn">
-                    Gönder
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+              {!authorized && <div className="pm-error-banner" style={{ marginTop: 0 }}>Bu görev sana atanmadığı için düzenleme yetkin yok.</div>}
 
-          <div className="gdm-side">
-            <div style={{ ...cardStyle, padding: 14, marginBottom: 14 }}>
-              <label style={s}>Durum</label>
-              <select
-                value={durum}
-                onChange={e => yetkili && setDurum(e.target.value as any)}
-                disabled={!yetkili}
-                className="td-input"
-                style={{ width: '100%', marginBottom: 14 }}
-              >
-                {KOLONLAR.map(k => (
-                  <option key={k.id} value={k.id}>{k.label}</option>
-                ))}
-              </select>
-
-              <label style={s}>Öncelik</label>
-              <select
-                value={oncelik}
-                onChange={e => yetkili && setOncelik(e.target.value as any)}
-                disabled={!yetkili}
-                className="td-input"
-                style={{ width: '100%', marginBottom: 14 }}
-              >
-                {Object.entries(ONCELIK_MAP).map(([key, val]) => (
-                  <option key={key} value={key}>{val.label}</option>
-                ))}
-              </select>
-
-              <label style={s}>Termin</label>
-              <input
-                type="date"
-                value={termin}
-                onChange={e => yetkili && setTermin(e.target.value)}
-                disabled={!yetkili}
-                className="td-input"
-                style={{ width: '100%' }}
-              />
-            </div>
-
-            <div style={{ ...cardStyle, padding: 14, marginBottom: 14 }}>
-              <label style={s}>Atananlar</label>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {uyeler.map(uye => {
-                  const secili = atananlar.some(a => a.uid === uye.uid);
-                  return (
-                    <label
-                      key={uye.uid}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                        fontSize: 12,
-                        color: 'var(--ink)',
-                        cursor: yetkili ? 'pointer' : 'default',
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={secili}
-                        onChange={() => yetkili && uyeToggle(uye)}
-                        disabled={!yetkili}
-                      />
-                      <span style={{ lineHeight: 1.4 }}>{uye.displayName || uye.email}</span>
-                    </label>
-                  );
-                })}
+              <div className="pmd-footer">
+                <button type="button" className="pm-button is-block" onClick={onKapat}>Kapat</button>
+                <button type="button" className="pm-button is-primary is-block" disabled={!authorized || !title.trim() || saving || uploading} onClick={save}>{saving ? "Kaydediliyor" : "Kaydet"}</button>
               </div>
             </div>
-
-            <div style={{ ...cardStyle, padding: 14, marginBottom: 16 }}>
-              <label style={s}>Etiketler</label>
-
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
-                {etiketler.map(etiket => (
-                  <span key={etiket} className="gdm-tag">
-                    #{etiket}
-                    {yetkili && (
-                      <button
-                        onClick={() => setEtiketler(prev => prev.filter(x => x !== etiket))}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink-4)', padding: 0 }}
-                      >
-                        <X size={10} />
-                      </button>
-                    )}
-                  </span>
-                ))}
-              </div>
-
-              {yetkili && (
-                <div className="gdm-compose-row" style={{ display: 'flex', gap: 8 }}>
-                  <input
-                    className="td-input"
-                    value={yeniEtiket}
-                    onChange={e => setYeniEtiket(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && etiketEkle()}
-                    placeholder="etiket"
-                    style={{ flex: 1 }}
-                  />
-                  <button onClick={etiketEkle} className="gdm-mini-btn">
-                    <Plus size={13} />
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <button
-              onClick={kaydet}
-              disabled={!yetkili || kaydetYukleniyor}
-              className="gdm-footer-btn gdm-save-sticky"
-              style={{
-                opacity: yetkili ? 1 : 0.6,
-                cursor: yetkili ? 'pointer' : 'default',
-              }}
-            >
-              {kaydetYukleniyor ? 'Kaydediliyor...' : 'Kaydet'}
-            </button>
-          </div>
+          </aside>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
