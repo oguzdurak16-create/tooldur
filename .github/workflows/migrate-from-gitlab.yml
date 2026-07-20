@@ -1,6 +1,7 @@
 name: Migrate Tooldur from GitLab
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -22,7 +23,15 @@ jobs:
           fetch-depth: 0
 
       - name: Clone current Tooldur source from GitLab
-        run: git clone --depth 1 --branch main https://gitlab.com/oguzdurak16/tooldur.git /tmp/tooldur-source
+        shell: bash
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+        run: |
+          if [ -n "$GITLAB_TOKEN" ]; then
+            git clone --depth 1 --branch main "https://oauth2:${GITLAB_TOKEN}@gitlab.com/oguzdurak16/tooldur.git" /tmp/tooldur-source
+          else
+            git clone --depth 1 --branch main https://gitlab.com/oguzdurak16/tooldur.git /tmp/tooldur-source
+          fi
 
       - name: Apply hydration v6 files
         shell: bash
