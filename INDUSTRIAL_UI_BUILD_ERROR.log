@@ -13,14 +13,17 @@ https://nextjs.org/telemetry
    Creating an optimized production build ...
  ✓ Compiled successfully
    Linting and checking validity of types ...
-
 Failed to compile.
 
-./src/app/proje-yonetimi/page.tsx
-1233:44  Error: Missing "key" prop for element in array  react/jsx-key
-1234:42  Error: Missing "key" prop for element in array  react/jsx-key
-1235:44  Error: Missing "key" prop for element in array  react/jsx-key
-1236:44  Error: Missing "key" prop for element in array  react/jsx-key
+./src/lib/pm-db-supabase.ts:169:17
+Type error: Parameter 'status' implicitly has an 'any' type.
 
-info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+[0m [90m 167 |[39m     [33m.[39mon([32m'postgres_changes'[39m[33m,[39m { event[33m:[39m [32m'*'[39m[33m,[39m schema[33m:[39m [32m'public'[39m[33m,[39m table[33m:[39m [32m'pm_proje_uyeler'[39m[33m,[39m filter[33m:[39m [32m`user_id=eq.${uid}`[39m }[33m,[39m refresh)[0m
+[0m [90m 168 |[39m     [33m.[39mon([32m'postgres_changes'[39m[33m,[39m { event[33m:[39m [32m'*'[39m[33m,[39m schema[33m:[39m [32m'public'[39m[33m,[39m table[33m:[39m [32m'pm_davetler'[39m }[33m,[39m refresh)[0m
+[0m[31m[1m>[22m[39m[90m 169 |[39m     [33m.[39msubscribe((status) [33m=>[39m {[0m
+[0m [90m     |[39m                 [31m[1m^[22m[39m[0m
+[0m [90m 170 |[39m       [36mif[39m (status [33m===[39m [32m'CHANNEL_ERROR'[39m) onError[33m?[39m[33m.[39m([36mnew[39m [33mError[39m([32m'Proje canlı bağlantısı kurulamadı.'[39m))[33m;[39m[0m
+[0m [90m 171 |[39m     })[33m;[39m[0m
+[0m [90m 172 |[39m   [36mreturn[39m () [33m=>[39m { supabase[33m.[39mremoveChannel(ch)[33m;[39m }[33m;[39m[0m
+Next.js build worker exited with code: 1 and signal: null
  ELIFECYCLE  Command failed with exit code 1.
