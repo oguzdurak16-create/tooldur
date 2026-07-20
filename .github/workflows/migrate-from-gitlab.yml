@@ -1,0 +1,42 @@
+name: Migrate Tooldur from GitLab
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/migrate-from-gitlab.yml'
+      - '.bootstrap/**'
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitHub repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Clone current Tooldur source from GitLab
+        run: git clone --depth 1 --branch main https://gitlab.com/oguzdurak16/tooldur.git /tmp/tooldur-source
+
+      - name: Apply hydration v6 files
+        shell: bash
+        run: |
+          cp -a .bootstrap/overlay /tmp/tooldur-overlay
+          rsync -a --delete --exclude='.git' --exclude='.github' /tmp/tooldur-source/ ./
+          rsync -a /tmp/tooldur-overlay/ ./
+          rm -rf .bootstrap
+
+      - name: Commit migrated project
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Migrate Tooldur and apply hydration v6 fixes'
+          git push origin HEAD:main
