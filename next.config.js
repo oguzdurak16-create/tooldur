@@ -27,6 +27,14 @@ const nextConfig = {
 
   async redirects() {
     return [
+      // Kanonik domain yönlendirmesi routing katmanında çalışır; Function CPU tüketmez.
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'tooldur.com' }],
+        destination: 'https://www.tooldur.com/:path*',
+        permanent: true,
+      },
+
       // Eski indirme adresleri
       { source: '/download', destination: '/kurulum-indir', permanent: true },
       { source: '/downloads', destination: '/kurulum-indir', permanent: true },
@@ -34,7 +42,7 @@ const nextConfig = {
       { source: '/kurulum', destination: '/kurulum-indir', permanent: true },
       { source: '/setup', destination: '/kurulum-indir', permanent: true },
       { source: '/tooldurcad', destination: '/kurulum-indir', permanent: true },
-  
+
       // Eski setup dosyaları
       { source: '/TooldurCAD-Universal-Setup-v4.9.0.exe', destination: '/kurulum-indir', permanent: true },
       { source: '/TooldurCAD-SolidWorks-Setup-v4.9.0.exe', destination: '/kurulum-indir', permanent: true },
@@ -42,12 +50,12 @@ const nextConfig = {
       { source: '/TooldurCAD-SolidWorks-Setup-v5.8.0.exe', destination: '/kurulum-indir', permanent: true },
       { source: '/TooldurCAD-Universal-Lite-Setup-v1.0.3.exe', destination: '/kurulum-indir', permanent: true },
       { source: '/TooldurCAD-SolidWorks-Setup-v1.0.3.exe', destination: '/kurulum-indir', permanent: true },
-  
+
       // Eski İngilizce sayfalar
       { source: '/privacy', destination: '/gizlilik', permanent: true },
       { source: '/about', destination: '/hakkimizda', permanent: true },
       { source: '/contact', destination: '/iletisim', permanent: true },
-  
+
       // Eski veya önceki sürümlerde kullanılan araç adresleri
       { source: '/arac/mil-delik-toleransi-hesaplama', destination: '/arac/iso-gecme-tolerans-hesaplama', permanent: true },
       { source: '/arac/gecme-toleransi-hesaplama', destination: '/arac/iso-gecme-tolerans-hesaplama', permanent: true },
@@ -64,13 +72,13 @@ const nextConfig = {
       { source: '/tools/base64-encoder', destination: '/araclar', permanent: true },
       { source: '/tools/lorem-ipsum', destination: '/araclar', permanent: true },
       { source: '/tools/pdf-merge', destination: '/araclar', permanent: true },
-  
+
       // Eski Blogger /p/ sayfaları
       { source: '/p/hakkimizda.html', destination: '/hakkimizda', permanent: true },
       { source: '/p/kullanim-kosullari.html', destination: '/kullanim-sartlari', permanent: true },
       { source: '/p/gizlilik-politikasi.html', destination: '/gizlilik', permanent: true },
       { source: '/p/iletisim.html', destination: '/iletisim', permanent: true },
-  
+
       // Eski görsel araç sayfaları
       { source: '/p/gorsel-islemleri.html', destination: '/araclar', permanent: true },
       { source: '/p/gorsel-sikistirma.html', destination: '/araclar', permanent: true },
