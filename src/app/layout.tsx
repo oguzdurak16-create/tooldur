@@ -118,27 +118,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="tr" data-theme="dark" suppressHydrationWarning>
       <head>
-        <script
-          id="tooldur-consent-default"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              window.gtag = window.gtag || gtag;
-              gtag('consent', 'default', {
-                analytics_storage: 'denied',
-                ad_storage: 'denied',
-                ad_user_data: 'denied',
-                ad_personalization: 'denied',
-                functionality_storage: 'granted',
-                security_storage: 'granted',
-                wait_for_update: 500
-              });
-              gtag('set', 'ads_data_redaction', true);
-              gtag('set', 'url_passthrough', true);
-            `,
-          }}
-        />
+        <script id="tooldur-consent-default" src="/consent-default.js" />
         <script
           id="tooldur-adsense-script"
           async
