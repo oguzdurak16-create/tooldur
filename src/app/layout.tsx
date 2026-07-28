@@ -2,6 +2,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import ClientChrome from '@/components/ClientChrome'
+import SiteMonetization from '@/components/SiteMonetization'
 
 export const viewport = {
   width: 'device-width',
@@ -167,6 +168,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <a className="td-skip-link" href="#td-main-content">İçeriğe geç</a>
         <ClientChrome area="top" />
         <div id="td-main-content" className="flex-1">{children}</div>
+        <SiteMonetization />
         <ClientChrome area="bottom" />
       </body>
     </html>
