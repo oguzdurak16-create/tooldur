@@ -62,9 +62,9 @@ export default function CalculatorVerificationNotice({ slug, locale = 'tr' }: { 
   const Icon = status === 'basic' ? BadgeCheck : status === 'standard' ? BookOpenCheck : status === 'data' ? Database : TriangleAlert;
 
   return (
-    <div className="mb-4 flex items-start gap-3 rounded-xl border border-[var(--border)] bg-[var(--panel)] px-4 py-3">
+    <div className="calc-panel mb-4 flex items-start gap-3 rounded-xl border border-[var(--border)] px-4 py-3">
       <Icon className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
-      <div><p className="text-xs font-bold text-[var(--foreground)]">{title}</p><p className="mt-1 text-xs leading-5 text-[var(--muted)]">{description}</p></div>
+      <div><p className="text-xs font-bold text-[var(--foreground)]">{title}</p><p className="calc-muted mt-1 text-xs leading-5">{description}</p></div>
     </div>
   );
 }
