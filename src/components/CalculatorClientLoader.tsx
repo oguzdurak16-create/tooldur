@@ -6,6 +6,7 @@ import type { Tool } from '@/data/tools';
 import type { Locale } from '@/lib/siteLanguage';
 import LocalizedTextRuntime from '@/components/LocalizedTextRuntime';
 import EngineeringCalculatorLocalization from '@/components/EngineeringCalculatorLocalization';
+import CalculatorVerificationNotice from '@/components/CalculatorVerificationNotice';
 
 const CalcLoading = () => (
   <div style={{ minHeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -14,10 +15,7 @@ const CalcLoading = () => (
   </div>
 );
 
-const dyn = (path: string) => dynamic(() => import(`@/components/calculators/${path}`), {
-  loading: CalcLoading,
-  ssr: false,
-});
+const dyn = (path: string) => dynamic(() => import(`@/components/calculators/${path}`), { loading: CalcLoading, ssr: false });
 
 const calculatorComponents: Record<string, ComponentType<any>> = {
   'iso-gecme-tolerans-hesaplama': dyn('IsoToleransCalculator'),
@@ -85,22 +83,16 @@ const calculatorComponents: Record<string, ComponentType<any>> = {
   'teknik-resim-cagri-olusturucu': dyn('TeknikCagriCalculator'),
 };
 
-const GenericCalculator = dynamic(() => import('@/components/calculators/GenericCalculator'), {
-  loading: CalcLoading,
-  ssr: false,
-});
+const GenericCalculator = dynamic(() => import('@/components/calculators/GenericCalculator'), { loading: CalcLoading, ssr: false });
 
-type Props = {
-  slug: string;
-  tool: Tool;
-  locale?: Locale;
-};
+type Props = { slug: string; tool: Tool; locale?: Locale };
 
 export default function CalculatorClientLoader({ slug, tool, locale = 'tr' }: Props) {
   const CalculatorComponent = calculatorComponents[slug] || GenericCalculator;
   return (
     <LocalizedTextRuntime locale={locale}>
       <EngineeringCalculatorLocalization slug={slug} locale={locale}>
+        <CalculatorVerificationNotice slug={slug} locale={locale} />
         <CalculatorComponent tool={tool} locale={locale} />
       </EngineeringCalculatorLocalization>
     </LocalizedTextRuntime>
