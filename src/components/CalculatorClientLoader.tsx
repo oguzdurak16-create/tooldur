@@ -5,6 +5,7 @@ import type { ComponentType } from 'react';
 import type { Tool } from '@/data/tools';
 import type { Locale } from '@/lib/siteLanguage';
 import LocalizedTextRuntime from '@/components/LocalizedTextRuntime';
+import EngineeringCalculatorLocalization from '@/components/EngineeringCalculatorLocalization';
 
 const CalcLoading = () => (
   <div style={{ minHeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -99,7 +100,9 @@ export default function CalculatorClientLoader({ slug, tool, locale = 'tr' }: Pr
   const CalculatorComponent = calculatorComponents[slug] || GenericCalculator;
   return (
     <LocalizedTextRuntime locale={locale}>
-      <CalculatorComponent tool={tool} locale={locale} />
+      <EngineeringCalculatorLocalization slug={slug} locale={locale}>
+        <CalculatorComponent tool={tool} locale={locale} />
+      </EngineeringCalculatorLocalization>
     </LocalizedTextRuntime>
   );
 }
