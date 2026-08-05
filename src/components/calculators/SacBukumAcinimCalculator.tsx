@@ -3,8 +3,11 @@
 import { useMemo, useState } from 'react';
 import { Ruler, Info } from 'lucide-react';
 import { parseLocalizedNumber, formatSmartNumber } from '@/lib/calculator-utils';
+import type { Locale } from '@/lib/siteLanguage';
 
-export default function SacBukumAcinimCalculator() {
+export default function SacBukumAcinimCalculator({ locale = 'tr' }: { locale?: Locale }) {
+  const isEnglish = locale === 'en';
+  const numberLocale = isEnglish ? 'en-US' : 'tr-TR';
   const [a, setA] = useState('100');
   const [b, setB] = useState('60');
   const [t, setT] = useState('3');
@@ -29,10 +32,12 @@ export default function SacBukumAcinimCalculator() {
     const bendDeduction = 2 * outsideSetback - bendAllowance;
     const flatLength = A + B - bendDeduction;
     const minInsideR = T;
-    const risk = R < T ? 'İç radius sac kalınlığından küçük. Çatlama/iz riski artar.' : 'İç radius pratik ön kontrol için uygun görünüyor.';
+    const risk = R < T
+      ? (isEnglish ? 'The inside radius is smaller than the sheet thickness. Cracking and marking risk increases.' : 'İç radius sac kalınlığından küçük. Çatlama/iz riski artar.')
+      : (isEnglish ? 'The inside radius appears suitable for a preliminary manufacturing check.' : 'İç radius pratik ön kontrol için uygun görünüyor.');
 
     return { A, B, T, R, ANG, K, Q, bendAllowance, outsideSetback, bendDeduction, flatLength, totalLength: flatLength * Q, minInsideR, risk };
-  }, [a, b, t, r, angle, k, qty]);
+  }, [a, b, t, r, angle, k, qty, isEnglish]);
 
   return (
     <div className="space-y-6">
@@ -40,45 +45,61 @@ export default function SacBukumAcinimCalculator() {
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 rounded-2xl bg-blue-500/10"><Ruler className="w-6 h-6 text-blue-500" /></div>
           <div>
-            <h2 className="text-xl font-bold text-[var(--foreground)]">Sac Büküm Açınım Hesaplama</h2>
-            <p className="calc-prose mt-1">Flanş ölçüsü, sac kalınlığı, iç radius, büküm açısı ve K faktörüne göre açınım boyunu hesaplayın.</p>
+            <h2 className="text-xl font-bold text-[var(--foreground)]">
+              {isEnglish ? 'Sheet Metal Bend Allowance Calculator' : 'Sac Büküm Açınım Hesaplama'}
+            </h2>
+            <p className="calc-prose mt-1">
+              {isEnglish
+                ? 'Calculate flat length from flange dimensions, sheet thickness, inside radius, bend angle and K-factor.'
+                : 'Flanş ölçüsü, sac kalınlığı, iç radius, büküm açısı ve K faktörüne göre açınım boyunu hesaplayın.'}
+            </p>
           </div>
         </div>
 
         <div className="grid md:grid-cols-3 gap-4">
-          <Input label="A flanş dış ölçüsü (mm)" value={a} setValue={setA} />
-          <Input label="B flanş dış ölçüsü (mm)" value={b} setValue={setB} />
-          <Input label="Sac kalınlığı t (mm)" value={t} setValue={setT} />
-          <Input label="İç radius R (mm)" value={r} setValue={setR} />
-          <Input label="Büküm açısı (°)" value={angle} setValue={setAngle} />
-          <Input label="K faktörü" value={k} setValue={setK} />
-          <Input label="Adet" value={qty} setValue={setQty} />
+          <Input label={isEnglish ? 'Flange A outside dimension (mm)' : 'A flanş dış ölçüsü (mm)'} value={a} setValue={setA} />
+          <Input label={isEnglish ? 'Flange B outside dimension (mm)' : 'B flanş dış ölçüsü (mm)'} value={b} setValue={setB} />
+          <Input label={isEnglish ? 'Sheet thickness t (mm)' : 'Sac kalınlığı t (mm)'} value={t} setValue={setT} />
+          <Input label={isEnglish ? 'Inside radius R (mm)' : 'İç radius R (mm)'} value={r} setValue={setR} />
+          <Input label={isEnglish ? 'Bend angle (°)' : 'Büküm açısı (°)'} value={angle} setValue={setAngle} />
+          <Input label={isEnglish ? 'K-factor' : 'K faktörü'} value={k} setValue={setK} />
+          <Input label={isEnglish ? 'Quantity' : 'Adet'} value={qty} setValue={setQty} />
         </div>
 
         <div className="calc-box-accent mt-6">
-          <p className="calc-prose">6 mm, 8 mm, 10 mm gibi kalın saclarda da sonuç verir. Kalın saclarda gerçek değer; kalıp ağzı, malzeme ve pres abkant ayarına göre değişebilir.</p>
+          <p className="calc-prose">
+            {isEnglish
+              ? 'The calculator also supports thicker sheets such as 6, 8 and 10 mm. Actual values may vary with die opening, material and press-brake setup.'
+              : '6 mm, 8 mm, 10 mm gibi kalın saclarda da sonuç verir. Kalın saclarda gerçek değer; kalıp ağzı, malzeme ve pres abkant ayarına göre değişebilir.'}
+          </p>
         </div>
       </div>
 
       {result && (
         <div className="calc-box">
-          <h3 className="text-blue-600 dark:text-blue-400 text-sm font-bold mb-4">📐 Açınım Sonucu</h3>
+          <h3 className="text-blue-600 dark:text-blue-400 text-sm font-bold mb-4">
+            📐 {isEnglish ? 'Flat Pattern Result' : 'Açınım Sonucu'}
+          </h3>
           <div className="grid md:grid-cols-3 gap-3">
-            <Result label="Tek parça açınım" value={`${formatSmartNumber(result.flatLength, 'tr-TR', 2)} mm`} strong />
-            <Result label="Büküm payı BA" value={`${formatSmartNumber(result.bendAllowance, 'tr-TR', 2)} mm`} />
-            <Result label="Büküm düşümü BD" value={`${formatSmartNumber(result.bendDeduction, 'tr-TR', 2)} mm`} />
-            <Result label="Outside setback" value={`${formatSmartNumber(result.outsideSetback, 'tr-TR', 2)} mm`} />
-            <Result label="Toplam boy" value={`${formatSmartNumber(result.totalLength, 'tr-TR', 2)} mm`} />
-            <Result label="Önerilen min. iç R" value={`≈ ${formatSmartNumber(result.minInsideR, 'tr-TR', 1)} mm`} />
+            <Result label={isEnglish ? 'Single-piece flat length' : 'Tek parça açınım'} value={`${formatSmartNumber(result.flatLength, numberLocale, 2)} mm`} strong />
+            <Result label={isEnglish ? 'Bend allowance BA' : 'Büküm payı BA'} value={`${formatSmartNumber(result.bendAllowance, numberLocale, 2)} mm`} />
+            <Result label={isEnglish ? 'Bend deduction BD' : 'Büküm düşümü BD'} value={`${formatSmartNumber(result.bendDeduction, numberLocale, 2)} mm`} />
+            <Result label="Outside setback" value={`${formatSmartNumber(result.outsideSetback, numberLocale, 2)} mm`} />
+            <Result label={isEnglish ? 'Total length' : 'Toplam boy'} value={`${formatSmartNumber(result.totalLength, numberLocale, 2)} mm`} />
+            <Result label={isEnglish ? 'Recommended minimum inside R' : 'Önerilen min. iç R'} value={`≈ ${formatSmartNumber(result.minInsideR, numberLocale, 1)} mm`} />
           </div>
-          <div className="calc-soft rounded-xl p-4 mt-4 calc-prose"><strong>Kontrol:</strong> {result.risk}</div>
+          <div className="calc-soft rounded-xl p-4 mt-4 calc-prose">
+            <strong>{isEnglish ? 'Check:' : 'Kontrol:'}</strong> {result.risk}
+          </div>
         </div>
       )}
 
       <section className="calc-box space-y-4">
-        <div className="flex items-center gap-2"><Info className="w-4 h-4 text-blue-500" /><h3 className="calc-section-title">Formül</h3></div>
+        <div className="flex items-center gap-2"><Info className="w-4 h-4 text-blue-500" /><h3 className="calc-section-title">{isEnglish ? 'Formula' : 'Formül'}</h3></div>
         <div className="calc-soft rounded-xl p-4 calc-prose">
-          BA = θ × (R + K × t), OSSB = tan(θ / 2) × (R + t), BD = 2 × OSSB − BA, Açınım = A + B − BD. θ radyan cinsinden büküm açısıdır.
+          {isEnglish
+            ? 'BA = θ × (R + K × t), OSSB = tan(θ / 2) × (R + t), BD = 2 × OSSB − BA, Flat length = A + B − BD. θ is the bend angle in radians.'
+            : 'BA = θ × (R + K × t), OSSB = tan(θ / 2) × (R + t), BD = 2 × OSSB − BA, Açınım = A + B − BD. θ radyan cinsinden büküm açısıdır.'}
         </div>
       </section>
     </div>
