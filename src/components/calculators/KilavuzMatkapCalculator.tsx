@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Calculator, CheckCircle2, Clipboard, Copy, Drill, Info, Ruler, Wrench } from 'lucide-react';
 import type { Tool } from '@/data/tools';
+import type { Locale } from '@/lib/siteLanguage';
 
 type ThreadRow = {
   size: string;
@@ -17,7 +18,6 @@ type ThreadRow = {
 
 type FitClass = 'close' | 'normal' | 'loose';
 type SeriesFilter = 'all' | ThreadRow['series'];
-
 type ClearanceSet = Pick<ThreadRow, 'clearanceClose' | 'clearanceNormal' | 'clearanceLoose'>;
 
 const clearanceByDiameter: Record<string, ClearanceSet> = {
@@ -100,13 +100,6 @@ const threadTable: ThreadRow[] = rawThreads.map((item) => ({
   ...clearanceByDiameter[String(item.d)],
 }));
 
-const fitLabels: Record<FitClass, string> = {
-  close: 'Sıkı boşluk',
-  normal: 'Normal boşluk',
-  loose: 'Rahat montaj',
-};
-
-const fmt = (n: number, digits = 3) => n.toLocaleString('tr-TR', { maximumFractionDigits: digits });
 const pitchDiameter = (d: number, pitch: number) => d - 0.649519 * pitch;
 const internalMinorDiameter = (d: number, pitch: number) => d - 1.082532 * pitch;
 const externalRootDiameter = (d: number, pitch: number) => d - 1.226869 * pitch;
@@ -121,7 +114,18 @@ function ResultCard({ label, value, note }: { label: string; value: string; note
   );
 }
 
-export default function KilavuzMatkapCalculator({ tool }: { tool?: Tool }) {
+export default function KilavuzMatkapCalculator({ tool, locale = 'tr' }: { tool?: Tool; locale?: Locale }) {
+  const isEnglish = locale === 'en';
+  const numberLocale = isEnglish ? 'en-US' : 'tr-TR';
+  const fmt = (n: number, digits = 3) => n.toLocaleString(numberLocale, { maximumFractionDigits: digits });
+  const displaySize = (value: string) => isEnglish ? value.replace(/,/g, '.') : value;
+  const seriesName = (value: ThreadRow['series']) => value === 'kaba' ? (isEnglish ? 'coarse' : 'kaba') : (isEnglish ? 'fine' : 'ince');
+  const fitLabels: Record<FitClass, string> = {
+    close: isEnglish ? 'Close clearance' : 'Sıkı boşluk',
+    normal: isEnglish ? 'Normal clearance' : 'Normal boşluk',
+    loose: isEnglish ? 'Loose clearance' : 'Rahat montaj',
+  };
+
   const [size, setSize] = useState('M10 × 1,5');
   const [tableQuery, setTableQuery] = useState('');
   const [seriesFilter, setSeriesFilter] = useState<SeriesFilter>('all');
@@ -132,30 +136,39 @@ export default function KilavuzMatkapCalculator({ tool }: { tool?: Tool }) {
 
   const row = useMemo(() => threadTable.find((item) => item.size === size) || threadTable[13], [size]);
   const filteredRows = useMemo(() => {
-    const q = tableQuery.trim().toLocaleLowerCase('tr-TR').replace('.', ',');
+    const q = tableQuery.trim().toLocaleLowerCase(numberLocale).replace('.', ',');
     return threadTable.filter((item) => {
-      const matchesQuery = !q || item.size.toLocaleLowerCase('tr-TR').includes(q);
+      const matchesQuery = !q || item.size.toLocaleLowerCase(numberLocale).includes(q);
       const matchesSeries = seriesFilter === 'all' || item.series === seriesFilter;
       return matchesQuery && matchesSeries;
     });
-  }, [seriesFilter, tableQuery]);
+  }, [seriesFilter, tableQuery, numberLocale]);
 
   const clearance = fit === 'close' ? row.clearanceClose : fit === 'loose' ? row.clearanceLoose : row.clearanceNormal;
   const depthNumber = Number(depth.replace(',', '.')) || row.d * 2;
   const drillDepth = blindHole ? depthNumber + Math.max(row.d * 0.7, row.pitch * 4) : depthNumber;
-  const chamfer = row.d <= 8 ? '0,5 × 45°' : row.d <= 16 ? '1 × 45°' : '1,5 × 45°';
+  const chamfer = row.d <= 8 ? `${fmt(0.5)} × 45°` : row.d <= 16 ? `1 × 45°` : `${fmt(1.5)} × 45°`;
   const d2 = pitchDiameter(row.d, row.pitch);
   const D1 = internalMinorDiameter(row.d, row.pitch);
   const d3 = externalRootDiameter(row.d, row.pitch);
 
-  const callout = [
-    `${row.size} - 6H iç diş`,
-    `Kılavuz matkap: Ø${fmt(row.tapDrill)} mm`,
-    `Diş derinliği: ${fmt(depthNumber)} mm`,
-    blindHole ? `Ön delik derinliği: min. ${fmt(drillDepth)} mm` : 'Açık delik: parça boyunca',
-    `Giriş pahı: ${chamfer}`,
-    `Bağlantı boşluk deliği (${fitLabels[fit]}): Ø${fmt(clearance)} mm`,
-  ].join('\n');
+  const callout = isEnglish
+    ? [
+        `${displaySize(row.size)} - 6H internal thread`,
+        `Tap drill: Ø${fmt(row.tapDrill)} mm`,
+        `Thread depth: ${fmt(depthNumber)} mm`,
+        blindHole ? `Pilot hole depth: min. ${fmt(drillDepth)} mm` : 'Through hole: full part thickness',
+        `Entry chamfer: ${chamfer}`,
+        `Bolt clearance hole (${fitLabels[fit]}): Ø${fmt(clearance)} mm`,
+      ].join('\n')
+    : [
+        `${row.size} - 6H iç diş`,
+        `Kılavuz matkap: Ø${fmt(row.tapDrill)} mm`,
+        `Diş derinliği: ${fmt(depthNumber)} mm`,
+        blindHole ? `Ön delik derinliği: min. ${fmt(drillDepth)} mm` : 'Açık delik: parça boyunca',
+        `Giriş pahı: ${chamfer}`,
+        `Bağlantı boşluk deliği (${fitLabels[fit]}): Ø${fmt(clearance)} mm`,
+      ].join('\n');
 
   const copy = async () => {
     try {
@@ -173,59 +186,57 @@ export default function KilavuzMatkapCalculator({ tool }: { tool?: Tool }) {
         <div className="flex items-start gap-3 mb-6">
           <div className="p-3 rounded-2xl bg-amber-500/10"><Drill className="w-6 h-6 text-amber-500" /></div>
           <div>
-            <h2 className="text-xl font-bold text-[var(--foreground)]">{tool?.name || 'Metrik Diş Tablosu ve Kılavuz Matkap'}</h2>
-            <p className="calc-prose mt-1">Metrik vida ölçüsüne göre kılavuz matkap çapını, teorik diş dibi çaplarını, boşluk deliğini ve teknik resim çağrısını görüntüleyin.</p>
+            <h2 className="text-xl font-bold text-[var(--foreground)]">{tool?.name || (isEnglish ? 'Metric Thread Table and Tap Drill' : 'Metrik Diş Tablosu ve Kılavuz Matkap')}</h2>
+            <p className="calc-prose mt-1">{isEnglish ? 'View tap drill size, theoretical thread diameters, clearance hole and a copyable drawing callout for metric threads.' : 'Metrik vida ölçüsüne göre kılavuz matkap çapını, teorik diş dibi çaplarını, boşluk deliğini ve teknik resim çağrısını görüntüleyin.'}</p>
           </div>
         </div>
 
         <div className="grid md:grid-cols-4 gap-4">
           <div>
-            <label className="calc-title text-sm font-semibold flex items-center gap-2"><Ruler className="w-4 h-4" /> Vida ölçüsü</label>
+            <label className="calc-title text-sm font-semibold flex items-center gap-2"><Ruler className="w-4 h-4" /> {isEnglish ? 'Thread size' : 'Vida ölçüsü'}</label>
             <select value={size} onChange={(e) => setSize(e.target.value)} className="w-full mt-2 px-4 py-3 rounded-xl calc-panel outline-none">
-              {threadTable.map((item) => <option key={item.size}>{item.size}</option>)}
+              {threadTable.map((item) => <option key={item.size} value={item.size}>{displaySize(item.size)}</option>)}
             </select>
           </div>
           <div>
-            <label className="calc-title text-sm font-semibold">Montaj boşluğu</label>
+            <label className="calc-title text-sm font-semibold">{isEnglish ? 'Assembly clearance' : 'Montaj boşluğu'}</label>
             <select value={fit} onChange={(e) => setFit(e.target.value as FitClass)} className="w-full mt-2 px-4 py-3 rounded-xl calc-panel outline-none">
-              <option value="close">Sıkı boşluk</option>
-              <option value="normal">Normal boşluk</option>
-              <option value="loose">Rahat montaj</option>
+              <option value="close">{fitLabels.close}</option>
+              <option value="normal">{fitLabels.normal}</option>
+              <option value="loose">{fitLabels.loose}</option>
             </select>
           </div>
           <div>
-            <label className="calc-title text-sm font-semibold">Diş derinliği (mm)</label>
+            <label className="calc-title text-sm font-semibold">{isEnglish ? 'Thread depth (mm)' : 'Diş derinliği (mm)'}</label>
             <input value={depth} onChange={(e) => setDepth(e.target.value.replace(/[^0-9.,]/g, ''))} inputMode="decimal" className="w-full mt-2 px-4 py-3 rounded-xl calc-panel outline-none" />
           </div>
           <div>
-            <label className="calc-title text-sm font-semibold">Delik tipi</label>
-            <button type="button" onClick={() => setBlindHole((v) => !v)} className="w-full mt-2 px-4 py-3 rounded-xl calc-panel text-left font-semibold">
-              {blindHole ? 'Kör delik' : 'Açık delik'}
-            </button>
+            <label className="calc-title text-sm font-semibold">{isEnglish ? 'Hole type' : 'Delik tipi'}</label>
+            <button type="button" onClick={() => setBlindHole((v) => !v)} className="w-full mt-2 px-4 py-3 rounded-xl calc-panel text-left font-semibold">{blindHole ? (isEnglish ? 'Blind hole' : 'Kör delik') : (isEnglish ? 'Through hole' : 'Açık delik')}</button>
           </div>
         </div>
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">
-        <ResultCard label="Kılavuz matkap çapı" value={`Ø${fmt(row.tapDrill)} mm`} note={`${row.size} • ${row.series === 'kaba' ? 'kaba' : 'ince'} hatve P=${fmt(row.pitch)} mm`} />
-        <ResultCard label="İç diş dibi D1 (teorik)" value={`Ø${fmt(D1)} mm`} note="Temel profil değeri; gerçek 6H sınır ölçüsü değildir." />
-        <ResultCard label="Dış diş dibi d3 (teorik)" value={`Ø${fmt(d3)} mm`} note={`Teorik adım çapı d2/D2: Ø${fmt(d2)} mm`} />
+        <ResultCard label={isEnglish ? 'Tap drill diameter' : 'Kılavuz matkap çapı'} value={`Ø${fmt(row.tapDrill)} mm`} note={`${displaySize(row.size)} • ${seriesName(row.series)} ${isEnglish ? 'pitch' : 'hatve'} P=${fmt(row.pitch)} mm`} />
+        <ResultCard label={isEnglish ? 'Internal minor diameter D1 (theoretical)' : 'İç diş dibi D1 (teorik)'} value={`Ø${fmt(D1)} mm`} note={isEnglish ? 'Basic-profile value; not the actual 6H limit dimension.' : 'Temel profil değeri; gerçek 6H sınır ölçüsü değildir.'} />
+        <ResultCard label={isEnglish ? 'External root diameter d3 (theoretical)' : 'Dış diş dibi d3 (teorik)'} value={`Ø${fmt(d3)} mm`} note={`${isEnglish ? 'Theoretical pitch diameter d2/D2' : 'Teorik adım çapı d2/D2'}: Ø${fmt(d2)} mm`} />
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
-        <ResultCard label="Boşluk deliği" value={`Ø${fmt(clearance)} mm`} note={`${fitLabels[fit]} • sıkı Ø${fmt(row.clearanceClose)} / normal Ø${fmt(row.clearanceNormal)} / rahat Ø${fmt(row.clearanceLoose)}`} />
-        <ResultCard label="Ön delik derinliği" value={blindHole ? `${fmt(drillDepth)} mm` : 'Parça boyunca'} note="Kör delikte talaş ve kılavuz çıkışı için emniyet payı eklenir." />
+        <ResultCard label={isEnglish ? 'Clearance hole' : 'Boşluk deliği'} value={`Ø${fmt(clearance)} mm`} note={`${fitLabels[fit]} • ${isEnglish ? 'close' : 'sıkı'} Ø${fmt(row.clearanceClose)} / ${isEnglish ? 'normal' : 'normal'} Ø${fmt(row.clearanceNormal)} / ${isEnglish ? 'loose' : 'rahat'} Ø${fmt(row.clearanceLoose)}`} />
+        <ResultCard label={isEnglish ? 'Pilot hole depth' : 'Ön delik derinliği'} value={blindHole ? `${fmt(drillDepth)} mm` : (isEnglish ? 'Through part' : 'Parça boyunca')} note={isEnglish ? 'Blind holes include allowance for chips and tap runout.' : 'Kör delikte talaş ve kılavuz çıkışı için emniyet payı eklenir.'} />
       </div>
 
       <div className="calc-box-accent">
         <div className="flex flex-col md:flex-row md:items-start gap-4 md:justify-between">
           <div>
-            <h3 className="calc-section-title flex items-center gap-2"><Clipboard className="w-4 h-4" /> Teknik resim çağrısı</h3>
+            <h3 className="calc-section-title flex items-center gap-2"><Clipboard className="w-4 h-4" /> {isEnglish ? 'Drawing callout' : 'Teknik resim çağrısı'}</h3>
             <pre className="mt-3 whitespace-pre-wrap rounded-2xl calc-soft p-4 text-sm font-mono text-[var(--foreground)] leading-relaxed">{callout}</pre>
           </div>
           <button onClick={copy} className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-3 font-bold text-slate-950 hover:bg-amber-400 transition">
             {copied ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            {copied ? 'Kopyalandı' : 'Çağrıyı kopyala'}
+            {copied ? (isEnglish ? 'Copied' : 'Kopyalandı') : (isEnglish ? 'Copy callout' : 'Çağrıyı kopyala')}
           </button>
         </div>
       </div>
@@ -233,36 +244,36 @@ export default function KilavuzMatkapCalculator({ tool }: { tool?: Tool }) {
       <section className="calc-box">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h3 className="calc-section-title">Metrik diş, kılavuz matkap ve diş dibi tablosu</h3>
-            <p className="calc-prose mt-1">M2–M42 kaba ve yaygın ince hatveler için ön delik, temel profil çapları ve normal cıvata boşluğu.</p>
+            <h3 className="calc-section-title">{isEnglish ? 'Metric thread, tap drill and thread diameter table' : 'Metrik diş, kılavuz matkap ve diş dibi tablosu'}</h3>
+            <p className="calc-prose mt-1">{isEnglish ? 'Pilot holes, basic-profile diameters and normal bolt clearances for M2–M42 coarse and common fine pitches.' : 'M2–M42 kaba ve yaygın ince hatveler için ön delik, temel profil çapları ve normal cıvata boşluğu.'}</p>
           </div>
           <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
             <select value={seriesFilter} onChange={(e) => setSeriesFilter(e.target.value as SeriesFilter)} className="calc-panel rounded-xl px-4 py-2.5 outline-none">
-              <option value="all">Tüm hatveler</option>
-              <option value="kaba">Kaba hatve</option>
-              <option value="ince">İnce hatve</option>
+              <option value="all">{isEnglish ? 'All pitches' : 'Tüm hatveler'}</option>
+              <option value="kaba">{isEnglish ? 'Coarse pitch' : 'Kaba hatve'}</option>
+              <option value="ince">{isEnglish ? 'Fine pitch' : 'İnce hatve'}</option>
             </select>
-            <input value={tableQuery} onChange={(e) => setTableQuery(e.target.value)} placeholder="Örn. M10 veya 1,25" className="calc-panel rounded-xl px-4 py-2.5 outline-none" />
+            <input value={tableQuery} onChange={(e) => setTableQuery(e.target.value)} placeholder={isEnglish ? 'Ex. M10 or 1.25' : 'Örn. M10 veya 1,25'} className="calc-panel rounded-xl px-4 py-2.5 outline-none" />
           </div>
         </div>
         <div className="mt-4 overflow-x-auto rounded-xl border border-[var(--border)]">
           <table className="w-full min-w-[980px] border-collapse text-sm">
             <thead className="calc-soft text-left">
               <tr>
-                <th className="px-4 py-3">Metrik diş</th>
-                <th className="px-4 py-3">Seri</th>
-                <th className="px-4 py-3">Kılavuz matkap</th>
-                <th className="px-4 py-3">Adım çapı d2/D2</th>
-                <th className="px-4 py-3">İç diş dibi D1</th>
-                <th className="px-4 py-3">Dış diş dibi d3</th>
-                <th className="px-4 py-3">Normal boşluk</th>
+                <th className="px-4 py-3">{isEnglish ? 'Metric thread' : 'Metrik diş'}</th>
+                <th className="px-4 py-3">{isEnglish ? 'Series' : 'Seri'}</th>
+                <th className="px-4 py-3">{isEnglish ? 'Tap drill' : 'Kılavuz matkap'}</th>
+                <th className="px-4 py-3">{isEnglish ? 'Pitch diameter d2/D2' : 'Adım çapı d2/D2'}</th>
+                <th className="px-4 py-3">{isEnglish ? 'Internal minor D1' : 'İç diş dibi D1'}</th>
+                <th className="px-4 py-3">{isEnglish ? 'External root d3' : 'Dış diş dibi d3'}</th>
+                <th className="px-4 py-3">{isEnglish ? 'Normal clearance' : 'Normal boşluk'}</th>
               </tr>
             </thead>
             <tbody>
               {filteredRows.map((item) => (
                 <tr key={item.size} className="border-t border-[var(--border)] text-[var(--foreground)]">
-                  <td className="px-4 py-3 font-bold">{item.size}</td>
-                  <td className="px-4 py-3 capitalize">{item.series}</td>
+                  <td className="px-4 py-3 font-bold">{displaySize(item.size)}</td>
+                  <td className="px-4 py-3 capitalize">{seriesName(item.series)}</td>
                   <td className="px-4 py-3 font-semibold text-amber-500">Ø{fmt(item.tapDrill)} mm</td>
                   <td className="px-4 py-3">Ø{fmt(pitchDiameter(item.d, item.pitch))} mm</td>
                   <td className="px-4 py-3">Ø{fmt(internalMinorDiameter(item.d, item.pitch))} mm</td>
@@ -273,13 +284,13 @@ export default function KilavuzMatkapCalculator({ tool }: { tool?: Tool }) {
             </tbody>
           </table>
         </div>
-        <p className="calc-muted mt-3 text-xs">D1, d2/D2 ve d3 sütunları ISO metrik temel profil geometrisinden hesaplanan teorik değerlerdir. Tolerans sınıfı, kaplama ve üretim yöntemi gerçek sınır ölçülerini değiştirir.</p>
+        <p className="calc-muted mt-3 text-xs">{isEnglish ? 'D1, d2/D2 and d3 are theoretical values calculated from the ISO metric basic profile. Tolerance class, coating and manufacturing method alter the actual limit dimensions.' : 'D1, d2/D2 ve d3 sütunları ISO metrik temel profil geometrisinden hesaplanan teorik değerlerdir. Tolerans sınıfı, kaplama ve üretim yöntemi gerçek sınır ölçülerini değiştirir.'}</p>
       </section>
 
       <section className="grid md:grid-cols-3 gap-4">
-        <div className="calc-box"><h3 className="calc-section-title flex items-center gap-2"><Wrench className="w-4 h-4" /> Kılavuz matkap formülü</h3><p className="calc-prose mt-2">Pratik başlangıç değeri yaklaşık d − P’dir. Diş yüzdesi, malzeme ve takım üreticisinin önerisi nihai matkap çapında önceliklidir.</p></div>
-        <div className="calc-box"><h3 className="calc-section-title flex items-center gap-2"><Info className="w-4 h-4" /> Metrik diş dibi hesabı</h3><p className="calc-prose mt-2">Temel profil için iç diş dibi D1 = d − 1,082532P; dış diş dibi d3 = d − 1,226869P bağıntısıyla yaklaşık gösterilir.</p></div>
-        <div className="calc-box"><h3 className="calc-section-title flex items-center gap-2"><Calculator className="w-4 h-4" /> Üretim kontrolü</h3><p className="calc-prose mt-2">Kör delikte dip mesafesi, matkap uç açısı, talaş boşluğu ve tam diş boyu CNC programında ayrıca kontrol edilmelidir.</p></div>
+        <div className="calc-box"><h3 className="calc-section-title flex items-center gap-2"><Wrench className="w-4 h-4" /> {isEnglish ? 'Tap drill formula' : 'Kılavuz matkap formülü'}</h3><p className="calc-prose mt-2">{isEnglish ? 'A practical starting value is approximately d − P. Thread percentage, material and tool manufacturer recommendations take priority for the final drill size.' : 'Pratik başlangıç değeri yaklaşık d − P’dir. Diş yüzdesi, malzeme ve takım üreticisinin önerisi nihai matkap çapında önceliklidir.'}</p></div>
+        <div className="calc-box"><h3 className="calc-section-title flex items-center gap-2"><Info className="w-4 h-4" /> {isEnglish ? 'Metric thread diameters' : 'Metrik diş dibi hesabı'}</h3><p className="calc-prose mt-2">{isEnglish ? 'For the basic profile, internal minor diameter D1 ≈ d − 1.082532P and external root diameter d3 ≈ d − 1.226869P.' : 'Temel profil için iç diş dibi D1 = d − 1,082532P; dış diş dibi d3 = d − 1,226869P bağıntısıyla yaklaşık gösterilir.'}</p></div>
+        <div className="calc-box"><h3 className="calc-section-title flex items-center gap-2"><Calculator className="w-4 h-4" /> {isEnglish ? 'Manufacturing check' : 'Üretim kontrolü'}</h3><p className="calc-prose mt-2">{isEnglish ? 'For blind holes, verify bottom clearance, drill point angle, chip space and full thread length separately in the CNC program.' : 'Kör delikte dip mesafesi, matkap uç açısı, talaş boşluğu ve tam diş boyu CNC programında ayrıca kontrol edilmelidir.'}</p></div>
       </section>
     </div>
   );
