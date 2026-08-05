@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Ruler, Info } from 'lucide-react';
 import { parseLocalizedNumber, formatSmartNumber } from '@/lib/calculator-utils';
+import type { Locale } from '@/lib/siteLanguage';
 
 type Row = { max: number; it6: number; it7: number; it8: number; g: number; f: number; k: number; m: number };
 
@@ -32,7 +33,9 @@ function shaftDeviation(fit: string, row: Row) {
   return { es: 0, ei: -row.it6, grade: row.it6 };
 }
 
-export default function IsoToleransCalculator() {
+export default function IsoToleransCalculator({ locale = 'tr' }: { locale?: Locale }) {
+  const isEnglish = locale === 'en';
+  const numberLocale = isEnglish ? 'en-US' : 'tr-TR';
   const [diameter, setDiameter] = useState('30');
   const [fit, setFit] = useState<(typeof fits)[number]>('H7/h6');
 
@@ -49,9 +52,13 @@ export default function IsoToleransCalculator() {
     const shaftMax = d + shaft.es / 1000;
     const minClearance = holeMin - shaftMax;
     const maxClearance = holeMax - shaftMin;
-    const type = minClearance > 0 ? 'Boşluklu geçme' : maxClearance < 0 ? 'Sıkı geçme' : 'Geçiş geçmesi';
+    const type = minClearance > 0
+      ? (isEnglish ? 'Clearance fit' : 'Boşluklu geçme')
+      : maxClearance < 0
+        ? (isEnglish ? 'Interference fit' : 'Sıkı geçme')
+        : (isEnglish ? 'Transition fit' : 'Geçiş geçmesi');
     return { d, row, holeGrade, shaft, holeMin, holeMax, shaftMin, shaftMax, minClearance, maxClearance, type };
-  }, [diameter, fit]);
+  }, [diameter, fit, isEnglish]);
 
   return (
     <div className="space-y-6">
@@ -59,38 +66,71 @@ export default function IsoToleransCalculator() {
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 rounded-2xl bg-cyan-500/10"><Ruler className="w-6 h-6 text-cyan-500" /></div>
           <div>
-            <h2 className="text-xl font-bold text-[var(--foreground)]">ISO Geçme ve Tolerans Hesaplayıcı</h2>
-            <p className="calc-prose mt-1">H7/h6, H7/g6, H7/f7, H7/k6, H7/m6 ve H8/h7 için pratik tolerans ön kontrolü yapın.</p>
+            <h2 className="text-xl font-bold text-[var(--foreground)]">
+              {isEnglish ? 'ISO Fit and Tolerance Calculator' : 'ISO Geçme ve Tolerans Hesaplayıcı'}
+            </h2>
+            <p className="calc-prose mt-1">
+              {isEnglish
+                ? 'Perform a practical tolerance check for H7/h6, H7/g6, H7/f7, H7/k6, H7/m6 and H8/h7 fits.'
+                : 'H7/h6, H7/g6, H7/f7, H7/k6, H7/m6 ve H8/h7 için pratik tolerans ön kontrolü yapın.'}
+            </p>
           </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-4">
-          <label className="block"><span className="calc-title block mb-2">Nominal çap (mm)</span><input value={diameter} onChange={(e) => setDiameter(e.target.value.replace(/[^0-9.,]/g, ''))} inputMode="decimal" className="calc-panel w-full px-4 py-3 rounded-xl outline-none" /></label>
-          <label className="block"><span className="calc-title block mb-2">Geçme tipi</span><select value={fit} onChange={(e) => setFit(e.target.value as any)} className="calc-panel w-full px-4 py-3 rounded-xl outline-none">{fits.map((f) => <option key={f} value={f}>{f}</option>)}</select></label>
+          <label className="block">
+            <span className="calc-title block mb-2">{isEnglish ? 'Nominal diameter (mm)' : 'Nominal çap (mm)'}</span>
+            <input value={diameter} onChange={(e) => setDiameter(e.target.value.replace(/[^0-9.,]/g, ''))} inputMode="decimal" className="calc-panel w-full px-4 py-3 rounded-xl outline-none" />
+          </label>
+          <label className="block">
+            <span className="calc-title block mb-2">{isEnglish ? 'Fit type' : 'Geçme tipi'}</span>
+            <select value={fit} onChange={(e) => setFit(e.target.value as (typeof fits)[number])} className="calc-panel w-full px-4 py-3 rounded-xl outline-none">
+              {fits.map((f) => <option key={f} value={f}>{f}</option>)}
+            </select>
+          </label>
         </div>
 
-        <div className="calc-box-accent mt-6"><p className="calc-prose">Bu araç 0-120 mm aralığında hızlı ön kontrol içindir. Son teknik resim ve kalite dokümanı için güncel ISO 286 tablosu ayrıca doğrulanmalıdır.</p></div>
+        <div className="calc-box-accent mt-6">
+          <p className="calc-prose">
+            {isEnglish
+              ? 'This tool is intended for quick preliminary checks from 0 to 120 mm. Verify the current ISO 286 tables before issuing final drawings or inspection documents.'
+              : 'Bu araç 0-120 mm aralığında hızlı ön kontrol içindir. Son teknik resim ve kalite dokümanı için güncel ISO 286 tablosu ayrıca doğrulanmalıdır.'}
+          </p>
+        </div>
       </div>
 
       {result && (
         <div className="calc-box">
-          <h3 className="text-cyan-600 dark:text-cyan-400 text-sm font-bold mb-4">🎯 Tolerans Sonucu</h3>
+          <h3 className="text-cyan-600 dark:text-cyan-400 text-sm font-bold mb-4">
+            {isEnglish ? 'Tolerance Result' : 'Tolerans Sonucu'}
+          </h3>
           <div className="grid md:grid-cols-2 gap-3">
-            <Result label="Geçme sınıfı" value={result.type} strong />
-            <Result label="Boşluk / sıkılık aralığı" value={`${formatSmartNumber(result.minClearance * 1000, 'tr-TR', 0)} / ${formatSmartNumber(result.maxClearance * 1000, 'tr-TR', 0)} µm`} />
-            <Result label="Delik min - max" value={`${formatSmartNumber(result.holeMin, 'tr-TR', 4)} - ${formatSmartNumber(result.holeMax, 'tr-TR', 4)} mm`} />
-            <Result label="Mil min - max" value={`${formatSmartNumber(result.shaftMin, 'tr-TR', 4)} - ${formatSmartNumber(result.shaftMax, 'tr-TR', 4)} mm`} />
-            <Result label="Delik sapması" value={`0 / +${result.holeGrade} µm`} />
-            <Result label="Mil sapması" value={`${result.shaft.ei} / ${result.shaft.es} µm`} />
+            <Result label={isEnglish ? 'Fit classification' : 'Geçme sınıfı'} value={result.type} strong />
+            <Result label={isEnglish ? 'Clearance / interference range' : 'Boşluk / sıkılık aralığı'} value={`${formatSmartNumber(result.minClearance * 1000, numberLocale, 0)} / ${formatSmartNumber(result.maxClearance * 1000, numberLocale, 0)} µm`} />
+            <Result label={isEnglish ? 'Hole min - max' : 'Delik min - max'} value={`${formatSmartNumber(result.holeMin, numberLocale, 4)} - ${formatSmartNumber(result.holeMax, numberLocale, 4)} mm`} />
+            <Result label={isEnglish ? 'Shaft min - max' : 'Mil min - max'} value={`${formatSmartNumber(result.shaftMin, numberLocale, 4)} - ${formatSmartNumber(result.shaftMax, numberLocale, 4)} mm`} />
+            <Result label={isEnglish ? 'Hole deviation' : 'Delik sapması'} value={`0 / +${result.holeGrade} µm`} />
+            <Result label={isEnglish ? 'Shaft deviation' : 'Mil sapması'} value={`${result.shaft.ei} / ${result.shaft.es} µm`} />
           </div>
         </div>
       )}
 
       <section className="calc-box space-y-4">
-        <div className="flex items-center gap-2"><Info className="w-4 h-4 text-cyan-500" /><h3 className="calc-section-title">Pratik kullanım</h3></div>
+        <div className="flex items-center gap-2">
+          <Info className="w-4 h-4 text-cyan-500" />
+          <h3 className="calc-section-title">{isEnglish ? 'Practical use' : 'Pratik kullanım'}</h3>
+        </div>
         <div className="grid md:grid-cols-2 gap-4">
-          <div className="calc-soft rounded-xl p-4 calc-prose"><strong>H7/h6</strong> hassas boşluklu geçme, <strong>H7/g6</strong> rahat kayan geçme, <strong>H7/f7</strong> serbest geçme için kullanılır.</div>
-          <div className="calc-soft rounded-xl p-4 calc-prose"><strong>H7/k6</strong> ve <strong>H7/m6</strong> geçiş/sıkı geçme ön kontrolünde kullanılır. Gerçek montaj; malzeme, yüzey ve ısıl işlemden etkilenir.</div>
+          <div className="calc-soft rounded-xl p-4 calc-prose">
+            {isEnglish
+              ? <><strong>H7/h6</strong> is commonly used for accurate clearance fits, <strong>H7/g6</strong> for sliding fits and <strong>H7/f7</strong> for free-running fits.</>
+              : <><strong>H7/h6</strong> hassas boşluklu geçme, <strong>H7/g6</strong> rahat kayan geçme, <strong>H7/f7</strong> serbest geçme için kullanılır.</>}
+          </div>
+          <div className="calc-soft rounded-xl p-4 calc-prose">
+            {isEnglish
+              ? <><strong>H7/k6</strong> and <strong>H7/m6</strong> are used for transition or interference-fit checks. Actual assembly is affected by material, surface finish and heat treatment.</>
+              : <><strong>H7/k6</strong> ve <strong>H7/m6</strong> geçiş/sıkı geçme ön kontrolünde kullanılır. Gerçek montaj; malzeme, yüzey ve ısıl işlemden etkilenir.</>}
+          </div>
         </div>
       </section>
     </div>
