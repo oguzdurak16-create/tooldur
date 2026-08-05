@@ -6,6 +6,7 @@ import { generateDrawing } from '@/lib/drawingEngine';
 import TeknikCizimPanel from '@/components/TeknikCizimPanel';
 import { Flame, Sparkles, Info } from 'lucide-react';
 import { parseLocalizedNumber, formatSmartNumber } from '@/lib/calculator-utils';
+import type { Locale } from '@/lib/siteLanguage';
 
 const MATERIALS: Record<string, number> = {
   'Alüminyum (saf)': 237,
@@ -20,6 +21,21 @@ const MATERIALS: Record<string, number> = {
   'Hava (25°C)': 0.026,
   'Su (25°C)': 0.607,
   'Motor yağı': 0.145,
+};
+
+const EN_MATERIALS: Record<string, string> = {
+  'Alüminyum (saf)': 'Aluminum (pure)',
+  'Bakır (saf)': 'Copper (pure)',
+  'Çelik (karbon)': 'Carbon steel',
+  'Paslanmaz 304': 'Stainless steel 304',
+  'Dökme demir': 'Cast iron',
+  'Pirinç': 'Brass',
+  'Titanyum': 'Titanium',
+  Beton: 'Concrete',
+  Cam: 'Glass',
+  'Hava (25°C)': 'Air (25°C)',
+  'Su (25°C)': 'Water (25°C)',
+  'Motor yağı': 'Engine oil',
 };
 
 type Mode = 'plaka' | 'silindir';
@@ -40,8 +56,10 @@ type Sonuc =
       r2: string;
     };
 
-export default function TermalIletimCalculator() {
+export default function TermalIletimCalculator({ locale = 'tr' }: { locale?: Locale }) {
   const { saveCalculation } = useCalculationHistory();
+  const isEnglish = locale === 'en';
+  const numberLocale = isEnglish ? 'en-US' : 'tr-TR';
 
   const [mode, setMode] = useState<Mode>('plaka');
   const [mat, setMat] = useState('Çelik (karbon)');
@@ -126,12 +144,13 @@ export default function TermalIletimCalculator() {
       );
     }
 
+    const materialName = isEnglish ? EN_MATERIALS[mat] || mat : mat;
     saveCalculation({
       toolSlug: 'termal-iletim-hesaplama',
-      toolName: 'Endüstriyel Isı ve Termal İletim Hesaplama',
+      toolName: isEnglish ? 'Thermal Conduction Calculator' : 'Endüstriyel Isı ve Termal İletim Hesaplama',
       category: 'makine',
       inputs: {
-        Malzeme: mat,
+        [isEnglish ? 'Material' : 'Malzeme']: materialName,
         'k(W/mK)': kv,
         'ΔT(°C)': dtv,
       },
@@ -139,7 +158,7 @@ export default function TermalIletimCalculator() {
         'Q(W)': +Q.toFixed(2),
         'R(K/W)': +R.toFixed(4),
       },
-      summary: `${mat} ΔT=${dtv}°C → Q=${Q.toFixed(1)}W, R=${R.toFixed(4)}K/W`,
+      summary: `${materialName} ΔT=${dtv}°C → Q=${Q.toFixed(1)}W, R=${R.toFixed(4)}K/W`,
     });
   };
 
@@ -152,10 +171,12 @@ export default function TermalIletimCalculator() {
           </div>
           <div>
             <h2 className="text-xl font-bold text-[var(--foreground)]">
-              Endüstriyel Isı ve Termal İletim Hesaplama
+              {isEnglish ? 'Thermal Conduction Calculator' : 'Endüstriyel Isı ve Termal İletim Hesaplama'}
             </h2>
             <p className="calc-prose mt-1">
-              Düz plaka veya silindirik geometri için ısı akısı ve termal direnci hesaplayın.
+              {isEnglish
+                ? 'Calculate heat flow and thermal resistance for flat-plate or cylindrical geometry.'
+                : 'Düz plaka veya silindirik geometri için ısı akısı ve termal direnci hesaplayın.'}
             </p>
           </div>
         </div>
@@ -172,13 +193,15 @@ export default function TermalIletimCalculator() {
                   : 'calc-panel border-[var(--border)] text-[var(--foreground)]'
               }`}
             >
-              {m === 'plaka' ? 'Düz Plaka' : 'Silindirik'}
+              {m === 'plaka'
+                ? isEnglish ? 'Flat Plate' : 'Düz Plaka'
+                : isEnglish ? 'Cylindrical' : 'Silindirik'}
             </button>
           ))}
         </div>
 
         <div className="mt-5">
-          <label className="calc-title block mb-2">Malzeme</label>
+          <label className="calc-title block mb-2">{isEnglish ? 'Material' : 'Malzeme'}</label>
           <select
             value={mat}
             onChange={(e) => applyMaterial(e.target.value)}
@@ -186,7 +209,7 @@ export default function TermalIletimCalculator() {
           >
             {Object.keys(MATERIALS).map((m) => (
               <option key={m} value={m}>
-                {m} — k={MATERIALS[m]} W/mK
+                {isEnglish ? EN_MATERIALS[m] || m : m} — k={MATERIALS[m]} W/mK
               </option>
             ))}
           </select>
@@ -196,13 +219,13 @@ export default function TermalIletimCalculator() {
           {mode === 'plaka' ? (
             <>
               <InputField
-                label="Kalınlık (mm)"
+                label={isEnglish ? 'Thickness (mm)' : 'Kalınlık (mm)'}
                 value={L}
                 onChange={setL}
                 placeholder="10"
               />
               <InputField
-                label="Alan (m²)"
+                label={isEnglish ? 'Area (m²)' : 'Alan (m²)'}
                 value={A}
                 onChange={setA}
                 placeholder="0.01"
@@ -211,19 +234,19 @@ export default function TermalIletimCalculator() {
           ) : (
             <>
               <InputField
-                label="İç yarıçap r₁ (mm)"
+                label={isEnglish ? 'Inner radius r₁ (mm)' : 'İç yarıçap r₁ (mm)'}
                 value={r1}
                 onChange={setR1}
                 placeholder="25"
               />
               <InputField
-                label="Dış yarıçap r₂ (mm)"
+                label={isEnglish ? 'Outer radius r₂ (mm)' : 'Dış yarıçap r₂ (mm)'}
                 value={r2}
                 onChange={setR2}
                 placeholder="32"
               />
               <InputField
-                label="Uzunluk (mm)"
+                label={isEnglish ? 'Length (mm)' : 'Uzunluk (mm)'}
                 value={L}
                 onChange={setL}
                 placeholder="10"
@@ -232,7 +255,7 @@ export default function TermalIletimCalculator() {
           )}
 
           <InputField
-            label="ΔT Sıcaklık Farkı (°C)"
+            label={isEnglish ? 'Temperature difference ΔT (°C)' : 'ΔT Sıcaklık Farkı (°C)'}
             value={dt}
             onChange={setDt}
             placeholder="80"
@@ -241,10 +264,12 @@ export default function TermalIletimCalculator() {
 
         <div className="calc-box-accent mt-6">
           <p className="text-sm font-semibold text-[var(--foreground)]">
-            Fourier ısı iletim bağıntısı kullanılır.
+            {isEnglish ? "Fourier's law of heat conduction is used." : 'Fourier ısı iletim bağıntısı kullanılır.'}
           </p>
           <p className="calc-prose mt-2">
-            Düz plaka için bir boyutlu iletim, silindirik geometri için radyal iletim yaklaşımı kullanılır.
+            {isEnglish
+              ? 'One-dimensional conduction is used for a flat plate, and radial conduction is used for cylindrical geometry.'
+              : 'Düz plaka için bir boyutlu iletim, silindirik geometri için radyal iletim yaklaşımı kullanılır.'}
           </p>
         </div>
 
@@ -253,7 +278,7 @@ export default function TermalIletimCalculator() {
           className="w-full mt-6 py-3 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-colors"
           type="button"
         >
-          Hesapla
+          {isEnglish ? 'Calculate' : 'Hesapla'}
         </button>
       </div>
 
@@ -261,16 +286,16 @@ export default function TermalIletimCalculator() {
         <div className="calc-box">
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 calc-result rounded-xl text-center">
-              <div className="text-xs calc-muted mb-1">Isı Akısı Q</div>
+              <div className="text-xs calc-muted mb-1">{isEnglish ? 'Heat Flow Q' : 'Isı Akısı Q'}</div>
               <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                {formatSmartNumber(sonuc.Q, 'tr-TR', 2)} W
+                {formatSmartNumber(sonuc.Q, numberLocale, 2)} W
               </div>
             </div>
 
             <div className="p-4 calc-soft rounded-xl text-center">
-              <div className="text-xs calc-muted mb-1">Termal Direnç R</div>
+              <div className="text-xs calc-muted mb-1">{isEnglish ? 'Thermal Resistance R' : 'Termal Direnç R'}</div>
               <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                {formatSmartNumber(sonuc.R, 'tr-TR', 4)} K/W
+                {formatSmartNumber(sonuc.R, numberLocale, 4)} K/W
               </div>
             </div>
           </div>
@@ -281,9 +306,13 @@ export default function TermalIletimCalculator() {
         <div className="flex items-start gap-3">
           <Info className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
           <div>
-            <p className="font-bold text-[var(--foreground)] mb-1">Termal İletim Notu</p>
+            <p className="font-bold text-[var(--foreground)] mb-1">
+              {isEnglish ? 'Thermal Conduction Note' : 'Termal İletim Notu'}
+            </p>
             <p className="calc-prose">
-              Malzeme iletkenliği sıcaklığa bağlı değişebilir. Bu araç sabit k değeri ile temel mühendislik hesabı yapar.
+              {isEnglish
+                ? 'Thermal conductivity may vary with temperature. This tool performs a basic engineering calculation using a constant k value.'
+                : 'Malzeme iletkenliği sıcaklığa bağlı değişebilir. Bu araç sabit k değeri ile temel mühendislik hesabı yapar.'}
             </p>
           </div>
         </div>
@@ -292,20 +321,27 @@ export default function TermalIletimCalculator() {
       <section className="calc-box space-y-4">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-amber-500" />
-          <h3 className="calc-section-title">Termal iletim hesabı hakkında</h3>
+          <h3 className="calc-section-title">
+            {isEnglish ? 'About thermal conduction calculations' : 'Termal iletim hesabı hakkında'}
+          </h3>
         </div>
 
         <div className="grid md:grid-cols-2 gap-4">
           <div className="calc-soft rounded-xl p-4">
             <p className="calc-prose">
-              Bu araç düz plaka veya silindirik geometride iletim yoluyla geçen ısı miktarını ve termal direnci hesaplar.
+              {isEnglish
+                ? 'This tool calculates heat transferred by conduction and thermal resistance in flat-plate or cylindrical geometry.'
+                : 'Bu araç düz plaka veya silindirik geometride iletim yoluyla geçen ısı miktarını ve termal direnci hesaplar.'}
             </p>
           </div>
 
           <div className="calc-soft rounded-xl p-4">
             <p className="calc-prose">
-              Sık aramalar: <strong>termal iletim hesaplama</strong>, <strong>ısı akısı hesabı</strong>,
-              <strong> termal direnç</strong>, <strong>fourier ısı iletimi</strong>.
+              {isEnglish ? (
+                <>Common searches: <strong>thermal conduction calculator</strong>, <strong>heat flow calculation</strong>, <strong>thermal resistance</strong>, <strong>Fourier heat conduction</strong>.</>
+              ) : (
+                <>Sık aramalar: <strong>termal iletim hesaplama</strong>, <strong>ısı akısı hesabı</strong>, <strong>termal direnç</strong>, <strong>fourier ısı iletimi</strong>.</>
+              )}
             </p>
           </div>
         </div>
@@ -314,7 +350,7 @@ export default function TermalIletimCalculator() {
       <TeknikCizimPanel
         svgContent={svgContent}
         filename="termal-iletim"
-        title="Termal İletim Diyagramı"
+        title={isEnglish ? 'Thermal Conduction Diagram' : 'Termal İletim Diyagramı'}
       />
     </div>
   );
