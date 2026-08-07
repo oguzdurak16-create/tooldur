@@ -6,6 +6,7 @@ import CookieConsent from '@/components/CookieConsent';
 import MobileTabBar from '@/components/MobileTabBar';
 import ToastBridge from '@/components/ToastBridge';
 import PwaManager from '@/components/PwaManager';
+import MervePushSetup from '@/components/MervePushSetup';
 
 type Props = {
   area: 'top' | 'bottom';
@@ -26,6 +27,7 @@ export default function ClientChrome({ area }: Props) {
       <MobileTabBar />
       <ToastBridge />
       <PwaManager />
+      <MervePushSetup />
     </>
   );
 }
