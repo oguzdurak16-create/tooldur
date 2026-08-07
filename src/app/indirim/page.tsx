@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Activity, Bell, ExternalLink, Plus, Store, Tag, Trash2 } from 'lucide-react';
+import { Activity, Bell, ChevronDown, ExternalLink, Plus, Settings2, Store, Tag, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import styles from './Indirim.module.css';
 
@@ -40,6 +40,7 @@ export default function IndirimPage(){
   const [saving,setSaving]=useState(false);
   const [message,setMessage]=useState('');
   const [error,setError]=useState('');
+  const [productLimit,setProductLimit]=useState(24);
 
   const siteMap=useMemo(()=>Object.fromEntries(sites.map(s=>[s.id,s.name])),[sites]);
   const categoryMap=useMemo(()=>Object.fromEntries(categories.map(c=>[c.id,c.name])),[categories]);
@@ -50,6 +51,7 @@ export default function IndirimPage(){
     if(discountDiff!==0)return discountDiff;
     return Number(a.current_price||Number.MAX_SAFE_INTEGER)-Number(b.current_price||Number.MAX_SAFE_INTEGER);
   }),[products,section]);
+  const visibleProducts=useMemo(()=>sortedProducts.slice(0,productLimit),[sortedProducts,productLimit]);
   const visibleLogs=useMemo(()=>logs,[logs]);
 
   useEffect(()=>{
@@ -98,7 +100,8 @@ export default function IndirimPage(){
   },[authReady,allowed]);
 
   const changeSection=(next:Section)=>{
-    setSection(next);setCategoryId(sectionDefaultCategory[next]);setMinDiscount(20);setMessage('');setError('');
+    setSection(next);setCategoryId(sectionDefaultCategory[next]);setMinDiscount(20);setMessage('');setError('');setProductLimit(24);
+    window.scrollTo({top:0,behavior:'smooth'});
   };
 
   const addRule=async()=>{
@@ -131,68 +134,69 @@ export default function IndirimPage(){
   const activeRules=visibleRules.filter(r=>r.enabled).length;
   const realDrops=sortedProducts.filter(p=>Number(p.discount_percent||0)>0).length;
   const lastScan=visibleLogs[0];
-  const heroText=section==='oguzhan'?'Erkek giyim fiyatlarını saatlik izle; mağaza indirim etiketine değil gerçek fiyat düşüşüne göre fırsatları gör.':section==='ege'?'Ege için yalnız erkek çocuk/bebek ürünlerini izle; kız ürünleri dışarıda kalır ve yalnız gerçek fiyat düşüşleri fırsat sayılır.':'Kadın giyim ve kozmetik ürünlerini izle; yalnız gerçekten ucuzlayan ürünleri öne çıkar.';
+  const lastScanText=lastScan?new Date(lastScan.started_at).toLocaleString('tr-TR',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}):'—';
+  const heroText=section==='oguzhan'?'Erkek giyim · XL · gerçek fiyat düşüşü':section==='ege'?'Erkek çocuk · 4+ yaş · gerçek fiyat düşüşü':'Kadın giyim L/XL + kozmetik · gerçek fiyat düşüşü';
 
   return <main className={styles.page}><div className={styles.shell}>
     <section className={styles.hero}>
       <div><div className={styles.eyebrow}>{sectionTitle[section]} İndirim</div><h1 className={styles.title}>İndirim Takip</h1><p className={styles.subtitle}>{heroText}</p></div>
-      <div className={styles.status}><span className={styles.dot}/><span>Tarama aralığı: {settings.scan_interval_minutes} dk</span></div>
+      <div className={styles.status}><span className={styles.dot}/><span>{settings.scan_interval_minutes} dk · son {lastScanText}</span></div>
     </section>
 
-    <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,margin:'0 0 16px'}}>
-      {(['merve','oguzhan','ege'] as Section[]).map(x=><button key={x} onClick={()=>changeSection(x)} style={{border:'1px solid rgba(255,255,255,.12)',borderRadius:12,padding:'12px 10px',fontWeight:800,cursor:'pointer',background:section===x?'#f6c90e':'rgba(255,255,255,.04)',color:section===x?'#111':'inherit'}}>{sectionTitle[x]}</button>)}
-    </div>
+    <nav className={styles.profileTabs}>
+      {(['merve','oguzhan','ege'] as Section[]).map(x=><button key={x} onClick={()=>changeSection(x)} className={`${styles.profileTab} ${section===x?styles.profileTabActive:''}`}>{sectionTitle[x]}</button>)}
+    </nav>
 
-    <section className={styles.gridStats}>
-      <div className={styles.stat}><div className={styles.statLabel}>Aktif kural</div><div className={styles.statValue}>{activeRules}</div></div>
-      <div className={styles.stat}><div className={styles.statLabel}>Ürün</div><div className={styles.statValue}>{sortedProducts.length}</div></div>
-      <div className={styles.stat}><div className={styles.statLabel}>Gerçek düşüş</div><div className={styles.statValue}>{realDrops}</div></div>
-      <div className={styles.stat}><div className={styles.statLabel}>Son tarama</div><div className={styles.statValue} style={{fontSize:16}}>{lastScan?new Date(lastScan.started_at).toLocaleString('tr-TR',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}):'—'}</div></div>
+    <section className={styles.compactStats}>
+      <div><span>Ürün</span><strong>{sortedProducts.length}</strong></div>
+      <div><span>Düşüş</span><strong>{realDrops}</strong></div>
+      <div><span>Kural</span><strong>{activeRules}</strong></div>
+      <div><span>Son tarama</span><strong>{lastScan?new Date(lastScan.started_at).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}):'—'}</strong></div>
     </section>
 
-    <div className={styles.layout}>
-      <div>
-        <section className={styles.card}>
-          <div className={styles.cardHead}><div><div className={styles.cardTitle}><Plus size={16} style={{verticalAlign:'-3px',marginRight:7}}/>Yeni takip kuralı</div><div className={styles.muted}>{sectionTitle[section]} sekmesine yeni mağaza/kategori kaynağı ekle.</div></div></div>
+    <section className={`${styles.card} ${styles.productsCard}`}>
+      <div className={styles.cardHead}><div><div className={styles.cardTitle}><Store size={16}/> Fiyat takibi</div><div className={styles.muted}>Gerçek düşüş yüksekten düşüğe · ilk {Math.min(productLimit,sortedProducts.length)} / {sortedProducts.length}</div></div></div>
+      <div className={styles.productList}>{sortedProducts.length===0?<div className={styles.empty}>Tarama sonrası ürünler burada görünecek.</div>:visibleProducts.map(p=><a key={p.id} href={p.url} target='_blank' rel='noreferrer' className={styles.product}><div className={styles.productMain}><div className={styles.productTitle}>{p.title}</div><div className={styles.productMeta}>{siteMap[p.site_id]||p.site_id} · {p.current_price?`${Number(p.current_price).toLocaleString('tr-TR')} TL`:'Fiyat yok'}{p.original_price?` · önce ${Number(p.original_price).toLocaleString('tr-TR')} TL`:''}</div></div><div className={styles.discount}>{Number(p.discount_percent||0)>0?`-%${Math.round(Number(p.discount_percent))}`:<ExternalLink size={15}/>}</div></a>)}</div>
+      {productLimit<sortedProducts.length&&<button className={styles.moreButton} onClick={()=>setProductLimit(v=>Math.min(v+24,sortedProducts.length))}>24 ürün daha göster</button>}
+    </section>
+
+    <div className={styles.toolsGrid}>
+      <details className={styles.collapse}>
+        <summary><span><Settings2 size={16}/> Yönetim</span><span className={styles.summaryMeta}>{visibleRules.length} kural <ChevronDown size={16}/></span></summary>
+        <div className={styles.collapseBody}>
+          <div className={styles.sectionLabel}><Plus size={15}/> Yeni takip kuralı</div>
           <div className={styles.formGrid}>
             <label className={styles.field}><span className={styles.label}>Kategori</span><select className={styles.select} value={categoryId} onChange={e=>{setCategoryId(e.target.value);const c=categories.find(x=>x.id===e.target.value);if(c)setMinDiscount(Number(c.min_discount_percent));}}>{sectionCategories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
             <label className={styles.field}><span className={styles.label}>Mağaza</span><select className={styles.select} value={siteId} onChange={e=>setSiteId(e.target.value)}>{sites.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
             <label className={`${styles.field} ${styles.fieldFull}`}><span className={styles.label}>Kategori URL</span><input className={styles.input} type='url' value={categoryUrl} onChange={e=>setCategoryUrl(e.target.value)} placeholder='https://www.site.com/kategori/...'/></label>
             <label className={styles.field}><span className={styles.label}>Gerçek düşüş eşiği (%)</span><input className={styles.input} type='number' min={1} max={95} value={minDiscount} onChange={e=>setMinDiscount(Number(e.target.value)||1)}/></label>
-            <div className={styles.field} style={{justifyContent:'flex-end'}}><button className={styles.button} onClick={addRule} disabled={saving}>{saving?'Ekleniyor…':'Takibe Ekle'}</button></div>
+            <div className={styles.field}><button className={styles.button} onClick={addRule} disabled={saving}>{saving?'Ekleniyor…':'Takibe Ekle'}</button></div>
           </div>
           {error&&<div className={styles.error}>{error}</div>}{message&&<div className={styles.success}>{message}</div>}
-        </section>
-
-        <section className={styles.card}>
-          <div className={styles.cardHead}><div><div className={styles.cardTitle}><Tag size={16} style={{verticalAlign:'-3px',marginRight:7}}/>Takip kuralları</div><div className={styles.muted}>{visibleRules.length} kural</div></div></div>
-          <div className={styles.rules}>{loading?<div className={styles.empty}>Yükleniyor…</div>:visibleRules.length===0?<div className={styles.empty}>Bu sekmede henüz takip kuralı yok.</div>:visibleRules.map(rule=><div className={styles.rule} key={rule.id}>
-            <div className={styles.ruleTop}><div style={{minWidth:0}}><div className={styles.ruleName}>{categoryMap[rule.category_id]||rule.category_id} · {siteMap[rule.site_id]||rule.site_id}</div><div className={styles.ruleMeta}>%{Number(rule.min_discount_percent)} gerçek fiyat düşüşü ve üzeri</div></div><button aria-label='Kuralı aç/kapat' className={`${styles.switch} ${rule.enabled?styles.switchOn:''}`} onClick={()=>toggleRule(rule)}><span className={styles.switchKnob}/></button></div>
-            <div className={styles.ruleUrl}>{rule.category_url||'Kategori URL eklenmemiş'}</div>
-            <div className={styles.chips}><span className={`${styles.chip} ${rule.notify?styles.chipOn:''}`}>{rule.notify?'Bildirim açık':'Bildirim kapalı'}</span><button className={`${styles.ghost} ${styles.danger}`} onClick={()=>removeRule(rule.id)}><Trash2 size={12} style={{verticalAlign:'-2px'}}/> Sil</button></div>
+          <div className={styles.sectionLabel}><Tag size={15}/> Takip kuralları</div>
+          <div className={styles.rules}>{loading?<div className={styles.empty}>Yükleniyor…</div>:visibleRules.length===0?<div className={styles.empty}>Bu sekmede takip kuralı yok.</div>:visibleRules.map(rule=><div className={styles.rule} key={rule.id}>
+            <div className={styles.ruleTop}><div><div className={styles.ruleName}>{categoryMap[rule.category_id]||rule.category_id} · {siteMap[rule.site_id]||rule.site_id}</div><div className={styles.ruleMeta}>%{Number(rule.min_discount_percent)} gerçek düşüş ve üzeri</div></div><button aria-label='Kuralı aç/kapat' className={`${styles.switch} ${rule.enabled?styles.switchOn:''}`} onClick={()=>toggleRule(rule)}><span className={styles.switchKnob}/></button></div>
+            <div className={styles.ruleUrl}>{rule.category_url||'Kategori URL yok'}</div><div className={styles.chips}><span className={`${styles.chip} ${rule.notify?styles.chipOn:''}`}>{rule.notify?'Bildirim açık':'Bildirim kapalı'}</span><button className={`${styles.ghost} ${styles.danger}`} onClick={()=>removeRule(rule.id)}><Trash2 size={12}/> Sil</button></div>
           </div>)}</div>
-        </section>
+        </div>
+      </details>
 
-        <section className={styles.card}>
-          <div className={styles.cardHead}><div><div className={styles.cardTitle}><Store size={16} style={{verticalAlign:'-3px',marginRight:7}}/>En yüksek gerçek düşüşler</div><div className={styles.muted}>Önceki gördüğümüz fiyata göre yüksekten düşüğe</div></div></div>
-          <div className={styles.productList}>{sortedProducts.length===0?<div className={styles.empty}>Tarama sonrası ürünler burada görünecek.</div>:sortedProducts.map(p=><a key={p.id} href={p.url} target='_blank' rel='noreferrer' className={styles.product} style={{textDecoration:'none',color:'inherit'}}><div style={{minWidth:0}}><div className={styles.productTitle}>{p.title}</div><div className={styles.productMeta}>{siteMap[p.site_id]||p.site_id} · {categoryMap[p.category_id]||p.category_id} · {p.current_price?`${Number(p.current_price).toLocaleString('tr-TR')} TL`:'Fiyat yok'}{p.original_price?` · Önce ${Number(p.original_price).toLocaleString('tr-TR')} TL`:''}</div></div><div className={styles.discount}>{Number(p.discount_percent||0)>0?`-%${Math.round(Number(p.discount_percent))}`:<ExternalLink size={15}/>}</div></a>)}</div>
-        </section>
-      </div>
-
-      <aside>
-        <section className={styles.card}>
-          <div className={styles.cardHead}><div className={styles.cardTitle}><Bell size={16} style={{verticalAlign:'-3px',marginRight:7}}/>Bildirim ayarları</div></div>
+      <details className={styles.collapse}>
+        <summary><span><Bell size={16}/> Bildirim ayarları</span><span className={styles.summaryMeta}>{settings.notifications_enabled?'Açık':'Kapalı'} <ChevronDown size={16}/></span></summary>
+        <div className={styles.collapseBody}>
           <div className={styles.settingsRow}><div><div className={styles.settingsName}>Bildirimler</div><div className={styles.muted}>Gerçek fiyat düşüşlerini bildir</div></div><button className={`${styles.switch} ${settings.notifications_enabled?styles.switchOn:''}`} onClick={()=>updateSettings({notifications_enabled:!settings.notifications_enabled})}><span className={styles.switchKnob}/></button></div>
           <div className={styles.settingsRow}><div><div className={styles.settingsName}>Toplu bildirim</div><div className={styles.muted}>Aynı taramadaki fırsatları grupla</div></div><button className={`${styles.switch} ${settings.digest_mode?styles.switchOn:''}`} onClick={()=>updateSettings({digest_mode:!settings.digest_mode})}><span className={styles.switchKnob}/></button></div>
           <div className={styles.settingsRow}><div><div className={styles.settingsName}>Genel eşik</div><div className={styles.muted}>Varsayılan gerçek düşüş</div></div><div className={styles.row}><input className={styles.input} style={{width:72}} type='number' min={1} max={95} value={settings.min_discount_percent} onChange={e=>setSettings({...settings,min_discount_percent:Number(e.target.value)||1})} onBlur={()=>updateSettings({min_discount_percent:settings.min_discount_percent})}/><span className={styles.muted}>%</span></div></div>
-        </section>
+        </div>
+      </details>
 
-        <section className={styles.card}>
-          <div className={styles.cardHead}><div className={styles.cardTitle}><Activity size={16} style={{verticalAlign:'-3px',marginRight:7}}/>Tarama geçmişi</div></div>
-          <div className={styles.notice}>Saatlik tarama aktif. Mağazanın kendi indirim etiketi bildirim sebebi değildir; yalnız bizim gözlemlediğimiz fiyatın düşmesi fırsat sayılır.</div>
-          <div className={styles.rules}>{visibleLogs.length===0?<div className={styles.empty}>Henüz tarama kaydı yok.</div>:visibleLogs.map(log=><div className={styles.rule} key={log.id}><div className={styles.ruleName}>{log.status}</div><div className={styles.ruleMeta}>{new Date(log.started_at).toLocaleString('tr-TR')} · {log.scanned_count} ürün · {log.changed_count} değişim · {log.notified_count} bildirim</div>{log.error_message&&<div className={styles.error}>{log.error_message}</div>}</div>)}</div>
-        </section>
-      </aside>
+      <details className={styles.collapse}>
+        <summary><span><Activity size={16}/> Tarama geçmişi</span><span className={styles.summaryMeta}>{lastScan?.status||'—'} <ChevronDown size={16}/></span></summary>
+        <div className={styles.collapseBody}>
+          <div className={styles.notice}>Saatlik tarama aktif. Yalnız bizim gördüğümüz fiyatın gerçekten düşmesi fırsat sayılır.</div>
+          <div className={styles.rules}>{visibleLogs.length===0?<div className={styles.empty}>Henüz tarama kaydı yok.</div>:visibleLogs.map(log=><div className={styles.rule} key={log.id}><div className={styles.ruleTop}><div className={styles.ruleName}>{log.status}</div><div className={styles.ruleMeta}>{new Date(log.started_at).toLocaleString('tr-TR')}</div></div><div className={styles.ruleMeta}>{log.scanned_count} ürün · {log.changed_count} değişim · {log.notified_count} bildirim</div>{log.error_message&&<div className={styles.error}>{log.error_message}</div>}</div>)}</div>
+        </div>
+      </details>
     </div>
   </div></main>;
 }
