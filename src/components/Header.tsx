@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { ChevronDown, Globe, LayoutDashboard, LogIn, Search } from 'lucide-react';
+import { ChevronDown, Globe, LayoutDashboard, LogIn, Search, WalletCards } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import GlobalToolSearch from '@/components/GlobalToolSearch';
 import { ALL_LOCALES, LANGUAGE_META, UI_TEXT, getLocaleFromPathname, getLocalizedPath, localizeCurrentPath, type Locale } from '@/lib/siteLanguage';
@@ -79,7 +79,10 @@ export default function Header() {
 
           <div className={styles.actions}>
             {authReady && user ? (
-              <Link href="/dashboard" className={`${styles.action} ${styles.actionPrimary} ${styles.desktopAction}`}><LayoutDashboard size={15} /> {nav.panel}</Link>
+              <>
+                <Link href="/dashboard/butce" className={`${styles.action} ${styles.desktopAction}`} title="Harcama ve bütçe takibi"><WalletCards size={15} /> Bütçe</Link>
+                <Link href="/dashboard" className={`${styles.action} ${styles.actionPrimary} ${styles.desktopAction}`}><LayoutDashboard size={15} /> {nav.panel}</Link>
+              </>
             ) : (
               <Link href="/giris" className={`${styles.action} ${styles.actionPrimary} ${styles.desktopAction}`}><LogIn size={15} /> {nav.login}</Link>
             )}
