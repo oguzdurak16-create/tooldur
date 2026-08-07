@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const URL = 'https://www.lcw.com/kampanyalar/kadin-urunleri-sepette-yuzde-50-ye-varan-indirimli';
+const LCW_URL = 'https://www.lcw.com/kampanyalar/kadin-urunleri-sepette-yuzde-50-ye-varan-indirimli';
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36';
 
 type Product = { external_id:string|null; title:string; url:string; image_url:string|null; current_price:number|null; original_price:number|null; discount_percent:number; in_stock:boolean|null };
@@ -14,7 +14,7 @@ function n(v:any): number|null {
   const x = v.replace(/[^0-9,.-]/g,'').replace(/\.(?=\d{3}(\D|$))/g,'').replace(',','.');
   const z = Number(x); return Number.isFinite(z) ? z : null;
 }
-function abs(v:any){ try { return v ? new URL(String(v),URL).toString() : '' } catch { return '' } }
+function abs(v:any){ try { return v ? new globalThis.URL(String(v),LCW_URL).toString() : '' } catch { return '' } }
 function one(v:any){ return Array.isArray(v) ? v[0] : v }
 function img(v:any):string|null { const x=one(v); return typeof x==='string'?x:(x?.url||x?.contentUrl||null) }
 function pushProduct(node:any,out:Product[],seen:Set<string>) {
@@ -60,7 +60,7 @@ function htmlFallback(html:string){
 
 export async function GET(){
   try{
-    const res=await fetch(URL,{cache:'no-store',redirect:'follow',headers:{'user-agent':UA,'accept':'text/html,application/xhtml+xml','accept-language':'tr-TR,tr;q=0.9,en;q=0.7'}});
+    const res=await fetch(LCW_URL,{cache:'no-store',redirect:'follow',headers:{'user-agent':UA,'accept':'text/html,application/xhtml+xml','accept-language':'tr-TR,tr;q=0.9,en;q=0.7'}});
     const html=await res.text(); if(!res.ok)return NextResponse.json({ok:false,status:res.status,products:[]},{status:502});
     let products=jsonLd(html); let source='jsonld'; if(products.length===0){products=htmlFallback(html);source='html'}
     return NextResponse.json({ok:true,status:res.status,source,count:products.length,products:products.slice(0,80),at:new Date().toISOString()},{headers:{'Cache-Control':'no-store'}});
