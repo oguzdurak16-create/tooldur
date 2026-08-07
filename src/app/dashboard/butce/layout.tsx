@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './mobile.css';
+import './modal-fix.css';
 
 export const metadata: Metadata = {
   title: 'Bütçe & Harcama',
