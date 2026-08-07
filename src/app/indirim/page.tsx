@@ -64,8 +64,8 @@ export default function IndirimPage(){
     return()=>{mounted=false};
   },[router]);
 
-  const load=async()=>{
-    setLoading(true); setError('');
+  const load=async(silent=false)=>{
+    if(!silent){ setLoading(true); setError(''); }
     const [c,s,r,p,st,l]=await Promise.all([
       supabase.from('merve_categories').select('id,name,enabled,min_discount_percent').order('name'),
       supabase.from('merve_sites').select('id,name,base_url,enabled').order('name'),
@@ -79,10 +79,23 @@ export default function IndirimPage(){
     setCategories((c.data||[]) as Category[]); setSites((s.data||[]) as Site[]); setRules((r.data||[]) as Rule[]);
     setProducts((p.data||[]) as Product[]); setLogs((l.data||[]) as ScanLog[]);
     if(st.data) setSettings(st.data as Settings);
-    setLoading(false);
+    if(!silent) setLoading(false);
   };
 
-  useEffect(()=>{ if(authReady&&allowed) load(); },[authReady,allowed]);
+  useEffect(()=>{
+    if(!authReady||!allowed) return;
+    void load();
+    const refresh=()=>{ void load(true); };
+    const timer=window.setInterval(refresh,30000);
+    const onVisibility=()=>{ if(document.visibilityState==='visible') refresh(); };
+    window.addEventListener('focus',refresh);
+    document.addEventListener('visibilitychange',onVisibility);
+    return()=>{
+      window.clearInterval(timer);
+      window.removeEventListener('focus',refresh);
+      document.removeEventListener('visibilitychange',onVisibility);
+    };
+  },[authReady,allowed]);
 
   const changeSection=(next:Section)=>{
     setSection(next);setCategoryId(sectionDefaultCategory[next]);setMinDiscount(20);setMessage('');setError('');
