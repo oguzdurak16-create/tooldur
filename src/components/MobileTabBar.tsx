@@ -15,6 +15,7 @@ import {
   Menu,
   MessageSquare,
   Search,
+  Tag,
   User,
   Wrench,
   X,
@@ -28,6 +29,7 @@ import styles from './MobileTabBar.module.css';
 
 const LANG_OPTIONS = ALL_LOCALES.map((locale) => ({ locale, label: LANGUAGE_META[locale].label, short: LANGUAGE_META[locale].short })) as Array<{ locale: Locale; label: string; short: string }>;
 const SEO_CATEGORIES = getIndexableCategories(categories).slice(0, 6);
+const DISCOUNT_EMAILS = new Set(['m.egedurak@gmail.com', 'oguzdurak16@gmail.com']);
 
 export default function MobileTabBar() {
   const pathname = usePathname();
@@ -72,6 +74,7 @@ export default function MobileTabBar() {
   const supportHref = getLocalizedPath(locale, 'support');
   const projectHref = getLocalizedPath(locale, 'project-management');
   const forumHref = '/forum';
+  const discountAccess = DISCOUNT_EMAILS.has(String(user?.email || '').toLowerCase());
   const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
   const openSearch = () => window.dispatchEvent(new Event('tooldur:open-search'));
   const logout = async () => { await supabase.auth.signOut(); setMenuOpen(false); router.push('/'); };
@@ -102,6 +105,7 @@ export default function MobileTabBar() {
             <div className={styles.block}>
               <div className={styles.blockTitle}>{nav.quick}</div>
               <div className={styles.grid}>
+                {discountAccess && <Link href="/indirim" className={`${styles.link} ${isActive('/indirim') ? styles.active : ''}`}>İndirim Takip<Tag size={15} /></Link>}
                 <Link href={cadHref} className={`${styles.link} ${isActive(cadHref) ? styles.active : ''}`}>{nav.downloadCad}<ArrowRight size={15} /></Link>
                 <Link href={blogHref} className={`${styles.link} ${isActive(blogHref) ? styles.active : ''}`}>{nav.blog}<BookOpen size={15} /></Link>
                 <Link href={forumHref} className={`${styles.link} ${isActive(forumHref) ? styles.active : ''}`}>{nav.forum}<MessageSquare size={15} /></Link>
