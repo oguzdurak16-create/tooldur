@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 const SOURCES: Record<string,{url:string;brand:string}> = {
   'amazon-tr': { url:'https://www.amazon.com.tr/b?node=21034466031', brand:'Amazon Türkiye' },
   'gratis': { url:'https://www.gratis.com/makyaj-/makyaj-c-501', brand:'Gratis' },
-  'ebebek': { url:'https://www.e-bebek.com/bebek-giyim-c4050', brand:'ebebek' },
+  'ebebek': { url:'https://www.e-bebek.com/erkek-bebek-giyim-c4996', brand:'ebebek' },
 };
 
 const headers={
