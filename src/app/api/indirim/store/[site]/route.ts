@@ -87,9 +87,28 @@ function gratis(html:string):Product[]{
     const url=share||urls.get(id)||'';
     const img=(html.match(new RegExp(`https://api\\.gratis\\.retter\\.io/[^"'\\s<>]*${id}[^"'\\s<>]*\\.(?:jpg|jpeg|png|webp)`,'i'))||[])[0]||null;
     if(!title||!url||!discounted)continue;
-    out.push({external_id:id,title,url,image_url:img,current_price:discounted,original_price:normal>discounted?normal:null,discount_percent:discount||pct(discounted,normal),in_stock:stock!=='OUT_OF_STOCK',brand,source:'gratis-rsc'});
+    out.push({external_id:id,title:urlDecode(title),url,image_url:img,current_price:discounted,original_price:normal>discounted?normal:null,discount_percent:discount||pct(discounted,normal),in_stock:stock!=='OUT_OF_STOCK',brand:urlDecode(brand),source:'gratis-rsc'});
   }
   return out;
+}
+function urlDecode(s:string){return s.replace(/\\u0026/g,'&').replace(/\\u0027/g,"'").replace(/\\u003cbr\\u003e/g,' ')}
+
+function ebebek(html:string,products:Product[]):Product[]{
+  const flat=html.split('\\\\u002F').join('/').split('\\u002F').join('/').replace(/\\+"/g,'"');
+  return products.map(p=>{
+    let path='';try{path=new URL(p.url).pathname}catch{return p}
+    const needle=`"url":"${path}"`;let pos=flat.indexOf(needle);let enriched:Product|null=null;
+    while(pos>=0){
+      const block=flat.slice(pos,Math.min(flat.length,pos+18000));
+      const old=Number((block.match(/"oldPrice":\{[^{}]{0,500}?"value":([0-9.]+)/)||[])[1]||0);
+      const current=Number((block.match(/"currentPrice":\{[^{}]{0,500}?"value":([0-9.]+)/)||[])[1]||0);
+      if(old>0&&current>0&&old>current){
+        enriched={...p,current_price:current,original_price:old,discount_percent:pct(current,old),source:'ebebek-state'};break;
+      }
+      pos=flat.indexOf(needle,pos+needle.length);
+    }
+    return enriched||p;
+  });
 }
 
 function amazon(html:string,base:string):Product[]{
@@ -136,10 +155,7 @@ export async function GET(_req:Request,{params}:{params:{site:string}}){
     else if(params.site==='amazon-tr'){products=amazon(html,cfg.url);source='amazon-html'}
     else {
       products=structured(html,cfg.url,cfg.brand).filter(p=>p.current_price!==null);
-      if(params.site==='ebebek'){
-        const cards=anchorCards(html,cfg.url,cfg.brand);const byUrl=new Map(cards.map(x=>[x.url,x]));
-        products=products.map(p=>{const c=byUrl.get(p.url);return c&&c.discount_percent>p.discount_percent?{...p,original_price:c.original_price,discount_percent:c.discount_percent,source:'jsonld+card'}:p});
-      }
+      if(params.site==='ebebek'){products=ebebek(html,products);source='ebebek-state'}
       if(products.length<5){const fallback=anchorCards(html,cfg.url,cfg.brand);if(fallback.length>products.length){products=fallback;source='anchor-html'}}
     }
     products=products.filter((p,i,a)=>p.url&&a.findIndex(x=>x.url===p.url)===i).sort((a,b)=>b.discount_percent-a.discount_percent).slice(0,100);
