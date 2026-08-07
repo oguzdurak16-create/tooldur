@@ -56,25 +56,38 @@ function structured(html:string,base:string,defaultBrand:string):Product[]{
       const explicit=obj.discountPercent??obj.discountPercentage??obj.discountRate??obj.discountRatio??obj.discount;
       out.push({external_id:String(obj.sku??obj.productID??obj.productId??obj.code??obj.modelId??'')||null,title,url,image_url:imageUrl,current_price:current,original_price:original,discount_percent:pct(current,original,explicit),in_stock:obj.inStock===false?false:null,brand,source});
     }
-    for(const value of Object.values(obj)){
-      if(out.length>=160)break;
-      if(value&&typeof value==='object')walk(value,source);
-    }
+    for(const value of Object.values(obj)){if(out.length>=160)break;if(value&&typeof value==='object')walk(value,source)}
   };
-  const walk=(node:any,source:string)=>{
-    if(!node||out.length>=160)return;
-    if(Array.isArray(node)){for(const x of node)walk(x,source);return;}
-    if(typeof node==='object')add(node,source);
-  };
+  const walk=(node:any,source:string)=>{if(!node||out.length>=160)return;if(Array.isArray(node)){for(const x of node)walk(x,source);return}if(typeof node==='object')add(node,source)};
   const ld=/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi; let m:RegExpExecArray|null;
   while((m=ld.exec(html))&&out.length<160){try{walk(JSON.parse(m[1].trim()),'jsonld')}catch{}}
-  const scripts=/<script[^>]*>([\s\S]*?)<\/script>/gi;
-  while((m=scripts.exec(html))&&out.length<160){
-    const s=m[1].trim(); if(s.length<30||s.length>2_000_000)continue;
-    const candidates=[s];
-    const eq=s.match(/(?:__NEXT_DATA__|__INITIAL_STATE__|window\.__\w+)\s*=\s*([\[{][\s\S]*[\]}])\s*;?$/);
-    if(eq)candidates.push(eq[1]);
-    for(const c of candidates){if(!(c.startsWith('{')||c.startsWith('[')))continue;try{walk(JSON.parse(c),'embedded-json')}catch{}}
+  return out;
+}
+
+function itemUrls(html:string){
+  const map=new Map<string,string>();
+  const re=/https:\/\/www\.gratis\.com\/[^"'\\\s<>]+-p-(\d+)/g; let m:RegExpExecArray|null;
+  while((m=re.exec(html)))if(!map.has(m[1]))map.set(m[1],m[0].replace(/\\u0026/g,'&'));
+  return map;
+}
+function gratis(html:string):Product[]{
+  const flat=html.replace(/\\+"/g,'"');
+  const start=flat.indexOf('"products":['); if(start<0)return[];
+  const end=flat.indexOf('],"params"',start); const section=flat.slice(start,end>start?end:Math.min(flat.length,start+500000));
+  const markers=[...section.matchAll(/\{"id":"(\d+)","stockStatus":"([^"]+)","prices":\{/g)];
+  const urls=itemUrls(html); const out:Product[]=[];
+  for(let i=0;i<markers.length&&out.length<100;i++){
+    const id=markers[i][1],stock=markers[i][2]; const from=markers[i].index||0; const to=i+1<markers.length?(markers[i+1].index||section.length):section.length; const block=section.slice(from,to);
+    const discount=Number((block.match(/"discountRate":([0-9.]+)/)||[])[1]||0);
+    const discounted=Number((block.match(/"discountedPrice":([0-9]+)/)||[])[1]||0)/100;
+    const normal=Number((block.match(/"normalPrice":([0-9]+)/)||[])[1]||0)/100;
+    const brand=(block.match(/"brand":"([^"]+)"/)||[])[1]||'Gratis';
+    const title=(block.match(/"displayName":"([^"]+)"/)||[])[1]||'';
+    const share=(block.match(/"shareLink":"(https?:[^"\\]+)"/)||[])[1];
+    const url=share||urls.get(id)||'';
+    const img=(html.match(new RegExp(`https://api\\.gratis\\.retter\\.io/[^"'\\s<>]*${id}[^"'\\s<>]*\\.(?:jpg|jpeg|png|webp)`,'i'))||[])[0]||null;
+    if(!title||!url||!discounted)continue;
+    out.push({external_id:id,title,url,image_url:img,current_price:discounted,original_price:normal>discounted?normal:null,discount_percent:discount||pct(discounted,normal),in_stock:stock!=='OUT_OF_STOCK',brand,source:'gratis-rsc'});
   }
   return out;
 }
@@ -86,30 +99,29 @@ function amazon(html:string,base:string):Product[]{
     const block=raw.slice(0,30000);
     const href=(block.match(/<a[^>]+href=["']([^"']+)["'][^>]*class=["'][^"']*(?:a-link-normal|s-no-outline)[^"']*["']/i)||block.match(/<a[^>]+class=["'][^"']*(?:a-link-normal|s-no-outline)[^"']*["'][^>]+href=["']([^"']+)["']/i)||[])[1];
     const url=abs(href,base); if(!url||seen.has(url))continue;
-    const title=((block.match(/<h2[^>]*>[\s\S]*?<span[^>]*>([^<]+)<\/span>/i)||block.match(/<span[^>]+class=["'][^"']*a-size-base-plus[^"']*["'][^>]*>([^<]+)<\/span>/i)||[])[1]||'').replace(/&amp;/g,'&').trim();
+    const title=((block.match(/<h2[^>]*>[\s\S]*?<span[^>]*>([^<]+)<\/span>/i)||[])[1]||'').replace(/&amp;/g,'&').trim();
     const current=price((block.match(/<span[^>]+class=["']a-offscreen["'][^>]*>([^<]+)<\/span>/i)||[])[1]);
-    const oldMatches=[...block.matchAll(/<span[^>]+class=["'][^"']*a-offscreen[^"']*["'][^>]*>([^<]+)<\/span>/gi)].map(x=>price(x[1])).filter((x):x is number=>x!==null);
-    const original=oldMatches.filter(x=>current!==null&&x>current).sort((a,b)=>b-a)[0]||null;
-    if(!title||current===null)continue;
-    seen.add(url);out.push({external_id:(block.match(/data-asin=["']([^"']+)/i)||[])[1]||null,title,url,image_url:abs((block.match(/<img[^>]+src=["']([^"']+)/i)||[])[1],base)||null,current_price:current,original_price:original,discount_percent:pct(current,original),in_stock:true,brand:'Amazon Türkiye',source:'amazon-html'});
+    const vals=[...block.matchAll(/<span[^>]+class=["'][^"']*a-offscreen[^"']*["'][^>]*>([^<]+)<\/span>/gi)].map(x=>price(x[1])).filter((x):x is number=>x!==null);
+    const original=vals.filter(x=>current!==null&&x>current).sort((a,b)=>b-a)[0]||null;
+    if(!title||current===null)continue;seen.add(url);
+    out.push({external_id:(block.match(/data-asin=["']([^"']+)/i)||[])[1]||null,title,url,image_url:abs((block.match(/<img[^>]+src=["']([^"']+)/i)||[])[1],base)||null,current_price:current,original_price:original,discount_percent:pct(current,original),in_stock:true,brand:'Amazon Türkiye',source:'amazon-html'});
   }
   return out;
 }
 
 function anchorCards(html:string,base:string,brand:string):Product[]{
   const out:Product[]=[];const seen=new Set<string>();
-  const re=/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]{80,12000}?)<\/a>/gi;let m:RegExpExecArray|null;
-  while((m=re.exec(html))&&out.length<120){
+  const re=/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]{80,16000}?)<\/a>/gi;let m:RegExpExecArray|null;
+  while((m=re.exec(html))&&out.length<160){
     const block=m[0]; if(!/(TL|₺|price|fiyat|indirim|discount)/i.test(block))continue;
     const url=abs(m[1],base); if(!url||seen.has(url)||url===base)continue;
     const text=block.replace(/<script[\s\S]*?<\/script>/gi,' ').replace(/<style[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/&nbsp;|&#xA0;/g,' ').replace(/&amp;/g,'&').replace(/\s+/g,' ').trim();
     const nums=[...text.matchAll(/([0-9]{1,3}(?:\.[0-9]{3})*(?:,[0-9]{1,2})?)\s*TL/gi)].map(x=>price(x[1])).filter((x):x is number=>x!==null&&x<1_000_000);
-    if(!nums.length)continue;
-    const current=Math.min(...nums); const original=nums.length>1?Math.max(...nums):null;
+    if(!nums.length)continue;const current=Math.min(...nums);const original=nums.length>1?Math.max(...nums):null;
     const explicit=price((text.match(/%\s*([0-9]{1,2}(?:,[0-9]+)?)/)||[])[1]);
     const title=((block.match(/(?:title|aria-label)=["']([^"']{4,220})["']/i)||[])[1]||text.replace(/(?:%\s*\d+|[0-9.,]+\s*TL).*$/,'').trim()).slice(0,220);
-    if(title.length<4)continue;
-    seen.add(url);out.push({external_id:null,title,url,image_url:abs((block.match(/<img[^>]+(?:src|data-src)=["']([^"']+)/i)||[])[1],base)||null,current_price:current,original_price:original&&original>current?original:null,discount_percent:pct(current,original,explicit),in_stock:!/tükendi|stokta yok/i.test(text),brand,source:'anchor-html'});
+    if(title.length<4)continue;seen.add(url);
+    out.push({external_id:null,title,url,image_url:abs((block.match(/<img[^>]+(?:src|data-src)=["']([^"']+)/i)||[])[1],base)||null,current_price:current,original_price:original&&original>current?original:null,discount_percent:pct(current,original,explicit),in_stock:!/tükendi|stokta yok/i.test(text),brand,source:'anchor-html'});
   }
   return out;
 }
@@ -117,13 +129,19 @@ function anchorCards(html:string,base:string,brand:string):Product[]{
 export async function GET(_req:Request,{params}:{params:{site:string}}){
   const cfg=SOURCES[params.site]; if(!cfg)return NextResponse.json({ok:false,error:'Bilinmeyen mağaza'},{status:404});
   try{
-    const res=await fetch(cfg.url,{cache:'no-store',redirect:'follow',headers});
-    const html=await res.text();
+    const res=await fetch(cfg.url,{cache:'no-store',redirect:'follow',headers});const html=await res.text();
     if(!res.ok)return NextResponse.json({ok:false,status:res.status,count:0,products:[]},{status:502});
-    let products=structured(html,cfg.url,cfg.brand).filter(p=>p.current_price!==null);
-    let source='structured';
-    if(params.site==='amazon-tr'&&products.length<5){products=amazon(html,cfg.url);source='amazon-html'}
-    if(products.length<5){const fallback=anchorCards(html,cfg.url,cfg.brand);if(fallback.length>products.length){products=fallback;source='anchor-html'}}
+    let products:Product[]=[];let source='structured';
+    if(params.site==='gratis'){products=gratis(html);source='gratis-rsc'}
+    else if(params.site==='amazon-tr'){products=amazon(html,cfg.url);source='amazon-html'}
+    else {
+      products=structured(html,cfg.url,cfg.brand).filter(p=>p.current_price!==null);
+      if(params.site==='ebebek'){
+        const cards=anchorCards(html,cfg.url,cfg.brand);const byUrl=new Map(cards.map(x=>[x.url,x]));
+        products=products.map(p=>{const c=byUrl.get(p.url);return c&&c.discount_percent>p.discount_percent?{...p,original_price:c.original_price,discount_percent:c.discount_percent,source:'jsonld+card'}:p});
+      }
+      if(products.length<5){const fallback=anchorCards(html,cfg.url,cfg.brand);if(fallback.length>products.length){products=fallback;source='anchor-html'}}
+    }
     products=products.filter((p,i,a)=>p.url&&a.findIndex(x=>x.url===p.url)===i).sort((a,b)=>b.discount_percent-a.discount_percent).slice(0,100);
     return NextResponse.json({ok:true,status:res.status,site:params.site,source,count:products.length,products,at:new Date().toISOString()},{headers:{'Cache-Control':'no-store'}});
   }catch(e:any){return NextResponse.json({ok:false,error:String(e?.message||e),count:0,products:[]},{status:500})}
