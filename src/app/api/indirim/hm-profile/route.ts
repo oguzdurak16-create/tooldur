@@ -10,17 +10,15 @@ const API='https://api.hm.com/search-services/v1/tr_tr/search/resultpage';
 const H={'user-agent':'Mozilla/5.0 AppleWebKit/537.36 Chrome/127 Safari/537.36','accept':'application/json','accept-language':'tr-TR,tr;q=0.9,en;q=0.7','cache-control':'no-cache'};
 
 function wantedProfile(p:any,profile:Profile){
-  const name=String(p?.productName||'').toLocaleLowerCase('tr-TR');
   const cat=String(p?.mainCatCode||'').toLocaleLowerCase('tr-TR');
   const sizes=(Array.isArray(p?.sizes)?p.sizes:[]) as HmSize[];
   const inStock=sizes.filter(s=>Number(s.stock||0)>0).map(s=>String(s.label||'').trim().toUpperCase());
-  const child=/çocuk|bebek|kids|baby/.test(name)||cat.startsWith('kids_')||cat.includes('_kids_')||cat.includes('baby');
   if(profile==='merve'){
-    const adult=cat.startsWith('ladies_')||(!child&&!cat.startsWith('men_')&&!cat.startsWith('mens_'));
-    return adult&&(inStock.includes('L')||inStock.includes('XL'));
+    const adultWomen=cat.startsWith('ladies_')||cat.startsWith('sportswear_women_');
+    return adultWomen&&(inStock.includes('L')||inStock.includes('XL'));
   }
-  const adultMale=(cat.startsWith('men_')||cat.startsWith('mens_')||name.includes('erkek'))&&!child;
-  return adultMale&&inStock.includes('XL');
+  const adultMen=cat.startsWith('men_')||cat.startsWith('sportswear_men_');
+  return adultMen&&inStock.includes('XL');
 }
 
 function mapProduct(p:any,profile:Profile){
@@ -30,6 +28,7 @@ function mapProduct(p:any,profile:Profile){
   const current=Math.min(...priceValues), original=Math.max(...priceValues);
   const sizes=((Array.isArray(p?.sizes)?p.sizes:[]) as HmSize[]).filter(s=>Number(s.stock||0)>0).map(s=>String(s.label||'').trim());
   const relevant=profile==='merve'?sizes.filter(s=>['L','XL'].includes(s.toUpperCase())):sizes.filter(s=>s.toUpperCase()==='XL');
+  if(!relevant.length)return null;
   const url=new URL(String(p?.url||''),'https://www2.hm.com').toString();
   const discount=original>current?Math.round((1-current/original)*10000)/100:0;
   return {
