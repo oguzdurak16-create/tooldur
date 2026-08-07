@@ -17,6 +17,7 @@ import {
   Search,
   Tag,
   User,
+  WalletCards,
   Wrench,
   X,
 } from 'lucide-react';
@@ -105,6 +106,7 @@ export default function MobileTabBar() {
             <div className={styles.block}>
               <div className={styles.blockTitle}>{nav.quick}</div>
               <div className={styles.grid}>
+                {user && <Link href="/dashboard/butce" className={`${styles.link} ${isActive('/dashboard/butce') ? styles.active : ''}`}>Bütçe & Harcama<WalletCards size={15} /></Link>}
                 {discountAccess && <Link href="/indirim" className={`${styles.link} ${isActive('/indirim') ? styles.active : ''}`}>İndirim Takip<Tag size={15} /></Link>}
                 <Link href={cadHref} className={`${styles.link} ${isActive(cadHref) ? styles.active : ''}`}>{nav.downloadCad}<ArrowRight size={15} /></Link>
                 <Link href={blogHref} className={`${styles.link} ${isActive(blogHref) ? styles.active : ''}`}>{nav.blog}<BookOpen size={15} /></Link>
