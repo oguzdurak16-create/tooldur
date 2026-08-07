@@ -11,7 +11,8 @@ const TARGETS = [
   ['watsons','https://www.watsons.com.tr/makyaj/makyaj-cok-satanlar/c/100070'],
   ['amazon-tr','https://www.amazon.com.tr/b?node=21034466031'],
   ['gratis','https://www.gratis.com/'],
-  ['hepsiburada','https://www.hepsiburada.com/'],
+  ['hepsiburada','https://www.hepsiburada.com/ara?q=%C3%A7ocuk%20giyim'],
+  ['ebebek','https://www.e-bebek.com/bebek-giyim-c4050'],
 ] as const;
 
 const headers = {
