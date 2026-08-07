@@ -10,11 +10,7 @@ type Variant={code:string;size:string;stock:number;current:number;original:numbe
 
 function normalize(html:string){return html.replace(/\\u002F/g,'/').replace(/\\u0026/g,'&').replace(/\\"/g,'"')}
 function age4plus(label:string){const s=label.replace(/\s+/g,' ').trim();if(/ay/i.test(s))return false;const m=s.match(/(\d+(?:[.,]\d+)?)\s*(?:-|–|—)?\s*(\d+(?:[.,]\d+)?)?\s*yaş/i);if(!m)return false;const start=Number(m[1].replace(',','.'));return Number.isFinite(start)&&start>=4}
-function variantBlocks(text:string){
-  const out:string[]=[];let pos=0;
-  while(true){const i=text.indexOf('{"code":"',pos);if(i<0)break;const j=text.indexOf('},{"code":"',i+10);out.push(text.slice(i,j<0?Math.min(text.length,i+18000):j+1));pos=j<0?text.length:j+2;if(out.length>400)break}
-  return out;
-}
+function variantBlocks(text:string){const out:string[]=[];let pos=0;while(true){const i=text.indexOf('{"code":"',pos);if(i<0)break;const j=text.indexOf('},{"code":"',i+10);out.push(text.slice(i,j<0?Math.min(text.length,i+18000):j+1));pos=j<0?text.length:j+2;if(out.length>400)break}return out}
 function parseVariants(html:string):Variant[]{
   const text=normalize(html);const out:Variant[]=[];
   for(const block of variantBlocks(text)){
@@ -25,8 +21,10 @@ function parseVariants(html:string):Variant[]{
     const stock=Number((block.match(/"stockLevel":([0-9.]+)/)||[])[1]||0);
     const status=(block.match(/"stockLevelStatus":"([^"]+)"/)||[])[1]||'';
     if(stock<=0||status.toLowerCase()!=='instock')continue;
-    const current=Number((block.match(/"discountedPrice":\{[^{}]{0,300}?"value":([0-9.]+)/)||[])[1]||(block.match(/"priceData":\{[^{}]{0,300}?"value":([0-9.]+)/)||[])[1]||0));
-    const originalNum=Number((block.match(/"priceData":\{[^{}]{0,300}?"value":([0-9.]+)/)||[])[1]||0);
+    const discountedMatch=block.match(/"discountedPrice":\{[^{}]{0,300}?"value":([0-9.]+)/);
+    const normalMatch=block.match(/"priceData":\{[^{}]{0,300}?"value":([0-9.]+)/);
+    const current=Number(discountedMatch?.[1]||normalMatch?.[1]||0);
+    const originalNum=Number(normalMatch?.[1]||0);
     const path=(block.match(/"url":"([^"]+)"/)||[])[1]||'';
     if(!current||!path)continue;
     out.push({code,size,stock,current,original:originalNum>current?originalNum:null,url:new URL(path,'https://www.e-bebek.com').toString()});
@@ -38,7 +36,7 @@ async function verify(c:Candidate){
   const title=(c.title||'').toLocaleLowerCase('tr-TR'),url=(c.url||'').toLocaleLowerCase('tr-TR');
   if(!(title.includes('erkek')||url.includes('erkek'))||title.includes('kız')||url.includes('kiz'))return null;
   const r=await fetch(c.url,{cache:'no-store',redirect:'follow',headers:H});if(!r.ok)return null;
-  const html=await r.text();const variants=parseVariants(html);if(!variants.length)return null;
+  const variants=parseVariants(await r.text());if(!variants.length)return null;
   const best=variants.slice().sort((a,b)=>a.current-b.current)[0];
   const sizes=[...new Set(variants.map(v=>v.size))];
   const originalCandidates=variants.map(v=>v.original).filter((x):x is number=>x!==null&&x>best.current);
