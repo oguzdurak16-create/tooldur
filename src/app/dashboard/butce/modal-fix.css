@@ -1,0 +1,20 @@
+@media (max-width: 767px) {
+  /* Budget dialogs must sit above the global mobile tab bar (z-index: 1150). */
+  .bt .backdrop {
+    z-index: 1300 !important;
+  }
+
+  .bt .modal {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+
+  .bt .modalHead {
+    z-index: 20 !important;
+  }
+
+  .bt .actions {
+    z-index: 40 !important;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+  }
+}
