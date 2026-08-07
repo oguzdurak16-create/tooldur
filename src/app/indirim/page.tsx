@@ -12,7 +12,7 @@ const ALLOWED = new Set(['m.egedurak@gmail.com', 'oguzdurak16@gmail.com']);
 type Category = { id:string; name:string; enabled:boolean; min_discount_percent:number };
 type Site = { id:string; name:string; base_url:string; enabled:boolean };
 type Rule = { id:string; category_id:string; site_id:string; category_url:string|null; min_discount_percent:number; notify:boolean; enabled:boolean };
-type Product = { id:string; title:string; site_id:string; current_price:number|null; original_price:number|null; discount_percent:number|null; url:string };
+type Product = { id:string; title:string; site_id:string; category_id:string; current_price:number|null; original_price:number|null; discount_percent:number|null; url:string };
 type Settings = { min_discount_percent:number; notifications_enabled:boolean; digest_mode:boolean; scan_interval_minutes:number };
 type ScanLog = { id:number; status:string; scanned_count:number; changed_count:number; notified_count:number; started_at:string; error_message:string|null };
 
@@ -37,6 +37,11 @@ export default function IndirimPage(){
 
   const siteMap=useMemo(()=>Object.fromEntries(sites.map(s=>[s.id,s.name])),[sites]);
   const categoryMap=useMemo(()=>Object.fromEntries(categories.map(c=>[c.id,c.name])),[categories]);
+  const sortedProducts=useMemo(()=>[...products].sort((a,b)=>{
+    const discountDiff=Number(b.discount_percent||0)-Number(a.discount_percent||0);
+    if(discountDiff!==0)return discountDiff;
+    return Number(a.current_price||Number.MAX_SAFE_INTEGER)-Number(b.current_price||Number.MAX_SAFE_INTEGER);
+  }),[products]);
 
   useEffect(()=>{
     let mounted=true;
@@ -56,9 +61,9 @@ export default function IndirimPage(){
       supabase.from('merve_categories').select('id,name,enabled,min_discount_percent').order('name'),
       supabase.from('merve_sites').select('id,name,base_url,enabled').order('name'),
       supabase.from('merve_tracking_rules').select('id,category_id,site_id,category_url,min_discount_percent,notify,enabled').order('created_at',{ascending:false}),
-      supabase.from('merve_products').select('id,title,site_id,current_price,original_price,discount_percent,url').order('last_changed_at',{ascending:false,nullsFirst:false}).limit(20),
+      supabase.from('merve_products').select('id,title,site_id,category_id,current_price,original_price,discount_percent,url').order('discount_percent',{ascending:false,nullsFirst:false}).order('current_price',{ascending:true,nullsFirst:false}).limit(200),
       supabase.from('merve_app_settings').select('min_discount_percent,notifications_enabled,digest_mode,scan_interval_minutes').eq('owner_email',OWNER).maybeSingle(),
-      supabase.from('merve_scan_logs').select('id,status,scanned_count,changed_count,notified_count,started_at,error_message').order('started_at',{ascending:false}).limit(8),
+      supabase.from('merve_scan_logs').select('id,status,scanned_count,changed_count,notified_count,started_at,error_message').order('started_at',{ascending:false}).limit(12),
     ]);
     const firstError=[c,s,r,p,st,l].find((x:any)=>x.error)?.error;
     if(firstError) setError(firstError.message||'Veriler alınamadı.');
@@ -98,18 +103,18 @@ export default function IndirimPage(){
   if(!allowed) return <main className={`${styles.page} ${styles.denied}`}><div className={styles.deniedCard}><Tag size={28}/><h1>Erişim yok</h1><p className={styles.muted}>Bu alan yalnızca yetkilendirilmiş hesaplara açık.</p></div></main>;
 
   const activeRules=rules.filter(r=>r.enabled).length;
-  const discounted=products.filter(p=>(p.discount_percent||0)>=settings.min_discount_percent).length;
+  const discounted=sortedProducts.filter(p=>(p.discount_percent||0)>=settings.min_discount_percent).length;
   const lastScan=logs[0];
 
   return <main className={styles.page}><div className={styles.shell}>
     <section className={styles.hero}>
-      <div><div className={styles.eyebrow}>Merve İndirim</div><h1 className={styles.title}>İndirim Takip</h1><p className={styles.subtitle}>Mağaza kategori sayfalarını takip et, fiyat düşüşlerini tek ekranda gör ve bildirim kurallarını yönet.</p></div>
+      <div><div className={styles.eyebrow}>Merve İndirim</div><h1 className={styles.title}>İndirim Takip</h1><p className={styles.subtitle}>Mağazaları kategori bazında tara, en yüksek indirimi en üstte gör ve fiyat düşüşlerini takip et.</p></div>
       <div className={styles.status}><span className={styles.dot}/><span>Tarama aralığı: {settings.scan_interval_minutes} dk</span></div>
     </section>
 
     <section className={styles.gridStats}>
       <div className={styles.stat}><div className={styles.statLabel}>Aktif kural</div><div className={styles.statValue}>{activeRules}</div></div>
-      <div className={styles.stat}><div className={styles.statLabel}>Ürün</div><div className={styles.statValue}>{products.length}</div></div>
+      <div className={styles.stat}><div className={styles.statLabel}>Ürün</div><div className={styles.statValue}>{sortedProducts.length}</div></div>
       <div className={styles.stat}><div className={styles.statLabel}>İndirimde</div><div className={styles.statValue}>{discounted}</div></div>
       <div className={styles.stat}><div className={styles.statLabel}>Son tarama</div><div className={styles.statValue} style={{fontSize:16}}>{lastScan?new Date(lastScan.started_at).toLocaleString('tr-TR',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}):'—'}</div></div>
     </section>
@@ -121,7 +126,7 @@ export default function IndirimPage(){
           <div className={styles.formGrid}>
             <label className={styles.field}><span className={styles.label}>Kategori</span><select className={styles.select} value={categoryId} onChange={e=>{setCategoryId(e.target.value);const c=categories.find(x=>x.id===e.target.value);if(c)setMinDiscount(Number(c.min_discount_percent));}}>{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
             <label className={styles.field}><span className={styles.label}>Mağaza</span><select className={styles.select} value={siteId} onChange={e=>setSiteId(e.target.value)}>{sites.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
-            <label className={`${styles.field} ${styles.fieldFull}`}><span className={styles.label}>Kategori URL</span><input className={styles.input} type='url' value={categoryUrl} onChange={e=>setCategoryUrl(e.target.value)} placeholder='https://www.site.com/kadin-giyim/...'/></label>
+            <label className={`${styles.field} ${styles.fieldFull}`}><span className={styles.label}>Kategori URL</span><input className={styles.input} type='url' value={categoryUrl} onChange={e=>setCategoryUrl(e.target.value)} placeholder='https://www.site.com/kategori/...'/></label>
             <label className={styles.field}><span className={styles.label}>Minimum indirim (%)</span><input className={styles.input} type='number' min={1} max={95} value={minDiscount} onChange={e=>setMinDiscount(Number(e.target.value)||1)}/></label>
             <div className={styles.field} style={{justifyContent:'flex-end'}}><button className={styles.button} onClick={addRule} disabled={saving}>{saving?'Ekleniyor…':'Takibe Ekle'}</button></div>
           </div>
@@ -138,8 +143,8 @@ export default function IndirimPage(){
         </section>
 
         <section className={styles.card}>
-          <div className={styles.cardHead}><div><div className={styles.cardTitle}><Store size={16} style={{verticalAlign:'-3px',marginRight:7}}/>Son ürünler</div><div className={styles.muted}>Son değişen 20 ürün</div></div></div>
-          <div className={styles.productList}>{products.length===0?<div className={styles.empty}>Tarama sonrası ürünler burada görünecek.</div>:products.map(p=><a key={p.id} href={p.url} target='_blank' rel='noreferrer' className={styles.product} style={{textDecoration:'none',color:'inherit'}}><div style={{minWidth:0}}><div className={styles.productTitle}>{p.title}</div><div className={styles.productMeta}>{siteMap[p.site_id]||p.site_id} · {p.current_price?`${Number(p.current_price).toLocaleString('tr-TR')} TL`:'Fiyat yok'}</div></div><div className={styles.discount}>{p.discount_percent?`-%${Math.round(Number(p.discount_percent))}`:<ExternalLink size={15}/>}</div></a>)}</div>
+          <div className={styles.cardHead}><div><div className={styles.cardTitle}><Store size={16} style={{verticalAlign:'-3px',marginRight:7}}/>En yüksek indirimler</div><div className={styles.muted}>Yüksekten düşüğe · en fazla 200 ürün</div></div></div>
+          <div className={styles.productList}>{sortedProducts.length===0?<div className={styles.empty}>Tarama sonrası ürünler burada görünecek.</div>:sortedProducts.map(p=><a key={p.id} href={p.url} target='_blank' rel='noreferrer' className={styles.product} style={{textDecoration:'none',color:'inherit'}}><div style={{minWidth:0}}><div className={styles.productTitle}>{p.title}</div><div className={styles.productMeta}>{siteMap[p.site_id]||p.site_id} · {categoryMap[p.category_id]||p.category_id} · {p.current_price?`${Number(p.current_price).toLocaleString('tr-TR')} TL`:'Fiyat yok'}{p.original_price?` · Eski ${Number(p.original_price).toLocaleString('tr-TR')} TL`:''}</div></div><div className={styles.discount}>{p.discount_percent?`-%${Math.round(Number(p.discount_percent))}`:<ExternalLink size={15}/>}</div></a>)}</div>
         </section>
       </div>
 
@@ -153,7 +158,7 @@ export default function IndirimPage(){
 
         <section className={styles.card}>
           <div className={styles.cardHead}><div className={styles.cardTitle}><Activity size={16} style={{verticalAlign:'-3px',marginRight:7}}/>Tarama geçmişi</div></div>
-          <div className={styles.notice}>Saatlik çalışma için altyapı 60 dakikaya ayarlı. Aktif kategori URL’leri tarama kuyruğunun kaynağıdır.</div>
+          <div className={styles.notice}>Saatlik tarama aktif. Her mağaza/kategori ayrı kaynak olarak işlenir; erişimi engelleyen mağazalar hata kaydında görünür.</div>
           <div className={styles.rules}>{logs.length===0?<div className={styles.empty}>Henüz tarama kaydı yok.</div>:logs.map(log=><div className={styles.rule} key={log.id}><div className={styles.ruleName}>{log.status}</div><div className={styles.ruleMeta}>{new Date(log.started_at).toLocaleString('tr-TR')} · {log.scanned_count} ürün · {log.changed_count} değişim · {log.notified_count} bildirim</div>{log.error_message&&<div className={styles.error}>{log.error_message}</div>}</div>)}</div>
         </section>
       </aside>
