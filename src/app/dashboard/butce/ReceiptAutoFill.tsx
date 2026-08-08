@@ -34,6 +34,37 @@ function statusNode(receiptLabel: Element) {
   return node;
 }
 
+async function compressReceipt(file: File): Promise<File> {
+  const url = URL.createObjectURL(file);
+  try {
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error('Fiş fotoğrafı işlenemedi.'));
+      img.src = url;
+    });
+
+    const maxSide = 1800;
+    const scale = Math.min(1, maxSide / Math.max(image.naturalWidth || image.width, image.naturalHeight || image.height));
+    const width = Math.max(1, Math.round((image.naturalWidth || image.width) * scale));
+    const height = Math.max(1, Math.round((image.naturalHeight || image.height) * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    if (!ctx) throw new Error('Fiş fotoğrafı hazırlanamadı.');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, width, height);
+    ctx.drawImage(image, 0, 0, width, height);
+
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.78));
+    if (!blob) throw new Error('Fiş fotoğrafı sıkıştırılamadı.');
+    return new File([blob], 'receipt.jpg', { type: 'image/jpeg', lastModified: Date.now() });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
 async function applyData(modal: Element, data: any) {
   const amountInput = fieldByLabel(modal, 'Tutar')?.querySelector<HTMLInputElement>('input');
   const categorySelect = fieldByLabel(modal, 'Kategori')?.querySelector<HTMLSelectElement>('select');
@@ -61,22 +92,25 @@ export default function ReceiptAutoFill() {
       const modal = target.closest('.modal');
       if (!receiptLabel || !modal) return;
       const status = statusNode(receiptLabel);
-      status.textContent = 'Fiş sunucuda okunuyor… Tutar, işyeri, tarih ve kategori otomatik doldurulacak.';
+      status.textContent = 'Fiş hazırlanıyor…';
       status.style.color = '#f4bf4f';
 
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.access_token) throw new Error('Oturum bulunamadı.');
 
+        const uploadFile = await compressReceipt(file);
+        status.textContent = 'Fiş sunucuda okunuyor… Tutar, işyeri, tarih ve kategori otomatik doldurulacak.';
+
         const body = new FormData();
-        body.append('receipt', file);
+        body.append('receipt', uploadFile);
         const response = await fetch('/api/butce/receipt', {
           method: 'POST',
           headers: { Authorization: `Bearer ${session.access_token}` },
           body,
         });
         const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(data?.error || 'Fiş okunamadı.');
+        if (!response.ok) throw new Error(data?.error || (response.status === 413 ? 'Fiş fotoğrafı sunucu sınırını aştı.' : 'Fiş okunamadı.'));
         if (!data?.amount) throw new Error('Fişte genel toplam okunamadı.');
 
         await applyData(modal, data);
