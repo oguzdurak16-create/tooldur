@@ -37,6 +37,19 @@
   .bt .select,
   .bt .form > label > input { min-height: 46px !important; }
 
+  .bt .sectionHead {
+    align-items: center !important;
+    gap: 10px !important;
+  }
+  .bt .desktopAdd {
+    display: inline-flex !important;
+    min-height: 42px !important;
+    padding: 0 14px !important;
+    border-radius: 12px !important;
+    flex: 0 0 auto !important;
+    font-size: 11px !important;
+  }
+
   .bt .cats { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 7px !important; }
   .bt .cat { min-width: 0 !important; padding: 10px !important; }
   .bt .catTop { grid-template-columns: 28px minmax(0, 1fr) auto !important; gap: 6px !important; }
@@ -53,25 +66,8 @@
   .bt .rowSide { min-width: 70px !important; }
   .bt .rowSide > b { font-size: 12px !important; }
 
-  .bt .fab {
-    display: grid !important;
-    place-items: center !important;
-    align-items: center !important;
-    justify-items: center !important;
-    right: 14px !important;
-    bottom: calc(84px + env(safe-area-inset-bottom)) !important;
-    width: 56px !important;
-    height: 56px !important;
-    padding: 0 !important;
-    line-height: 0 !important;
-    border-radius: 18px !important;
-    z-index: 60 !important;
-  }
-  .bt .fab svg {
-    display: block !important;
-    margin: 0 !important;
-    transform: none !important;
-  }
+  /* Mobile: keep the add action in the normal page flow so it never covers inputs/cards. */
+  .bt .fab { display: none !important; }
 
   .bt .backdrop {
     inset: 0 !important;
@@ -181,6 +177,8 @@
   .bt .cats { grid-template-columns: 1fr !important; }
   .bt .checkInputs { grid-template-columns: 1fr !important; }
   .bt .rowSide { min-width: 64px !important; }
+  .bt .sectionHead { align-items: flex-end !important; }
+  .bt .desktopAdd { min-height: 40px !important; padding: 0 11px !important; font-size: 10px !important; }
 }
 
 @media (max-width: 700px) and (max-height: 680px) {
