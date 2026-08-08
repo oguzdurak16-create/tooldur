@@ -4,6 +4,7 @@ import './modal-fix.css';
 import './header-fix.css';
 import BudgetClientSync from './BudgetClientSync';
 import ReceiptAutoFill from './ReceiptAutoFill';
+import ReceiptLibraryPicker from './ReceiptLibraryPicker';
 
 export const metadata: Metadata = {
   title: 'Bütçe & Harcama',
@@ -29,5 +30,5 @@ export const metadata: Metadata = {
 };
 
 export default function BudgetLayout({ children }: { children: React.ReactNode }) {
-  return <><BudgetClientSync /><ReceiptAutoFill />{children}</>;
+  return <><BudgetClientSync /><ReceiptAutoFill /><ReceiptLibraryPicker />{children}</>;
 }
