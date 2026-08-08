@@ -3,6 +3,10 @@
 import { useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
+declare global {
+  interface Window { Tesseract?: any; }
+}
+
 const waitFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
 function setInputValue(input: HTMLInputElement, value: string) {
@@ -44,12 +48,12 @@ function normalizeDate(raw: string) {
 function parseAmount(text: string) {
   const lines = text.split(/\n+/).map((x) => x.trim()).filter(Boolean);
   const preferred = lines.filter((line) => /(GENEL\s*TOPLAM|ÖDENECEK|ODENECEK|TOPLAM|TOTAL)/i.test(line));
-  const pool = preferred.length ? preferred : lines.slice(-15);
+  const pool = preferred.length ? preferred : lines.slice(-18);
   const amounts: number[] = [];
   for (const line of pool) {
-    const found = line.match(/(?:₺|TL)?\s*(\d{1,6}(?:[.,]\d{2}))/g) || [];
+    const found = line.match(/\d{1,6}[.,]\d{2}/g) || [];
     for (const token of found) {
-      const n = Number(token.replace(/[^\d,.-]/g, '').replace('.', '').replace(',', '.'));
+      const n = Number(token.replace(/\./g, '').replace(',', '.'));
       if (Number.isFinite(n) && n > 0 && n < 1000000) amounts.push(n);
     }
   }
@@ -72,24 +76,38 @@ function inferCategory(text: string) {
   return 'Diğer';
 }
 
+function loadTesseract() {
+  if (window.Tesseract) return Promise.resolve(window.Tesseract);
+  return new Promise<any>((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>('script[data-tesseract]');
+    if (existing) {
+      existing.addEventListener('load', () => resolve(window.Tesseract), { once: true });
+      existing.addEventListener('error', () => reject(new Error('Yerel fiş okuma yüklenemedi.')), { once: true });
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@6/dist/tesseract.min.js';
+    script.async = true;
+    script.dataset.tesseract = '1';
+    script.onload = () => window.Tesseract ? resolve(window.Tesseract) : reject(new Error('Yerel fiş okuma başlatılamadı.'));
+    script.onerror = () => reject(new Error('Yerel fiş okuma yüklenemedi.'));
+    document.head.appendChild(script);
+  });
+}
+
 async function localOcr(file: File) {
-  const { createWorker } = await import('tesseract.js');
-  const worker = await createWorker('tur+eng');
-  try {
-    const result = await worker.recognize(file);
-    const text = result.data.text || '';
-    return {
-      amount: parseAmount(text),
-      merchant: parseMerchant(text),
-      date: normalizeDate(text),
-      category: inferCategory(text),
-      payment_method: null,
-      confidence: Math.max(0, Math.min(1, (Number(result.data.confidence) || 0) / 100)),
-      local: true,
-    };
-  } finally {
-    await worker.terminate();
-  }
+  const Tesseract = await loadTesseract();
+  const result = await Tesseract.recognize(file, 'tur+eng');
+  const text = result?.data?.text || '';
+  return {
+    amount: parseAmount(text),
+    merchant: parseMerchant(text),
+    date: normalizeDate(text),
+    category: inferCategory(text),
+    payment_method: null,
+    confidence: Math.max(0, Math.min(1, (Number(result?.data?.confidence) || 0) / 100)),
+    local: true,
+  };
 }
 
 async function applyData(modal: Element, data: any) {
@@ -138,7 +156,7 @@ export default function ReceiptAutoFill() {
         }
 
         if (!data) {
-          status.textContent = 'Sunucu fiş okuyucusu hazır değil; telefonda yerel OCR ile okunuyor…';
+          status.textContent = 'Fiş cihazda okunuyor… İlk kullanım birkaç saniye sürebilir.';
           data = await localOcr(file);
         }
 
