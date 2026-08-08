@@ -56,12 +56,21 @@
   .bt .fab {
     display: grid !important;
     place-items: center !important;
+    align-items: center !important;
+    justify-items: center !important;
     right: 14px !important;
     bottom: calc(84px + env(safe-area-inset-bottom)) !important;
     width: 56px !important;
     height: 56px !important;
+    padding: 0 !important;
+    line-height: 0 !important;
     border-radius: 18px !important;
     z-index: 60 !important;
+  }
+  .bt .fab svg {
+    display: block !important;
+    margin: 0 !important;
+    transform: none !important;
   }
 
   .bt .backdrop {
