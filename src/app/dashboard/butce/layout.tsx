@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './mobile.css';
 import './modal-fix.css';
+import BudgetClientSync from './BudgetClientSync';
 
 export const metadata: Metadata = {
   title: 'Bütçe & Harcama',
@@ -26,5 +27,5 @@ export const metadata: Metadata = {
 };
 
 export default function BudgetLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return <><BudgetClientSync />{children}</>;
 }
