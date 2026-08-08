@@ -35,33 +35,32 @@ function statusNode(receiptLabel: Element) {
 }
 
 async function compressReceipt(file: File): Promise<File> {
-  const url = URL.createObjectURL(file);
+  // iOS Safari/PWA can fail while decoding some camera/library blobs via Image + objectURL.
+  // createImageBitmap is more reliable; if decoding/compression fails, upload the original.
   try {
-    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = () => reject(new Error('Fiş fotoğrafı işlenemedi.'));
-      img.src = url;
-    });
-
-    const maxSide = 1800;
-    const scale = Math.min(1, maxSide / Math.max(image.naturalWidth || image.width, image.naturalHeight || image.height));
-    const width = Math.max(1, Math.round((image.naturalWidth || image.width) * scale));
-    const height = Math.max(1, Math.round((image.naturalHeight || image.height) * scale));
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d', { alpha: false });
-    if (!ctx) throw new Error('Fiş fotoğrafı hazırlanamadı.');
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(0, 0, width, height);
-    ctx.drawImage(image, 0, 0, width, height);
-
-    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.78));
-    if (!blob) throw new Error('Fiş fotoğrafı sıkıştırılamadı.');
-    return new File([blob], 'receipt.jpg', { type: 'image/jpeg', lastModified: Date.now() });
-  } finally {
-    URL.revokeObjectURL(url);
+    const bitmap = await createImageBitmap(file);
+    try {
+      const maxSide = 1400;
+      const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+      const width = Math.max(1, Math.round(bitmap.width * scale));
+      const height = Math.max(1, Math.round(bitmap.height * scale));
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d', { alpha: false });
+      if (!ctx) return file;
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(bitmap, 0, 0, width, height);
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.68));
+      if (!blob) return file;
+      return new File([blob], 'receipt.jpg', { type: 'image/jpeg', lastModified: Date.now() });
+    } finally {
+      bitmap.close?.();
+    }
+  } catch {
+    // Do not abort the receipt flow just because client-side image decoding failed.
+    return file;
   }
 }
 
@@ -110,7 +109,7 @@ export default function ReceiptAutoFill() {
           body,
         });
         const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(data?.error || (response.status === 413 ? 'Fiş fotoğrafı sunucu sınırını aştı.' : 'Fiş okunamadı.'));
+        if (!response.ok) throw new Error(data?.error || (response.status === 413 ? 'Fiş fotoğrafı sunucu sınırını aştı.' : `Fiş okunamadı (${response.status}).`));
         if (!data?.amount) throw new Error('Fişte genel toplam okunamadı.');
 
         await applyData(modal, data);
@@ -118,7 +117,10 @@ export default function ReceiptAutoFill() {
         status.textContent = `Fiş okundu. Alanlar otomatik dolduruldu${confidence ? ` · güven %${confidence}` : ''}. Kaydetmeden önce kontrol et.`;
         status.style.color = '#6ee7b7';
       } catch (error: any) {
-        status.textContent = error?.message || 'Fiş otomatik okunamadı. Elle giriş yapabilirsin.';
+        const message = error?.message === 'Load failed'
+          ? 'Fiş fotoğrafı iPhone tarafından işlenemedi. Tekrar seçmeyi dene.'
+          : (error?.message || 'Fiş otomatik okunamadı. Elle giriş yapabilirsin.');
+        status.textContent = message;
         status.style.color = '#fca5a5';
       }
     };
