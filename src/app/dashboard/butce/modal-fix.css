@@ -1,7 +1,7 @@
 @media (max-width: 767px) {
-  /* Budget dialogs must sit above the global mobile tab bar (z-index: 1150). */
+  /* Budget dialogs must sit above the global mobile tab bar. */
   .bt .backdrop {
-    z-index: 1300 !important;
+    z-index: 5000 !important;
   }
 
   .bt .modal {
@@ -13,8 +13,35 @@
     z-index: 20 !important;
   }
 
+  /* Never let Tooldur's global bottom navigation cover budget form actions. */
+  body:has(.bt .backdrop) nav[aria-label="Mobil hızlı menü"] {
+    display: none !important;
+  }
+
   .bt .actions {
-    z-index: 40 !important;
-    padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+    z-index: 60 !important;
+    bottom: 0 !important;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .bt .fab {
+    display: grid !important;
+    place-items: center !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+  }
+
+  .bt .fab svg {
+    display: block !important;
+    margin: 0 !important;
+  }
+
+  /* Keep the iPhone install/help control visually centered too. */
+  .td-pwa-install-primary {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    line-height: 1 !important;
   }
 }
