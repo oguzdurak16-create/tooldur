@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './mobile.css';
 import './modal-fix.css';
+import './header-fix.css';
 import BudgetClientSync from './BudgetClientSync';
 import ReceiptAutoFill from './ReceiptAutoFill';
 
