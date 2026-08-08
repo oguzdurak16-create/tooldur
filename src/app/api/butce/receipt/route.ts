@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createWorker } from 'tesseract.js';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 const CATEGORIES = [
   'Market / Gıda',
@@ -48,8 +50,8 @@ function normalizeDate(value: unknown) {
 
 function parseAmount(text: string) {
   const lines = text.split(/\n+/).map((x) => x.trim()).filter(Boolean);
-  const preferred = lines.filter((line) => /(GENEL\s*TOPLAM|ÖDENECEK|ODENECEK|TOPLAM|TOTAL)/i.test(line));
-  const pool = preferred.length ? preferred : lines.slice(-20);
+  const preferred = lines.filter((line) => /(GENEL\s*TOPLAM|ÖDENECEK|ODENECEK|TOPLAM|TOTAL|TUTAR)/i.test(line));
+  const pool = preferred.length ? preferred : lines.slice(-24);
   const values: number[] = [];
   for (const line of pool) {
     for (const token of line.match(/\d{1,6}[.,]\d{2}/g) || []) {
@@ -72,13 +74,13 @@ function inferCategory(text: string) {
   if (/(ECZANE|HASTANE|SAĞLIK|SAGLIK|MEDİKAL|MEDIKAL)/.test(t)) return 'Sağlık';
   if (/(CAFE|KAFE|KAHVE|RESTAURANT|RESTORAN|DÖNER|DONER|PİZZA|PIZZA|KÖFTE|KOFTE|YEMEK)/.test(t)) return 'Dışarıda Yeme';
   if (/(TURKCELL|VODAFONE|TÜRK TELEKOM|TURK TELEKOM|ELEKTRİK|ELEKTRIK|SU FATURA|DOĞALGAZ|DOGALGAZ|İNTERNET|INTERNET)/.test(t)) return 'Fatura / İletişim';
-  if (/(MARKET|ŞOK|SOK |BİM|BIM |A101|MİGROS|MIGROS|CARREFOUR|SEYHAN|GIDA|PEYNİR|PEYNIR|SÜT|SUT |EKMEK)/.test(t)) return 'Market / Gıda';
+  if (/(MARKET|ŞOK|SOK |BİM|BIM |A101|MİGROS|MIGROS|CARREFOUR|SEYHAN|GIDA|PEYNİR|PEYNIR|SÜT|SUT |EKMEK|YUMURTA|MANAV)/.test(t)) return 'Market / Gıda';
   return 'Diğer';
 }
 
 function inferPayment(text: string) {
   const t = text.toLocaleUpperCase('tr-TR');
-  if (/(KREDİ KARTI|KREDI KARTI|BANKA\/KREDİ KARTI|BANKA\/KREDI KARTI)/.test(t)) return 'Kredi Kartı';
+  if (/(BANKA\/KREDİ KARTI|BANKA\/KREDI KARTI|KREDİ KARTI|KREDI KARTI)/.test(t)) return 'Kredi Kartı';
   if (/(BANKA KARTI|DEBİT|DEBIT)/.test(t)) return 'Banka Kartı';
   if (/NAKİT|NAKIT/.test(t)) return 'Nakit';
   return null;
@@ -107,6 +109,31 @@ async function parseWithOpenAI(file: File, apiKey: string) {
   try { return JSON.parse(raw); } catch { return null; }
 }
 
+async function parseWithTesseract(file: File) {
+  let worker: any;
+  try {
+    worker = await createWorker(['tur', 'eng']);
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const result = await worker.recognize(buffer);
+    const text = String(result?.data?.text || '').trim();
+    if (!text) return null;
+    return {
+      amount: parseAmount(text),
+      merchant: parseMerchant(text),
+      date: normalizeDate(text),
+      category: inferCategory(text),
+      payment_method: inferPayment(text),
+      confidence: Math.max(0, Math.min(1, (Number(result?.data?.confidence) || 0) / 100)),
+      source: 'tesseract-server',
+    };
+  } catch (error) {
+    console.error('receipt-tesseract-error', error);
+    return null;
+  } finally {
+    try { await worker?.terminate(); } catch {}
+  }
+}
+
 async function parseWithOcrSpace(file: File) {
   const form = new FormData();
   form.append('apikey', process.env.OCR_SPACE_API_KEY || 'helloworld');
@@ -126,8 +153,8 @@ async function parseWithOcrSpace(file: File) {
     date: normalizeDate(text),
     category: inferCategory(text),
     payment_method: inferPayment(text),
-    confidence: 0.72,
-    source: 'server-ocr',
+    confidence: 0.65,
+    source: 'ocr-space',
   };
 }
 
@@ -138,28 +165,28 @@ export async function POST(req: NextRequest) {
     const file = formData.get('receipt');
     if (!(file instanceof File)) return NextResponse.json({ error: 'Fiş fotoğrafı bulunamadı.' }, { status: 400 });
     if (!file.type.startsWith('image/')) return NextResponse.json({ error: 'Yalnızca fiş fotoğrafı yüklenebilir.' }, { status: 400 });
-    if (file.size > 8 * 1024 * 1024) return NextResponse.json({ error: 'Fiş fotoğrafı en fazla 8 MB olabilir.' }, { status: 413 });
+    if (file.size > 12 * 1024 * 1024) return NextResponse.json({ error: 'Fiş fotoğrafı en fazla 12 MB olabilir.' }, { status: 413 });
 
     let parsed: any = null;
     const apiKey = process.env.OPENAI_API_KEY;
     if (apiKey) parsed = await parseWithOpenAI(file, apiKey);
-    if (!parsed) parsed = await parseWithOcrSpace(file);
-    if (!parsed) return NextResponse.json({ error: 'Fiş sunucuda okunamadı. Fotoğrafı daha düz ve net çekip tekrar dene.' }, { status: 502 });
+    if (!parsed?.amount) parsed = await parseWithTesseract(file);
+    if (!parsed?.amount) parsed = await parseWithOcrSpace(file);
+    if (!parsed?.amount) return NextResponse.json({ error: 'Fiş okunamadı. Fotoğrafı mümkünse fişin tamamı görünecek şekilde seçip tekrar dene.' }, { status: 422 });
 
-    const amount = Number(parsed?.amount);
-    const category = CATEGORIES.includes(parsed?.category) ? parsed.category : 'Diğer';
-    const paymentMethod = PAYMENT_METHODS.includes(parsed?.payment_method) ? parsed.payment_method : null;
-    const confidence = Math.max(0, Math.min(1, Number(parsed?.confidence) || 0));
-    if (!Number.isFinite(amount) || amount <= 0) return NextResponse.json({ error: 'Fişte genel toplam okunamadı.' }, { status: 422 });
+    const amount = Number(parsed.amount);
+    const category = CATEGORIES.includes(parsed.category) ? parsed.category : 'Diğer';
+    const paymentMethod = PAYMENT_METHODS.includes(parsed.payment_method) ? parsed.payment_method : null;
+    const confidence = Math.max(0, Math.min(1, Number(parsed.confidence) || 0));
 
     return NextResponse.json({
       amount: Math.round(amount * 100) / 100,
-      merchant: typeof parsed?.merchant === 'string' ? parsed.merchant.trim().slice(0, 120) : null,
-      date: normalizeDate(parsed?.date),
+      merchant: typeof parsed.merchant === 'string' ? parsed.merchant.trim().slice(0, 120) : null,
+      date: normalizeDate(parsed.date),
       category,
       payment_method: paymentMethod,
       confidence,
-      source: parsed?.source || 'ai',
+      source: parsed.source || 'ai',
     });
   } catch (error) {
     console.error('receipt-parse-failed', error);
