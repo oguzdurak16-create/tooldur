@@ -3,10 +3,16 @@ import { NextResponse } from 'next/server';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const SOURCES: Record<string,{url:string;brand:string}> = {
-  'amazon-tr': { url:'https://www.amazon.com.tr/b?node=21034466031', brand:'Amazon Türkiye' },
-  'gratis': { url:'https://www.gratis.com/makyaj-/makyaj-c-501', brand:'Gratis' },
-  'ebebek': { url:'https://www.e-bebek.com/bebek-giyim-c4050?q=:relevance:allCategories:4050:size:4%20-%205%20Ya%C5%9F', brand:'ebebek' },
+const SOURCES: Record<string,{url:string;brand:string;kind?:'gratis'|'ebebek'|'amazon'}> = {
+  'amazon-tr': { url:'https://www.amazon.com.tr/b?node=21034466031', brand:'Amazon Türkiye', kind:'amazon' },
+  'amazon-elektronik': { url:'https://www.amazon.com.tr/s?k=powerbank+kulakl%C4%B1k+%C5%9Farj+cihaz%C4%B1+elektronik+aksesuar', brand:'Amazon Türkiye', kind:'amazon' },
+  'amazon-arac': { url:'https://www.amazon.com.tr/s?k=ara%C3%A7+bak%C4%B1m+oto+aksesuar+temizlik+bak%C4%B1m+seti', brand:'Amazon Türkiye', kind:'amazon' },
+  'amazon-ev-bakim': { url:'https://www.amazon.com.tr/s?k=ev+temizlik+deterjan+bak%C4%B1m', brand:'Amazon Türkiye', kind:'amazon' },
+  'gratis': { url:'https://www.gratis.com/makyaj-/makyaj-c-501', brand:'Gratis', kind:'gratis' },
+  'gratis-bakim': { url:'https://www.gratis.com/search?q=du%C5%9F%20jeli%20%C5%9Fampuan%20ki%C5%9Fisel%20bak%C4%B1m', brand:'Gratis', kind:'gratis' },
+  'gratis-erkek-bakim': { url:'https://www.gratis.com/search?q=erkek%20du%C5%9F%20jeli%20%C5%9Fampuan%20bak%C4%B1m', brand:'Gratis', kind:'gratis' },
+  'ebebek': { url:'https://www.e-bebek.com/bebek-giyim-c4050?q=:relevance:allCategories:4050:size:4%20-%205%20Ya%C5%9F', brand:'ebebek', kind:'ebebek' },
+  'ebebek-bakim': { url:'https://www.e-bebek.com/search?q=bebek%20%C5%9Fampuan%20du%C5%9F%20jeli%20%C4%B1slak%20mendil%20di%C5%9F%20bak%C4%B1m', brand:'ebebek', kind:'ebebek' },
 };
 
 const headers={
@@ -102,9 +108,7 @@ function ebebek(html:string,products:Product[]):Product[]{
       const block=flat.slice(pos,Math.min(flat.length,pos+18000));
       const old=Number((block.match(/"oldPrice":\{[^{}]{0,500}?"value":([0-9.]+)/)||[])[1]||0);
       const current=Number((block.match(/"currentPrice":\{[^{}]{0,500}?"value":([0-9.]+)/)||[])[1]||0);
-      if(old>0&&current>0&&old>current){
-        enriched={...p,current_price:current,original_price:old,discount_percent:pct(current,old),source:'ebebek-state'};break;
-      }
+      if(old>0&&current>0&&old>current){enriched={...p,current_price:current,original_price:old,discount_percent:pct(current,old),source:'ebebek-state'};break}
       pos=flat.indexOf(needle,pos+needle.length);
     }
     return enriched||p;
@@ -151,11 +155,11 @@ export async function GET(_req:Request,{params}:{params:{site:string}}){
     const res=await fetch(cfg.url,{cache:'no-store',redirect:'follow',headers});const html=await res.text();
     if(!res.ok)return NextResponse.json({ok:false,status:res.status,count:0,products:[]},{status:502});
     let products:Product[]=[];let source='structured';
-    if(params.site==='gratis'){products=gratis(html);source='gratis-rsc'}
-    else if(params.site==='amazon-tr'){products=amazon(html,cfg.url);source='amazon-html'}
+    if(cfg.kind==='gratis'){products=gratis(html);source='gratis-rsc'}
+    else if(cfg.kind==='amazon'){products=amazon(html,cfg.url);source='amazon-html'}
     else {
       products=structured(html,cfg.url,cfg.brand).filter(p=>p.current_price!==null);
-      if(params.site==='ebebek'){products=ebebek(html,products);source='ebebek-state'}
+      if(cfg.kind==='ebebek'){products=ebebek(html,products);source='ebebek-state'}
       if(products.length<5){const fallback=anchorCards(html,cfg.url,cfg.brand);if(fallback.length>products.length){products=fallback;source='anchor-html'}}
     }
     products=products.filter((p,i,a)=>p.url&&a.findIndex(x=>x.url===p.url)===i).sort((a,b)=>b.discount_percent-a.discount_percent).slice(0,100);
