@@ -6,13 +6,19 @@ export const dynamic = 'force-dynamic';
 const SOURCES: Record<string,{url:string;brand:string;kind?:'gratis'|'ebebek'|'amazon'}> = {
   'amazon-tr': { url:'https://www.amazon.com.tr/b?node=21034466031', brand:'Amazon Türkiye', kind:'amazon' },
   'amazon-elektronik': { url:'https://www.amazon.com.tr/s?k=powerbank+kulakl%C4%B1k+%C5%9Farj+cihaz%C4%B1+elektronik+aksesuar', brand:'Amazon Türkiye', kind:'amazon' },
-  'amazon-arac': { url:'https://www.amazon.com.tr/s?k=ara%C3%A7+bak%C4%B1m+oto+aksesuar+temizlik+bak%C4%B1m+seti', brand:'Amazon Türkiye', kind:'amazon' },
-  'amazon-ev-bakim': { url:'https://www.amazon.com.tr/s?k=ev+temizlik+deterjan+bak%C4%B1m', brand:'Amazon Türkiye', kind:'amazon' },
+  'amazon-pc-telefon': { url:'https://www.amazon.com.tr/s?k=usb+c+hub+ssd+mouse+klavye+telefon+aksesuar%C4%B1+%C5%9Farj+adapt%C3%B6r%C3%BC', brand:'Amazon Türkiye', kind:'amazon' },
+  'amazon-el-aletleri': { url:'https://www.amazon.com.tr/s?k=kumpas+tork+anahtar%C4%B1+lokma+seti+multimetre+el+aletleri', brand:'Amazon Türkiye', kind:'amazon' },
+  'amazon-arac': { url:'https://www.amazon.com.tr/s?k=renault+megane+2+1.5+dci+2006+bak%C4%B1m+aksesuar+silecek+filtre', brand:'Amazon Türkiye', kind:'amazon' },
+  'amazon-ev-bakim': { url:'https://www.amazon.com.tr/s?k=ev+temizlik+deterjan+bula%C5%9F%C4%B1k+makinesi+tableti+ka%C4%9F%C4%B1t+hava+temizleme', brand:'Amazon Türkiye', kind:'amazon' },
+  'amazon-kadin-ayakkabi-canta': { url:'https://www.amazon.com.tr/s?k=kad%C4%B1n+ayakkab%C4%B1+%C3%A7anta+g%C3%BCnl%C3%BCk', brand:'Amazon Türkiye', kind:'amazon' },
+  'amazon-ege-kitap': { url:'https://www.amazon.com.tr/s?k=4+ya%C5%9F+erkek+%C3%A7ocuk+kitap+aktivite+boyama+e%C4%9Fitici', brand:'Amazon Türkiye', kind:'amazon' },
   'gratis': { url:'https://www.gratis.com/makyaj-/makyaj-c-501', brand:'Gratis', kind:'gratis' },
-  'gratis-bakim': { url:'https://www.gratis.com/search?q=du%C5%9F%20jeli%20%C5%9Fampuan%20ki%C5%9Fisel%20bak%C4%B1m', brand:'Gratis', kind:'gratis' },
-  'gratis-erkek-bakim': { url:'https://www.gratis.com/search?q=erkek%20du%C5%9F%20jeli%20%C5%9Fampuan%20bak%C4%B1m', brand:'Gratis', kind:'gratis' },
+  'gratis-bakim': { url:'https://www.gratis.com/search?q=du%C5%9F%20jeli%20%C5%9Fampuan%20ki%C5%9Fisel%20bak%C4%B1m%20cilt%20bak%C4%B1m', brand:'Gratis', kind:'gratis' },
+  'gratis-erkek-bakim': { url:'https://www.gratis.com/search?q=erkek%20du%C5%9F%20jeli%20%C5%9Fampuan%20deodorant%20bak%C4%B1m', brand:'Gratis', kind:'gratis' },
   'ebebek': { url:'https://www.e-bebek.com/bebek-giyim-c4050?q=:relevance:allCategories:4050:size:4%20-%205%20Ya%C5%9F', brand:'ebebek', kind:'ebebek' },
-  'ebebek-bakim': { url:'https://www.e-bebek.com/search?q=bebek%20%C5%9Fampuan%20du%C5%9F%20jeli%20%C4%B1slak%20mendil%20di%C5%9F%20bak%C4%B1m', brand:'ebebek', kind:'ebebek' },
+  'ebebek-bakim': { url:'https://www.e-bebek.com/search?q=%C3%A7ocuk%20%C5%9Fampuan%20du%C5%9F%20jeli%20%C4%B1slak%20mendil%20di%C5%9F%20bak%C4%B1m%20g%C3%BCne%C5%9F%20kremi', brand:'ebebek', kind:'ebebek' },
+  'ebebek-oyuncak': { url:'https://www.e-bebek.com/search?q=4%20ya%C5%9F%20erkek%20oyuncak%20e%C4%9Fitici%20aktivite%20araba%20lego', brand:'ebebek', kind:'ebebek' },
+  'ebebek-beslenme': { url:'https://www.e-bebek.com/search?q=%C3%A7ocuk%20suluk%20matara%20beslenme%20%C3%A7antas%C4%B1%20tabak%20%C3%A7atal', brand:'ebebek', kind:'ebebek' },
 };
 
 const headers={
