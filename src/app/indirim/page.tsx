@@ -13,7 +13,7 @@ type Category={id:string;name:string;enabled:boolean;min_discount_percent:number
 type Site={id:string;name:string;base_url:string;enabled:boolean};
 type Rule={id:string;category_id:string;site_id:string;category_url:string|null;min_discount_percent:number;notify:boolean;enabled:boolean};
 type Meta={profile?:Section;interest?:string;source?:string;category_verified?:boolean;profile_verified?:boolean};
-type Product={id:string;title:string;brand:string|null;image_url:string|null;site_id:string;category_id:string;current_price:number|null;original_price:number|null;discount_percent:number|null;in_stock:boolean|null;url:string;metadata?:Meta|null};
+type Product={id:string;external_id:string|null;title:string;brand:string|null;image_url:string|null;site_id:string;category_id:string;current_price:number|null;original_price:number|null;discount_percent:number|null;in_stock:boolean|null;url:string;metadata?:Meta|null};
 type Settings={min_discount_percent:number;notifications_enabled:boolean;digest_mode:boolean;scan_interval_minutes:number};
 type ScanLog={id:number;status:string;scanned_count:number;changed_count:number;notified_count:number;started_at:string;error_message:string|null};
 
@@ -32,9 +32,29 @@ const profileFromCategory=(id:string):Section|null=>{
 };
 const productProfile=(p:Product)=>p.metadata?.profile||profileFromCategory(p.category_id);
 const isFamily=(p:Product)=>String(p.metadata?.source||'').startsWith('family-smart:');
+const norm=(s:string)=>s.toLocaleLowerCase('tr-TR').replace(/&amp;/g,'&').replace(/&#x27;/g,"'").replace(/\s+/g,' ').trim();
 const productKey=(p:Product)=>{
-  try{const u=new URL(p.url);return `${p.site_id}|${u.origin}${u.pathname}`.toLocaleLowerCase('tr-TR').replace(/\/$/,'')}
-  catch{return `${p.site_id}|${p.title}`.toLocaleLowerCase('tr-TR').replace(/\s+/g,' ').trim()}
+  const ext=String(p.external_id||'').trim();
+  if(ext)return `${p.site_id}|id|${norm(ext)}`;
+  try{
+    const u=new URL(p.url);
+    const path=u.pathname.toLowerCase().replace(/\/$/,'');
+    if(p.site_id==='amazon-tr'){
+      const asin=path.match(/\/(?:dp|gp\/product)\/([a-z0-9]{10})(?:\/|$)/i)?.[1];
+      if(asin)return `amazon-tr|asin|${asin.toLowerCase()}`;
+    }
+    if(p.site_id==='trendyol'){
+      const pid=path.match(/-p-(\d+)(?:\/|$)/)?.[1];
+      if(pid)return `trendyol|p|${pid}`;
+    }
+    if(p.site_id==='hepsiburada'){
+      const pid=path.match(/-p-([a-z0-9]+)/i)?.[1];
+      if(pid)return `hepsiburada|p|${pid.toLowerCase()}`;
+    }
+    return `${p.site_id}|url|${u.hostname.toLowerCase()}${path}`;
+  }catch{
+    return `${p.site_id}|title|${norm(p.title)}`;
+  }
 };
 const uniqueProducts=(rows:Product[])=>{const seen=new Set<string>();return rows.filter(p=>{const k=productKey(p);if(seen.has(k))return false;seen.add(k);return true})};
 
@@ -66,18 +86,18 @@ export default function IndirimPage(){
 
   const load=async(silent=false)=>{
     if(!silent){setLoading(true);setError('')}
-    const productQueries=(Object.keys(sectionCategoryIds) as Section[]).map(sec=>supabase.from('merve_products').select('id,title,brand,image_url,site_id,category_id,current_price,original_price,discount_percent,in_stock,url,metadata').in('category_id',sectionCategoryIds[sec]).order('discount_percent',{ascending:false,nullsFirst:false}).order('current_price',{ascending:true,nullsFirst:false}).limit(1000));
+    const productQueries=(Object.keys(sectionCategoryIds) as Section[]).map(sec=>supabase.from('merve_products').select('id,external_id,title,brand,image_url,site_id,category_id,current_price,original_price,discount_percent,in_stock,url,metadata').in('category_id',sectionCategoryIds[sec]).order('discount_percent',{ascending:false,nullsFirst:false}).order('current_price',{ascending:true,nullsFirst:false}).limit(1000));
     const[c,s,r,st,l,seen,...pq]=await Promise.all([
       supabase.from('merve_categories').select('id,name,enabled,min_discount_percent').order('name'),
       supabase.from('merve_sites').select('id,name,base_url,enabled').order('name'),
       supabase.from('merve_tracking_rules').select('id,category_id,site_id,category_url,min_discount_percent,notify,enabled').order('created_at',{ascending:false}),
       supabase.from('merve_app_settings').select('min_discount_percent,notifications_enabled,digest_mode,scan_interval_minutes').eq('owner_email',OWNER).maybeSingle(),
       supabase.from('merve_scan_logs').select('id,status,scanned_count,changed_count,notified_count,started_at,error_message').order('started_at',{ascending:false}).limit(18),
-      supabase.from('merve_seen_products').select('product_key').eq('owner_email',OWNER).limit(10000),
+      supabase.from('merve_seen_products').select('product_key').eq('owner_email',OWNER).limit(20000),
       ...productQueries,
     ] as any);
     const all=[c,s,r,st,l,seen,...pq];const firstError=all.find((x:any)=>x?.error)?.error;if(firstError)setError(firstError.message||'Veriler alınamadı.');
-    const merged=new Map<string,Product>();for(const q of pq){for(const p of(q?.data||[]))merged.set(p.id,p as Product)}
+    const merged=new Map<string,Product>();for(const q of pq){for(const p of(q?.data||[])){const row=p as Product;const k=productKey(row);if(!merged.has(k))merged.set(k,row)}}
     setCategories((c.data||[])as Category[]);setSites((s.data||[])as Site[]);setRules((r.data||[])as Rule[]);setProducts(Array.from(merged.values()));setSeenBefore(new Set((seen.data||[]).map((x:any)=>String(x.product_key))));setLogs((l.data||[])as ScanLog[]);if(st.data)setSettings(st.data as Settings);if(!silent)setLoading(false);
   };
   const refreshNow=async()=>{setRefreshing(true);setSessionShown(new Set());await load(true);setRefreshing(false)};
@@ -88,8 +108,12 @@ export default function IndirimPage(){
     const shown=uniqueProducts([...visibleFamily,...visibleProducts]);
     const fresh=shown.filter(p=>!seenBefore.has(productKey(p))&&!sessionShown.has(productKey(p)));
     if(!fresh.length)return;
-    const keys=fresh.map(productKey);setSessionShown(prev=>new Set([...prev,...keys]));
-    void supabase.from('merve_seen_products').upsert(fresh.map(p=>({owner_email:OWNER,product_key:productKey(p),product_id:p.id,profile:productProfile(p)||section})),{onConflict:'owner_email,product_key'});
+    const keys=fresh.map(productKey);
+    setSessionShown(prev=>new Set([...prev,...keys]));
+    void (async()=>{
+      const {error:e}=await supabase.from('merve_seen_products').upsert(fresh.map(p=>({owner_email:OWNER,product_key:productKey(p),product_id:p.id,profile:productProfile(p)||section})),{onConflict:'owner_email,product_key'});
+      if(e){setError(`Görüldü kaydı yazılamadı: ${e.message}`);return;}
+    })();
   },[allowed,loading,section,visibleFamily,visibleProducts,seenBefore,sessionShown]);
 
   const changeSection=(next:Section)=>{setSection(next);setCategoryId(sectionDefaultCategory[next]);setMinDiscount(20);setMessage('');setError('');setProductLimit(24);setStoreFilter('all');setCategoryFilter('all');setDropsOnly(false);setSearch('');window.scrollTo({top:0,behavior:'smooth'})};
@@ -110,7 +134,7 @@ export default function IndirimPage(){
     <nav className={styles.profileTabs}>{(['merve','oguzhan','ege']as Section[]).map(x=><button key={x} onClick={()=>changeSection(x)} className={`${styles.profileTab} ${section===x?styles.profileTabActive:''}`}>{sectionTitle[x]}</button>)}</nav>
     <section className={styles.compactStats}><div><span>Yeni ürün</span><strong>{unseenSectionProducts.length}</strong></div><div><span>Düşüş</span><strong>{realDrops}</strong></div><div><span>Yeni fırsat</span><strong>{familyProducts.length}</strong></div><div><span>Son tarama</span><strong>{lastScan?new Date(lastScan.started_at).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}):'—'}</strong></div></section>
 
-    <section className={`${styles.card} ${styles.smartCard}`}><div className={styles.cardHead}><div><div className={styles.cardTitle}><Sparkles size={16}/> Yeni fırsatlar</div><div className={styles.muted}>Gösterilen ürün kaydedilir ve sonraki girişte bir daha gösterilmez.</div></div><button className={styles.refreshButton} onClick={refreshNow} disabled={refreshing}><RefreshCw size={16} className={refreshing?styles.spin:''}/></button></div><div className={styles.smartChips}>{interests.map(x=><span key={x}>{x}</span>)}</div><div className={styles.productList}>{familyProducts.length===0?<div className={styles.empty}>Yeni doğrulanmış fırsat yok.</div>:visibleFamily.map(renderProduct)}</div></section>
+    <section className={`${styles.card} ${styles.smartCard}`}><div className={styles.cardHead}><div><div className={styles.cardTitle}><Sparkles size={16}/> Yeni fırsatlar</div><div className={styles.muted}>Gösterilen ürün kaydedilir; sonraki yenilemede bir daha gösterilmez.</div></div><button className={styles.refreshButton} onClick={refreshNow} disabled={refreshing}><RefreshCw size={16} className={refreshing?styles.spin:''}/></button></div><div className={styles.smartChips}>{interests.map(x=><span key={x}>{x}</span>)}</div><div className={styles.productList}>{familyProducts.length===0?<div className={styles.empty}>Yeni doğrulanmış fırsat yok.</div>:visibleFamily.map(renderProduct)}</div></section>
 
     <section className={`${styles.card} ${styles.productsCard}`}><div className={styles.cardHead}><div><div className={styles.cardTitle}><Store size={16}/> Yeni ürünler</div><div className={styles.muted}>Tekrarsız · kategori + profil doğrulamalı · {sortedProducts.length} yeni sonuç</div></div><button className={styles.refreshButton} onClick={refreshNow} disabled={refreshing}><RefreshCw size={16} className={refreshing?styles.spin:''}/></button></div><div className={styles.filterBar}><label className={styles.searchBox}><Search size={15}/><input value={search} onChange={e=>{setSearch(e.target.value);setProductLimit(24)}} placeholder='Ürün ara'/></label><select className={styles.storeSelect} value={storeFilter} onChange={e=>{setStoreFilter(e.target.value);setProductLimit(24)}}><option value='all'>Tüm mağazalar</option>{availableSiteIds.map(id=><option key={id} value={id}>{siteMap[id]||id}</option>)}</select><select className={styles.storeSelect} value={categoryFilter} onChange={e=>{setCategoryFilter(e.target.value);setProductLimit(24)}}><option value='all'>Tüm kategoriler</option>{availableCategoryIds.map(id=><option key={id} value={id}>{categoryMap[id]||id}</option>)}</select><button className={`${styles.dropToggle} ${dropsOnly?styles.dropToggleActive:''}`} onClick={()=>{setDropsOnly(v=>!v);setProductLimit(24)}}><SlidersHorizontal size={14}/> {dropsOnly?'Ucuzlayanlar':'Tümü'}</button></div><div className={styles.productList}>{sortedProducts.length===0?<div className={styles.empty}>Bu filtrede yeni ürün yok.</div>:visibleProducts.map(renderProduct)}</div>{productLimit<sortedProducts.length&&<button className={styles.moreButton} onClick={()=>setProductLimit(v=>Math.min(v+24,sortedProducts.length))}>24 yeni ürün daha göster</button>}</section>
 
