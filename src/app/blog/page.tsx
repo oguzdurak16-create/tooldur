@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, Clock, Search, Wrench } from 'lucide-react';
+import { ArrowRight, BookOpen, Clock, Wrench } from 'lucide-react';
 import { blogPosts } from '@/data/blogPosts';
 import { getBlogVisual, siteVisuals } from '@/lib/visualAssets';
 
@@ -127,7 +127,6 @@ export default function BlogPage() {
           box-shadow: 0 18px 40px rgba(255,177,27,.24);
         }
         .td-blog-btn.secondary { color: var(--ink); background: rgba(255,255,255,.04); box-shadow: none; border-color: rgba(255,255,255,.08); }
-
         .td-blog-hero-image {
           position: relative;
           min-height: 245px;
@@ -139,9 +138,7 @@ export default function BlogPage() {
           box-shadow: 0 22px 54px rgba(0,0,0,.28);
         }
         .td-blog-hero-image img,
-        .td-blog-card-image img {
-          object-fit: cover;
-        }
+        .td-blog-card-image img { object-fit: cover; }
         .td-blog-hero-image:after,
         .td-blog-card-image:after {
           content: '';
@@ -159,7 +156,6 @@ export default function BlogPage() {
           border: 1px solid rgba(255,255,255,.08);
           background: #07101d;
         }
-
         .td-blog-side { padding: 24px; display: flex; flex-direction: column; gap: 14px; }
         .td-blog-side-title { font-size: 22px; font-weight: 950; letter-spacing: -.04em; margin-bottom: 4px; }
         .td-blog-mini {
@@ -229,7 +225,7 @@ export default function BlogPage() {
           </div>
 
           <aside className="td-blog-side">
-            <div className="td-blog-side-title">Çok aranan başlıklar</div>
+            <div className="td-blog-side-title">Öne çıkan teknik başlıklar</div>
             {orderedPosts.slice(0, 8).map((post) => (
               <Link key={post.slug} href={`/blog/${post.slug}`} className="td-blog-mini">
                 <strong>{post.title}</strong>
@@ -252,7 +248,7 @@ export default function BlogPage() {
               <p>{post.description}</p>
               <div className="td-blog-meta">
                 <span><Clock size={14} /> {post.readTime}</span>
-                <span><Search size={14} /> SEO rehberi</span>
+                <span><BookOpen size={14} /> Teknik rehber</span>
               </div>
               <Link href={`/blog/${post.slug}`} className="td-blog-read">
                 Yazıyı oku <ArrowRight size={16} />
@@ -263,10 +259,10 @@ export default function BlogPage() {
         </section>
 
         <section className="td-blog-seo-box">
-          <h2>Tooldur blog neden eklendi?</h2>
+          <h2>Bu rehberlerde ne bulacaksınız?</h2>
           <p>
-            Google aramalarında sadece hesaplayıcı sayfaları değil, bu hesapların nasıl seçileceğini anlatan rehber içerikler de önemlidir.
-            Blog yapısı; “H7 tolerans nedir”, “kama kanalı nasıl hesaplanır”, “kılavuz matkap çapı kaç olmalı” gibi niyet odaklı aramalardan trafik çekmek için hazırlandı.
+            Hesaplama araçlarının arkasındaki seçim mantığını, standartları, uygulama sınırlarını ve örnek mühendislik kararlarını açıklıyoruz.
+            Böylece yalnızca sonucu görmek yerine hangi değerin neden seçildiğini ve gerçek bir tasarımda nelere dikkat edilmesi gerektiğini de inceleyebilirsiniz.
           </p>
         </section>
       </div>
