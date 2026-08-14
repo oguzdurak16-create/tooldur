@@ -5,13 +5,14 @@ import { getIndexableCategories, getIndexableTools } from '@/lib/seoFocus';
 import { BASE_URL, getLocalizedPath, type Locale } from '@/lib/siteLanguage';
 
 const BASE = BASE_URL;
-const GLOBAL_LOCALES: Locale[] = ['tr', 'en', 'es', 'zh', 'hi', 'ar'];
-const PUBLIC_GLOBAL_LOCALES = GLOBAL_LOCALES.filter((locale) => locale !== 'tr');
+// ES/ZH/HI/AR remain available to visitors but are intentionally noindex until
+// each locale has enough independently reviewed editorial content.
+const INDEXABLE_LOCALES: Locale[] = ['tr', 'en'];
 type LocalizedRoute = Parameters<typeof getLocalizedPath>[1];
 
 // Update only after a meaningful content or SEO change.
-const SITE_RELEASE_DATE = new Date('2026-08-05T00:00:00+03:00');
-const CONTENT_RELEASE_DATE = new Date('2026-08-05T00:00:00+03:00');
+const SITE_RELEASE_DATE = new Date('2026-08-14T00:00:00+03:00');
+const CONTENT_RELEASE_DATE = new Date('2026-08-14T00:00:00+03:00');
 const POLICY_RELEASE_DATE = new Date('2026-05-21T00:00:00+03:00');
 
 function priorityForTool(t: typeof tools[number]) {
@@ -20,10 +21,10 @@ function priorityForTool(t: typeof tools[number]) {
 
 function languageAlternates(route: LocalizedRoute, slug?: string) {
   const languages: Record<string, string> = {
-    'x-default': `${BASE}${getLocalizedPath('en', route, slug)}`,
+    'x-default': `${BASE}${getLocalizedPath('tr', route, slug)}`,
   };
 
-  GLOBAL_LOCALES.forEach((locale) => {
+  INDEXABLE_LOCALES.forEach((locale) => {
     languages[locale] = `${BASE}${getLocalizedPath(locale, route, slug)}`;
   });
 
@@ -49,7 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { route: 'release-notes', priority: 0.65, frequency: 'monthly' },
   ];
 
-  const localizedStatic: MetadataRoute.Sitemap = GLOBAL_LOCALES.flatMap((locale) =>
+  const localizedStatic: MetadataRoute.Sitemap = INDEXABLE_LOCALES.flatMap((locale) =>
     localizedStaticRoutes.map((item) => ({
       url: `${BASE}${getLocalizedPath(locale, item.route)}`,
       lastModified: CONTENT_RELEASE_DATE,
@@ -69,7 +70,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const categoryPages: MetadataRoute.Sitemap = indexableCategories.flatMap((category) =>
-    GLOBAL_LOCALES.map((locale) => ({
+    INDEXABLE_LOCALES.map((locale) => ({
       url: `${BASE}${getLocalizedPath(locale, 'category', category.slug)}`,
       lastModified: CONTENT_RELEASE_DATE,
       changeFrequency: 'weekly' as const,
@@ -79,7 +80,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   const toolPages: MetadataRoute.Sitemap = indexableTools.flatMap((tool) =>
-    GLOBAL_LOCALES.map((locale) => ({
+    INDEXABLE_LOCALES.map((locale) => ({
       url: `${BASE}${getLocalizedPath(locale, 'tool', tool.slug)}`,
       lastModified: CONTENT_RELEASE_DATE,
       changeFrequency: tool.new ? ('weekly' as const) : ('monthly' as const),
