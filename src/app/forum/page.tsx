@@ -5,6 +5,7 @@ import ForumClient from './ForumClient';
 export const metadata: Metadata = {
   title: 'Forum | Mühendislik Topluluğu',
   description: 'Mühendisler için soru-cevap, tartışma ve deneyim paylaşım platformu. Elektrik, inşaat, makine alanlarında toplulukla bağlantı kurun.',
+  robots: { index: false, follow: true },
   alternates: { canonical: '/forum' },
   openGraph: {
     title: 'Tooldur Forum - Mühendislik Topluluğu',
