@@ -21,6 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: konu.baslik,
     description: desc,
+    robots: { index: false, follow: true },
     alternates: { canonical: `/forum/konu/${id}` },
     openGraph: {
       title: konu.baslik,
