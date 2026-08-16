@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import SiteRadarClient from './SiteRadarClient'
+import SeoExperimentsClient from './SeoExperimentsClient'
 import './site-radar.css'
+import './seo-experiments.css'
 
 export const metadata: Metadata = {
   title: 'Site Radar',
@@ -14,5 +16,10 @@ export const metadata: Metadata = {
 }
 
 export default function SiteRadarPage() {
-  return <SiteRadarClient />
+  return (
+    <>
+      <SiteRadarClient />
+      <SeoExperimentsClient />
+    </>
+  )
 }
