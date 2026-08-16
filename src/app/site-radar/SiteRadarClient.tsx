@@ -16,8 +16,11 @@ import {
   Gauge,
   GitCommitHorizontal,
   Globe2,
+  History,
+  ListChecks,
   MousePointerClick,
   RefreshCw,
+  Rocket,
   Search,
   ShieldCheck,
   Sparkles,
@@ -27,7 +30,9 @@ import {
 import { supabase } from '@/lib/supabase'
 
 type Site = 'Tooldur' | 'Hesaplas' | 'Troublio' | 'Odyomuh'
+type DeployStatus = 'READY' | 'BUILDING' | 'ERROR' | 'UNKNOWN'
 
+type SeoCommit = { sha: string; message: string; date?: string; url?: string }
 type LiveSite = {
   url: string
   repo: string
@@ -35,9 +40,12 @@ type LiveSite = {
   robots: { ok: boolean; status: number; ms: number; error?: string }
   sitemap: { ok: boolean; status: number; ms: number; error?: string }
   github: { ok: boolean; status?: number; sha?: string; message?: string; date?: string; url?: string; error?: string }
+  deploy?: { status: DeployStatus; state?: string; deploymentId?: string }
+  seoHistory?: SeoCommit[]
 }
 
 type LivePayload = { checkedAt: string; sites: Partial<Record<Site, LiveSite>> }
+type ActionItem = { score: number; level: 'critical' | 'high' | 'watch'; site?: Site; title: string; text: string; page?: string }
 
 const SITE_ORDER: Site[] = ['Tooldur', 'Hesaplas', 'Troublio', 'Odyomuh']
 const SITE_COLORS: Record<Site, string> = {
@@ -57,9 +65,7 @@ function pct(value: unknown, digits = 1) {
 
 function formatDate(value?: string) {
   if (!value) return '—'
-  return new Intl.DateTimeFormat('tr-TR', {
-    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
-  }).format(new Date(value))
+  return new Intl.DateTimeFormat('tr-TR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(value))
 }
 
 function ageText(value?: string) {
@@ -97,6 +103,11 @@ function Trend({ current, previous, inverse = false }: { current: number; previo
 
 function StatusPill({ ok, children }: { ok: boolean; children: React.ReactNode }) {
   return <span className={`sr-status-pill ${ok ? 'ok' : 'bad'}`}>{ok ? <CheckCircle2 size={13} /> : <TriangleAlert size={13} />}{children}</span>
+}
+
+function DeployPill({ status = 'UNKNOWN', id }: { status?: DeployStatus; id?: string }) {
+  const label = status === 'READY' ? 'Vercel READY' : status === 'BUILDING' ? 'Vercel BUILDING' : status === 'ERROR' ? 'Vercel ERROR' : 'Vercel ?'
+  return <span className={`sr-deploy-pill ${status.toLowerCase()}`}><Rocket size={13} />{label}{id ? <code>{id.slice(0, 7)}</code> : null}</span>
 }
 
 export default function SiteRadarClient() {
@@ -155,7 +166,7 @@ export default function SiteRadarClient() {
     return () => window.clearInterval(timer)
   }, [loadLive])
 
-  const visibleSites = useMemo(() => selected === 'all' ? SITE_ORDER : [selected], [selected])
+  const visibleSites = useMemo<Site[]>(() => selected === 'all' ? SITE_ORDER : [selected], [selected])
 
   const aggregate = useMemo(() => {
     const result = {
@@ -190,12 +201,79 @@ export default function SiteRadarClient() {
     }
   }, [snapshot, visibleSites])
 
-  const opportunityCount = useMemo(() => (snapshot?.opportunities || []).filter((x: any) => selected === 'all' || x.site === selected).length, [snapshot, selected])
   const freshHours = capturedAt ? (Date.now() - new Date(capturedAt).getTime()) / 3_600_000 : 999
+  const opportunityCount = useMemo(() => (snapshot?.opportunities || []).filter((x: any) => selected === 'all' || x.site === selected).length, [snapshot, selected])
   const healthyCount = SITE_ORDER.filter((name) => {
     const item = live?.sites?.[name]
     return Boolean(item?.http?.ok && item?.robots?.ok && item?.sitemap?.ok)
   }).length
+  const deployReadyCount = SITE_ORDER.filter((name) => live?.sites?.[name]?.deploy?.status === 'READY').length
+
+  const seoHistory = useMemo(() => {
+    return visibleSites
+      .flatMap((site) => (live?.sites?.[site]?.seoHistory || []).map((item) => ({ ...item, site })))
+      .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')))
+      .slice(0, 14)
+  }, [live, visibleSites])
+
+  const actions = useMemo<ActionItem[]>(() => {
+    const rows: ActionItem[] = []
+
+    visibleSites.forEach((site) => {
+      const health = live?.sites?.[site]
+      if (health && (!health.http?.ok || !health.robots?.ok || !health.sitemap?.ok)) {
+        rows.push({ score: 100, level: 'critical', site, title: 'Teknik sağlık sorunu', text: 'Site, robots.txt veya sitemap.xml kontrolü başarısız. Önce crawl erişimini düzelt.' })
+      }
+      if (health?.deploy?.status === 'ERROR') {
+        rows.push({ score: 98, level: 'critical', site, title: 'Production deployment hata verdi', text: 'Son GitHub commit’inin Vercel durumu ERROR. Build logu incelenmeli.' })
+      } else if (health?.deploy?.status === 'BUILDING') {
+        rows.push({ score: 72, level: 'watch', site, title: 'Deployment devam ediyor', text: 'Son commit henüz production READY değil. Yayın tamamlanana kadar sonucu canlı kabul etme.' })
+      }
+    })
+
+    if (freshHours > 36) {
+      rows.push({ score: 90, level: 'high', title: 'GSC/GA4 snapshot gecikmiş', text: `Panel verisi ${ageText(capturedAt)}. Senkronizasyon hattını kontrol et.` })
+    }
+
+    ;(snapshot?.actions || [])
+      .filter((item: any) => selected === 'all' || item.site === selected)
+      .slice(0, 10)
+      .forEach((item: any, index: number) => rows.push({
+        score: 80 - index,
+        level: index < 3 ? 'high' : 'watch',
+        site: item.site,
+        title: item.title || 'SEO aksiyonu',
+        text: item.text || 'GSC/GA4 sinyaline göre sayfayı incele.',
+        page: item.page,
+      }))
+
+    ;(snapshot?.opportunities || [])
+      .filter((item: any) => selected === 'all' || item.site === selected)
+      .filter((item: any) => Number(item.impressions || 0) >= 5 && Number(item.position || 99) <= 20)
+      .slice(0, 8)
+      .forEach((item: any) => {
+        const ctr = Number(item.ctr || 0)
+        rows.push({
+          score: ctr === 0 ? 76 : 64,
+          level: ctr === 0 ? 'high' : 'watch',
+          site: item.site,
+          title: ctr === 0 ? 'Gösterim var, tıklama yok' : 'CTR güçlendirme fırsatı',
+          text: `${num(item.impressions)} gösterim · ${num(item.position, 1)} sıra · ${pct(ctr)} CTR. Mevcut sayfanın title/meta ve ilk cevabı incelenmeli.`,
+          page: item.page,
+        })
+      })
+
+    const seen = new Set<string>()
+    return rows
+      .sort((a, b) => b.score - a.score)
+      .filter((item) => {
+        const key = `${item.site || 'all'}|${item.page || ''}|${item.title}`
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+      .slice(0, 12)
+  }, [snapshot, selected, visibleSites, live, freshHours, capturedAt])
 
   if (loading) {
     return <main className="sr-shell sr-state"><RefreshCw className="sr-spin" size={30} /><strong>Site Radar açılıyor…</strong></main>
@@ -230,6 +308,7 @@ export default function SiteRadarClient() {
 
       <section className="sr-overview-grid">
         <article className="sr-overview-card"><div><ShieldCheck size={18} /><span>Site sağlığı</span></div><strong>{healthyCount}/4</strong><small>HTTP + robots + sitemap</small></article>
+        <article className="sr-overview-card"><div><Rocket size={18} /><span>Deploy READY</span></div><strong>{deployReadyCount}/4</strong><small>Son commit Vercel durumu</small></article>
         <article className="sr-overview-card"><div><Eye size={18} /><span>7g gösterim</span></div><strong>{num(aggregate.impressions)}</strong><Trend current={aggregate.impressions} previous={aggregate.previousImpressions} /></article>
         <article className="sr-overview-card"><div><MousePointerClick size={18} /><span>7g tıklama</span></div><strong>{num(aggregate.clicks)}</strong><Trend current={aggregate.clicks} previous={aggregate.previousClicks} /></article>
         <article className="sr-overview-card"><div><Gauge size={18} /><span>CTR</span></div><strong>{pct(aggregate.ctr)}</strong><small>Ort. konum {num(aggregate.position, 1)}</small></article>
@@ -237,6 +316,22 @@ export default function SiteRadarClient() {
         <article className="sr-overview-card"><div><Search size={18} /><span>Organik oturum</span></div><strong>{num(aggregate.organic)}</strong><small>Etkileşim {pct(aggregate.engagement)}</small></article>
         <article className="sr-overview-card"><div><Sparkles size={18} /><span>SEO fırsatı</span></div><strong>{num(opportunityCount)}</strong><small>GSC sinyalinden</small></article>
         <article className="sr-overview-card"><div><Users size={18} /><span>Kullanıcı</span></div><strong>{num(aggregate.users)}</strong><small>{num(aggregate.views)} görüntüleme</small></article>
+        <article className="sr-overview-card"><div><History size={18} /><span>SEO müdahalesi</span></div><strong>{num(seoHistory.length)}</strong><small>Yakın commit geçmişi</small></article>
+      </section>
+
+      <section className="sr-section-head"><div><span>AKILLI AKSİYON MERKEZİ</span><h2>Şu an ne yapmalıyız?</h2></div><span className="sr-engine-label"><Sparkles size={14} /> AI + kural motoru</span></section>
+      <section className="sr-action-center">
+        {actions.length ? actions.map((item, index) => (
+          <article className={`sr-action-item ${item.level}`} key={`${item.site || 'all'}-${item.title}-${item.page || index}`}>
+            <span className="sr-action-rank">{index + 1}</span>
+            <div className="sr-action-copy">
+              <div><span className={`sr-action-level ${item.level}`}>{item.level === 'critical' ? 'ACİL' : item.level === 'high' ? 'ÖNCELİKLİ' : 'İZLE'}</span>{item.site ? <b style={{ color: SITE_COLORS[item.site] }}>{item.site}</b> : null}</div>
+              <strong>{item.title}</strong>
+              <p>{item.text}</p>
+            </div>
+            {item.page ? <a href={item.page} target="_blank" rel="noreferrer" aria-label="Sayfayı aç"><ExternalLink size={16} /></a> : <ListChecks size={17} />}
+          </article>
+        )) : <div className="sr-empty"><CheckCircle2 size={20} /> Şu an acil veya belirgin aksiyon yok.</div>}
       </section>
 
       <section className="sr-section-head"><div><span>CANLI DURUM</span><h2>Dört site tek ekranda</h2></div><Link href="/gsc-analyzer">Detaylı GSC/GA4 <ExternalLink size={14} /></Link></section>
@@ -264,6 +359,7 @@ export default function SiteRadarClient() {
                 <StatusPill ok={Boolean(health?.http?.ok)}>Site {health?.http?.status || '—'} · {health?.http?.ms ?? '—'}ms</StatusPill>
                 <StatusPill ok={Boolean(health?.robots?.ok)}>robots</StatusPill>
                 <StatusPill ok={Boolean(health?.sitemap?.ok)}>sitemap</StatusPill>
+                <DeployPill status={health?.deploy?.status} id={health?.deploy?.deploymentId} />
               </div>
 
               <div className="sr-kpis">
@@ -290,14 +386,29 @@ export default function SiteRadarClient() {
         })}
       </section>
 
-      <section className="sr-info-grid">
-        <article><Globe2 size={19} /><div><strong>Canlı site sağlığı</strong><p>HTTP, robots.txt ve sitemap.xml her 60 saniyede yeniden kontrol edilir.</p></div></article>
-        <article><Code2 size={19} /><div><strong>GitHub</strong><p>Son commit bilgisi doğrudan public repo API’sinden alınır ve kısa süreli cache kullanır.</p></div></article>
-        <article><BarChart3 size={19} /><div><strong>GSC / GA4</strong><p>Supabase’teki en son analiz snapshot’ı kullanılır; Google’ın veri gecikmesi gizlenmez.</p></div></article>
-        <article><FileSearch size={19} /><div><strong>SEO radar</strong><p>Mevcut GSC fırsatları, sayfa performansı ve organik trafik aynı kartta görünür.</p></div></article>
+      <section className="sr-section-head"><div><span>SEO MÜDAHALE GEÇMİŞİ</span><h2>Yakın zamanda ne değişti?</h2></div><History size={19} /></section>
+      <section className="sr-history">
+        {seoHistory.length ? seoHistory.map((item, index) => (
+          <a className="sr-history-item" href={item.url || '#'} target="_blank" rel="noreferrer" key={`${item.site}-${item.sha}-${index}`}>
+            <span className="sr-history-site" style={{ '--site': SITE_COLORS[item.site] } as any}>{item.site}</span>
+            <code>{item.sha}</code>
+            <strong>{item.message}</strong>
+            <time>{formatDate(item.date)}</time>
+            <ExternalLink size={14} />
+          </a>
+        )) : <div className="sr-empty">Yakın commitlerde SEO etiketli müdahale bulunamadı.</div>}
       </section>
 
-      <footer className="sr-footer"><span>Site Radar v1</span><span>Canlı sağlık + GSC/GA4 + GitHub</span></footer>
+      <section className="sr-info-grid">
+        <article><Globe2 size={19} /><div><strong>Canlı site sağlığı</strong><p>HTTP, robots.txt ve sitemap.xml her 60 saniyede yeniden kontrol edilir.</p></div></article>
+        <article><Rocket size={19} /><div><strong>Vercel</strong><p>Son GitHub commit’inin Vercel status sinyali READY, BUILDING veya ERROR olarak izlenir.</p></div></article>
+        <article><Code2 size={19} /><div><strong>GitHub</strong><p>Son commit ve SEO müdahale geçmişi public repo API’sinden, güvenli cache ile alınır.</p></div></article>
+        <article><BarChart3 size={19} /><div><strong>GSC / GA4</strong><p>Supabase’teki en son analiz snapshot’ı kullanılır; Google’ın veri gecikmesi gizlenmez.</p></div></article>
+        <article><FileSearch size={19} /><div><strong>SEO radar</strong><p>Mevcut GSC fırsatları, sayfa performansı ve organik trafik aynı kartta görünür.</p></div></article>
+        <article><ListChecks size={19} /><div><strong>Aksiyon motoru</strong><p>Teknik sağlık, deploy, GSC fırsatı ve mevcut otomasyon aksiyonlarını tek öncelik listesinde birleştirir.</p></div></article>
+      </section>
+
+      <footer className="sr-footer"><span>Site Radar v2</span><span>Sağlık + Vercel + GSC/GA4 + GitHub + SEO geçmişi</span></footer>
     </main>
   )
 }
