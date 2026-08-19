@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import AnalyzerClient from './AnalyzerClient'
-import GscLiveSync from './GscLiveSync'
 import './analyzer.css'
 
 export const metadata: Metadata = {
@@ -15,10 +14,5 @@ export const metadata: Metadata = {
 }
 
 export default function GscAnalyzerPage() {
-  return (
-    <>
-      <GscLiveSync />
-      <AnalyzerClient />
-    </>
-  )
+  return <AnalyzerClient />
 }
