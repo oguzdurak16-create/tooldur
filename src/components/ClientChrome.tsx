@@ -7,6 +7,7 @@ import MobileTabBar from '@/components/MobileTabBar';
 import ToastBridge from '@/components/ToastBridge';
 import PwaManager from '@/components/PwaManager';
 import MervePushSetup from '@/components/MervePushSetup';
+import GoogleAnalytics from '@/components/GoogleAnalytics';
 
 type Props = {
   area: 'top' | 'bottom';
@@ -18,7 +19,14 @@ type Props = {
  * sürerken sonradan ekleyerek seçici hydration sırasını bozabiliyordu.
  */
 export default function ClientChrome({ area }: Props) {
-  if (area === 'top') return <Header />;
+  if (area === 'top') {
+    return (
+      <>
+        <GoogleAnalytics />
+        <Header />
+      </>
+    );
+  }
 
   return (
     <>
