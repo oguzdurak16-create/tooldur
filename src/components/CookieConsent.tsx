@@ -98,7 +98,7 @@ function removeGoogleCookies() {
     );
 
   const host = window.location.hostname;
-  const rootDomain = host.includes('.') ? `.${host.split('.').slice(-2).join('.')}` : host;
+  const rootDomain = host.includes('.') ? `.${host.split('.').').slice(-2).join('.')}` : host;
   const domains = ['', host, `.${host}`, rootDomain, '.tooldur.com'];
 
   names.forEach((name) => {
@@ -135,7 +135,9 @@ function loadGoogleTags(consent: ConsentType) {
     if (consent.analytics) {
       window.gtag?.('config', GA_ID, {
         anonymize_ip: true,
-        send_page_view: true,
+        // GoogleAnalytics.tsx owns page_view events so consent changes do not
+        // create duplicate automatic page views.
+        send_page_view: false,
       });
     }
     if (consent.advertising) {
@@ -151,11 +153,11 @@ function loadGoogleTags(consent: ConsentType) {
   }
 }
 
-function removeOptionalScripts() {
+function removeOptionalStorageAndAds() {
   if (typeof document === 'undefined') return;
-  ['tooldur-gtag-script', 'tooldur-adsense-script'].forEach((id) => {
-    document.getElementById(id)?.remove();
-  });
+  // Keep the GA loader in place. With analytics_storage denied it can emit
+  // Consent Mode cookieless pings without writing analytics cookies.
+  document.getElementById('tooldur-adsense-script')?.remove();
   removeGoogleCookies();
 }
 
@@ -192,7 +194,7 @@ export default function CookieConsent() {
         setConsent(parsed);
         updateGoogleConsent(parsed);
         if (parsed.analytics || parsed.advertising) loadGoogleTags(parsed);
-        if (!parsed.analytics && !parsed.advertising) removeOptionalScripts();
+        if (!parsed.analytics && !parsed.advertising) removeOptionalStorageAndAds();
       } catch {
         setIsVisible(true);
       }
@@ -223,7 +225,7 @@ export default function CookieConsent() {
     if (nextConsent.analytics || nextConsent.advertising) {
       loadGoogleTags(nextConsent);
     } else {
-      removeOptionalScripts();
+      removeOptionalStorageAndAds();
     }
 
     setIsVisible(false);
