@@ -98,7 +98,7 @@ function removeGoogleCookies() {
     );
 
   const host = window.location.hostname;
-  const rootDomain = host.includes('.') ? `.${host.split('.').').slice(-2).join('.')}` : host;
+  const rootDomain = host.includes('.') ? `.${host.split('.').slice(-2).join('.')}` : host;
   const domains = ['', host, `.${host}`, rootDomain, '.tooldur.com'];
 
   names.forEach((name) => {
