@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 
 const MEASUREMENT_ID = 'G-J5SC4H2SQE'
+const SCRIPT_ID = 'tooldur-gtag-script'
 
 const SENSITIVE_QUERY_KEYS = new Set([
   'access_token',
@@ -28,13 +29,17 @@ function ensureAnalytics() {
     window.dataLayer?.push(args)
   }
 
-  if (!document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}"]`)) {
+  if (!document.getElementById(SCRIPT_ID)) {
     const script = document.createElement('script')
+    script.id = SCRIPT_ID
     script.async = true
     script.src = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`
     document.head.appendChild(script)
   }
 
+  // consent-default.js runs in <head> before this client component and keeps
+  // analytics/ad storage denied until the visitor explicitly grants consent.
+  // Loading gtag here still allows Consent Mode cookieless measurement pings.
   window.gtag('js', new Date())
   window.gtag('config', MEASUREMENT_ID, {
     send_page_view: false,
