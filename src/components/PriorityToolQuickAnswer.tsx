@@ -20,6 +20,7 @@ const quickAnswers: Record<string, QuickAnswer> = {
       { label: 'M12 × 1,75', value: 'Ø10,2 mm', note: 'Standart M12 kaba hatve' },
     ],
     links: [
+      { href: '/blog/metrik-dis-tablosu-m3-m36-kilavuz-matkap-caplari', label: 'M3–M36 kılavuz matkap tablosunu aç' },
       { href: '/arac/civata-sikma-torku-hesaplama', label: 'Cıvata sıkma torkunu hesapla' },
       { href: '/arac/teknik-resim-cagri-olusturucu', label: 'Teknik resim çağrısı oluştur' },
     ],
