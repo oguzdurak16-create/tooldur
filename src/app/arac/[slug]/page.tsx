@@ -51,7 +51,7 @@ function buildKeywords(toolName: string, categoryName?: string) {
 }
 
 export function generateStaticParams() {
-  return [];
+  return tools.filter(isIndexableTool).map((tool) => ({ slug: tool.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

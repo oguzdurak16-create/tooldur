@@ -28,7 +28,7 @@ const colorMap: Record<string, { accent: string }> = {
 };
 
 export function generateStaticParams() {
-  return [];
+  return categories.filter(isIndexableCategory).map((category) => ({ slug: category.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

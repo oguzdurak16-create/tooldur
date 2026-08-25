@@ -11,8 +11,8 @@ const INDEXABLE_LOCALES: Locale[] = ['tr', 'en'];
 type LocalizedRoute = Parameters<typeof getLocalizedPath>[1];
 
 // Update only after a meaningful content or SEO change.
-const SITE_RELEASE_DATE = new Date('2026-08-14T00:00:00+03:00');
-const CONTENT_RELEASE_DATE = new Date('2026-08-14T00:00:00+03:00');
+const SITE_RELEASE_DATE = new Date('2026-08-25T00:00:00+03:00');
+const CONTENT_RELEASE_DATE = new Date('2026-08-25T00:00:00+03:00');
 const POLICY_RELEASE_DATE = new Date('2026-05-21T00:00:00+03:00');
 
 function priorityForTool(t: typeof tools[number]) {

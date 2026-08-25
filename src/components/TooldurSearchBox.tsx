@@ -64,7 +64,7 @@ export default function TooldurSearchBox() {
           ref={inputRef}
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Ne hesaplamak istiyorsun? Örn: sac ağırlık, kredi, kira artışı..."
+          placeholder="Ne hesaplamak istiyorsun? Örn: metrik diş, sac ağırlık, kablo kesiti..."
           aria-label="Araç ara"
           role="combobox"
           aria-autocomplete="list"
