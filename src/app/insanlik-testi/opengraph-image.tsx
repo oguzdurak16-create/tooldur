@@ -15,7 +15,10 @@ export default function Image() {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ color: '#9ca091', fontSize: 24, letterSpacing: 4, marginBottom: 18 }}>8 KARAR · 90 SANİYE</div>
-          <div style={{ fontSize: 72, lineHeight: 1.02, letterSpacing: -4, fontWeight: 900 }}>İnsanları gerçekten<br /><span style={{ color: '#d8ff48' }}>okuyabiliyor musun?</span></div>
+          <div style={{ display: 'flex', flexDirection: 'column', fontSize: 72, lineHeight: 1.02, letterSpacing: -4, fontWeight: 900 }}>
+            <span>İnsanları gerçekten</span>
+            <span style={{ color: '#d8ff48' }}>okuyabiliyor musun?</span>
+          </div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', color: '#8b8f82', fontSize: 20 }}>
           <span>Cevap vermeden sonucu göremezsin.</span><span>PILOT 01</span>
