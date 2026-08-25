@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 
   const response = await fetch(`${config.url}/rest/v1/humanity_test_votes`, {
     method: 'POST',
-    headers: headers(config.key, { Prefer: 'resolution=ignore-duplicates,return=minimal' }),
+    headers: headers(config.key, { Prefer: 'return=minimal' }),
     body: JSON.stringify(payload),
   });
 
