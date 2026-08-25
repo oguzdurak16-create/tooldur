@@ -181,6 +181,13 @@ const specific: Record<string, Partial<ToolSeoContent>> = {
         ],
       },
       {
+        heading: 'M36 kılavuz matkap çapı kaç mm?',
+        body: [
+          'M36 × 4 kaba hatve için yaygın kılavuz ön deliği Ø32 mm’dir. M36 × 3 ince hatvede Ø33 mm, M36 × 2 ince hatvede ise Ø34 mm başlangıç değeri kullanılır.',
+          'Büyük çaplı dişlerde takım tipi, malzeme, hedef diş yüzdesi ve delik derinliği kılavuz yükünü belirgin biçimde etkiler. Nihai ön delik çapı ve kesme şartı takım üreticisinin tablosuyla doğrulanmalıdır.',
+        ],
+      },
+      {
         heading: 'Kılavuz matkap çapları hangi işlerde kullanılır?',
         body: [
           'Talaşlı imalat hazırlığı, CNC delik operasyonu, teknik resim çağrısı, bağlantı elemanı seçimi ve montaj deliği kontrolünde hızlı referans sağlar.',
@@ -191,6 +198,7 @@ const specific: Record<string, Partial<ToolSeoContent>> = {
     faq: [
       { question: 'M10 kılavuz matkap çapı kaç mm?', answer: 'Standart M10 × 1,5 kaba hatve için yaygın ön delik Ø8,5 mm’dir. M10 × 1,25 ince hatvede yaklaşık Ø8,8 mm kullanılır.' },
       { question: 'M8 kılavuz matkap çapı kaç mm?', answer: 'Standart M8 × 1,25 için yaygın ön delik Ø6,8 mm’dir. M8 × 1,0 ince hatvede yaklaşık Ø7,0 mm kullanılır.' },
+      { question: 'M36 kılavuz matkap çapı kaç mm?', answer: 'M36 × 4 kaba hatve için yaygın ön delik Ø32 mm’dir. M36 × 3 için Ø33 mm, M36 × 2 için Ø34 mm başlangıç değeri kullanılır.' },
       { question: 'Metrik diş dibi çapı gerçek ölçü müdür?', answer: 'Tablodaki D1 ve d3 temel profil için teorik değerlerdir. Gerçek sınır ölçüleri tolerans sınıfına ve ilgili standarda göre kontrol edilmelidir.' },
       { question: 'Kılavuz matkap çapı her malzemede aynı mıdır?', answer: 'Hayır. Tablo başlangıç değeri verir; malzeme, kılavuz tipi, hedef diş yüzdesi ve takım üreticisinin önerisi nihai çapı değiştirebilir.' },
     ],

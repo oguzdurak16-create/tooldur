@@ -11,34 +11,34 @@ import styles from './home.module.css';
 
 export const metadata: Metadata = {
   title: { absolute: 'Mühendislik Hesaplama Araçları | Tooldur' },
-  description: 'Metrik diş, sac ağırlık, ISO tolerans, cıvata torku, kablo kesiti, pompa gücü ve imalat hesapları için ücretsiz online mühendislik araçları.',
+  description: 'Metrik diş tablosu, kılavuz matkap çapları, dalgıç pompa, torna derece, ISO tolerans ve imalat hesapları için ücretsiz online mühendislik araçları.',
   alternates: { canonical: '/' },
 };
 
 const prioritySlugs = [
   'kilavuz-matkap-hesaplama',
-  'sac-bukum-kesim-hesaplayici',
+  'pompa-guc-hesaplama',
+  'konik-hesaplama',
   'iso-gecme-tolerans-hesaplama',
   'levha-agirlik-hesaplama',
   'civata-sikma-torku-hesaplama',
-  'rulman-omru-hesaplama',
 ];
 
 const quickSearches = [
-  { label: 'Metrik diş', href: '/arac/kilavuz-matkap-hesaplama' },
-  { label: 'Sac ağırlık', href: '/arac/levha-agirlik-hesaplama' },
-  { label: 'Kablo kesiti', href: '/arac/kablo-kesiti-hesaplama' },
+  { label: 'Metrik diş tablosu', href: '/arac/kilavuz-matkap-hesaplama' },
+  { label: 'Dalgıç pompa hesabı', href: '/arac/pompa-guc-hesaplama' },
+  { label: 'Torna derece hesabı', href: '/arac/konik-hesaplama' },
 ];
 
 const searchIntentLinks = [
   { label: 'Metrik diş tablosu', detail: 'M2–M42 kılavuz matkap ve teorik diş ölçüleri', href: '/arac/kilavuz-matkap-hesaplama' },
+  { label: 'Dalgıç pompa hesabı', detail: 'Debi, basma yüksekliği, verim ve motor gücü', href: '/arac/pompa-guc-hesaplama' },
+  { label: 'Torna derece hesabı', detail: 'Konik açı, yarım açı ve 1:N koniklik oranı', href: '/arac/konik-hesaplama' },
   { label: 'ISO geçme toleransı', detail: 'H7/h6, H7/g6 ve mil-delik sapmaları', href: '/arac/iso-gecme-tolerans-hesaplama' },
   { label: 'Sac ağırlık hesabı', detail: 'Çelik, galvaniz, paslanmaz ve alüminyum levha', href: '/arac/levha-agirlik-hesaplama' },
   { label: 'Sac büküm hesabı', detail: 'V kalıp, tonaj, büküm payı ve açınım', href: '/arac/sac-bukum-kesim-hesaplayici' },
   { label: 'Cıvata sıkma torku', detail: 'Çap, kalite sınıfı ve sürtünmeye göre tork', href: '/arac/civata-sikma-torku-hesaplama' },
   { label: 'Kablo kesiti hesabı', detail: 'Akım, mesafe ve gerilim düşümüne göre kesit', href: '/arac/kablo-kesiti-hesaplama' },
-  { label: 'Dalgıç pompa hesabı', detail: 'Debi, basma yüksekliği, verim ve motor gücü', href: '/arac/pompa-guc-hesaplama' },
-  { label: 'Donatı ağırlıkları', detail: 'Ø6–Ø40 demir kg/m tablosu ve toplam tonaj', href: '/arac/demir-agirligi-hesaplama' },
 ];
 
 export default function Home() {
@@ -94,7 +94,7 @@ export default function Home() {
 
       <section className={`td-container ${styles.section}`}>
         <div className={styles.sectionHead}>
-          <div><span className={styles.sectionLabel}>ÖNE ÇIKANLAR</span><h2>En sık kullanılan araçlar</h2><p>Doğrudan girdilere ve sonuca geç.</p></div>
+          <div><span className={styles.sectionLabel}>ARAMADA ÖNE ÇIKANLAR</span><h2>En çok aranan mühendislik araçları</h2><p>Metrik diş, pompa ve torna hesabı başta olmak üzere doğrudan girdilere ve sonuca geç.</p></div>
           <Link href="/araclar" className={styles.textLink}>Tümünü gör <ArrowRight size={15} /></Link>
         </div>
         <div className={styles.toolsGrid}>{featuredTools.map((tool) => <ToolCard tool={tool} key={tool.slug} />)}</div>

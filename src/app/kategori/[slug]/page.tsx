@@ -27,6 +27,12 @@ const colorMap: Record<string, { accent: string }> = {
   purple: { accent: '#c4b5fd' },
 };
 
+const organicPriority = [
+  'kilavuz-matkap-hesaplama',
+  'pompa-guc-hesaplama',
+  'konik-hesaplama',
+];
+
 export function generateStaticParams() {
   return categories.filter(isIndexableCategory).map((category) => ({ slug: category.slug }));
 }
@@ -59,9 +65,16 @@ export default function CategoryPage({ params }: Props) {
   if (!category) notFound();
 
   const allCategoryTools = getToolsByCategory(category.id);
-  const categoryTools = isIndexableCategory(category)
+  const categoryTools = (isIndexableCategory(category)
     ? allCategoryTools.filter(isIndexableTool)
-    : allCategoryTools;
+    : allCategoryTools).sort((a, b) => {
+      const aRank = organicPriority.indexOf(a.slug);
+      const bRank = organicPriority.indexOf(b.slug);
+      if (aRank === -1 && bRank === -1) return 0;
+      if (aRank === -1) return 1;
+      if (bRank === -1) return -1;
+      return aRank - bRank;
+    });
   const otherCategories = categories.filter((item) => item.id !== category.id && isIndexableCategory(item));
   const toolSlugs = new Set(categoryTools.map((tool) => tool.slug));
   const relatedPosts = blogPosts

@@ -45,9 +45,9 @@ const meta: Record<string, PriorityToolMeta> = {
     keywords: ['kama kanalı ölçüsü', 'mil çapına göre kama', 'DIN 6885', 'kama ölçü tablosu', 'kama kanalı hesaplama'],
   },
   'kilavuz-matkap-hesaplama': {
-    title: 'Metrik Diş Tablosu ve Kılavuz Matkap Çapları – M2–M42',
-    description: 'M2–M42 kaba ve ince metrik dişlerde kılavuz matkap çaplarını, teorik diş dibi ve adım çaplarını, boşluk deliklerini ve teknik resim çağrısını görüntüleyin.',
-    keywords: ['metrik diş tablosu', 'kılavuz tablosu', 'kılavuz matkap çapları', 'metrik diş dibi hesaplama', 'M8 matkap çapı', 'M10 matkap çapı', 'iç diş dibi', 'dış diş dibi'],
+    title: 'Metrik Diş Tablosu – M2–M42 Kılavuz Matkap Çapları',
+    description: 'M2–M42 kaba ve ince metrik dişlerde kılavuz matkap çaplarını, M8, M10 ve M36 ön deliklerini, teorik diş dibi ölçülerini ve boşluk deliklerini görüntüleyin.',
+    keywords: ['metrik diş tablosu', 'metrik kılavuz tablosu', 'kılavuz tablosu', 'kılavuz matkap çapları', 'M36 kılavuz matkap çapı', 'metrik diş dibi hesaplama', 'M8 matkap çapı', 'M10 matkap çapı', 'iç diş dibi', 'dış diş dibi'],
   },
   'konik-hesaplama': {
     title: 'Konik ve Torna Derece Hesaplama – Çap, Boy, Açı ve 1:N',
@@ -159,7 +159,7 @@ const meta: Record<string, PriorityToolMeta> = {
 const relations: Record<string, string[]> = {
   'iso-gecme-tolerans-hesaplama': ['yuzey-puruzlulugu-rehberi', 'kama-kanali-hesaplama', 'rulman-omru-hesaplama', 'teknik-resim-cagri-olusturucu'],
   'kama-kanali-hesaplama': ['mil-mukavemet-hesaplama', 'iso-gecme-tolerans-hesaplama', 'tork-hesaplama', 'teknik-resim-cagri-olusturucu'],
-  'kilavuz-matkap-hesaplama': ['konik-hesaplama', 'teknik-resim-cagri-olusturucu', 'civata-sikma-torku-hesaplama', 'iso-gecme-tolerans-hesaplama'],
+  'kilavuz-matkap-hesaplama': ['civata-sikma-torku-hesaplama', 'konik-hesaplama', 'iso-gecme-tolerans-hesaplama', 'teknik-resim-cagri-olusturucu'],
   'konik-hesaplama': ['kilavuz-matkap-hesaplama', 'mil-mukavemet-hesaplama', 'disli-carki-hesaplama', 'iso-gecme-tolerans-hesaplama'],
   'levha-agirlik-hesaplama': ['baklavali-sac-agirlik-hesaplama', 'sac-bukum-kesim-hesaplayici', 'sac-bukum-acinim-hesaplama', 'celik-profil-agirligi'],
   'baklavali-sac-agirlik-hesaplama': ['levha-agirlik-hesaplama', 'sac-bukum-kesim-hesaplayici', 'sac-bukum-acinim-hesaplama', 'celik-profil-agirligi'],

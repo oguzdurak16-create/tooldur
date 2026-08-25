@@ -87,6 +87,14 @@ const slugAliases = aliasGroups.reduce<Record<string, string[]>>((acc, group) =>
   return acc;
 }, {});
 
+// Son GSC sinyallerine göre organik görünürlüğü bulunan araçlar. Boş aramada
+// bu sayfaları ilk sıraya taşır; sorgu yazıldığında metin eşleşmesi yine esastır.
+const trafficPriority: Record<string, number> = {
+  'kilavuz-matkap-hesaplama': 30,
+  'pompa-guc-hesaplama': 20,
+  'konik-hesaplama': 10,
+};
+
 export const discoveryQuickQueries = [
   'metrik diş tablosu',
   'dalgıç pompa',
@@ -122,7 +130,7 @@ function scoreText(field: string, query: string, weight: number) {
 export function scoreTool(tool: SearchableTool, rawQuery: string) {
   const query = normalizeToolQuery(rawQuery);
   if (!query) {
-    return (tool.popular ? 50 : 0) + (tool.featured ? 32 : 0) + (tool.new ? 12 : 0);
+    return (tool.popular ? 50 : 0) + (tool.featured ? 32 : 0) + (tool.new ? 12 : 0) + (trafficPriority[tool.slug] || 0);
   }
 
   const name = normalizeToolQuery(tool.name);
