@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import AllToolsClient from '@/components/AllToolsClient';
 import { categories, tools } from '@/data/tools';
 import { getIndexableCategories, getIndexableTools } from '@/lib/seoFocus';
+import { rankTools } from '@/lib/toolDiscovery';
 
 const title = 'Mühendislik ve İmalat Hesaplama Araçları';
 const description =
@@ -30,6 +31,7 @@ export const metadata: Metadata = {
 
 export default function AllToolsPage() {
   const indexableTools = getIndexableTools(tools);
+  const rankedTools = rankTools(indexableTools, '');
   const indexableCategories = getIndexableCategories(categories);
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -43,7 +45,7 @@ export default function AllToolsPage() {
         mainEntity: {
           '@type': 'ItemList',
           numberOfItems: indexableTools.length,
-          itemListElement: indexableTools.map((tool, index) => ({
+          itemListElement: rankedTools.map((tool, index) => ({
             '@type': 'ListItem',
             position: index + 1,
             name: tool.name,

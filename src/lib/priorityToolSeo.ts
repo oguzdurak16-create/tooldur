@@ -140,7 +140,7 @@ const meta: Record<string, PriorityToolMeta> = {
     keywords: ['kayış kasnak hesabı', 'kasnak çapı hesaplama', 'devir düşürme', 'aktarım oranı', 'motor kasnağı'],
   },
   'pompa-guc-hesaplama': {
-    title: 'Dalgıç Pompa Hesaplama Programı – Debi, Basma Yüksekliği, Motor kW',
+    title: 'Dalgıç Pompa Hesaplama Programı – Basma Yüksekliği ve kW',
     description: 'Debi, statik yükseklik, boru kaybı, çıkış basıncı, yoğunluk ve verimden toplam basma yüksekliğini, pompa mil gücünü ve standart motor kW ön seçimini hesaplayın.',
     keywords: ['dalgıç pompa hesaplama programı', 'dalgıç pompa hesabı', 'pompa güç hesabı', 'toplam basma yüksekliği', 'pompa motor gücü', 'pompa kW hesabı', 'kuyu pompası hesabı'],
   },
