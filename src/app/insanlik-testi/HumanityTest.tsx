@@ -78,6 +78,9 @@ const profiles: Record<Trait, { name: string; summary: string; code: string }> =
   cesaret: { name: 'İlk Sinyalci', code: 'IS-31', summary: 'Belirsizliği uzatmak yerine hareket ediyorsun. İnsanları hızlı okuyup kararının sorumluluğunu alıyorsun.' },
 };
 
+const traitLabels: Record<Trait, string> = { sezgi: 'Sezgi', suphe: 'Şüphe', empati: 'Empati', cesaret: 'Cesaret' };
+const traitMaximums: Record<Trait, number> = { sezgi: 4, suphe: 5, empati: 4, cesaret: 3 };
+
 type Totals = Record<string, [number, number]>;
 
 function getSessionId() {
@@ -105,14 +108,16 @@ export default function HumanityTest() {
     }).catch(() => undefined);
   }, []);
 
-  const trait = useMemo<Trait>(() => {
+  const traitScores = useMemo(() => {
     const score: Record<Trait, number> = { sezgi: 0, suphe: 0, empati: 0, cesaret: 0 };
     for (const question of questions) {
       const answer = answers[question.id];
       if (answer === 0 || answer === 1) score[question.options[answer].trait] += 1;
     }
-    return (Object.entries(score).sort((a, b) => b[1] - a[1])[0]?.[0] || 'sezgi') as Trait;
+    return score;
   }, [answers]);
+
+  const trait = (Object.entries(traitScores).sort((a, b) => b[1] - a[1])[0]?.[0] || 'sezgi') as Trait;
 
   const alignment = useMemo(() => {
     let sum = 0;
@@ -198,16 +203,13 @@ export default function HumanityTest() {
             <h1>{profile.name}</h1>
             <p>{profile.summary}</p>
             <div className={styles.alignment}>
-              <strong>{alignment !== null ? `%${alignment}` : 'PİLOT'}</strong>
-              <span>{alignment !== null ? 'Toplulukla ortalama eşleşmen' : 'Güvenilir yüzde için ilk gerçek cevaplar birikiyor.'}</span>
+              <strong>{alignment !== null ? `%${alignment}` : `${participants}/5`}</strong>
+              <span>{alignment !== null ? 'Toplulukla ortalama eşleşmen' : 'Topluluk karşılaştırması 5 gerçek katılımcıda açılır.'}</span>
             </div>
-            <div className={styles.signalBars} aria-label="Cevap dağılımın">
-              {questions.map((question) => {
-                const row = totals[question.id] || [0, 0];
-                const total = row[0] + row[1];
-                const answer = answers[question.id];
-                const percent = total ? Math.round((row[answer] / total) * 100) : 0;
-                return <div key={question.id}><span>{question.signal}</span><i><b style={{ width: `${total >= 5 ? percent : 8}%` }} /></i><em>{total >= 5 ? `%${percent}` : 'yeni'}</em></div>;
+            <div className={styles.signalBars} aria-label="Kişisel sinyal dağılımın">
+              {(Object.keys(traitScores) as Trait[]).map((item) => {
+                const percent = Math.round((traitScores[item] / traitMaximums[item]) * 100);
+                return <div key={item}><span>{traitLabels[item]}</span><i><b style={{ width: `${Math.max(percent, 4)}%` }} /></i><em>%{percent}</em></div>;
               })}
             </div>
           </div>

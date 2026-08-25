@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
 
 const PUBLISHER_ID = 'ca-pub-4491868887846507';
@@ -9,6 +10,7 @@ const PUBLISHER_ID = 'ca-pub-4491868887846507';
 type AdWindow = Window & { adsbygoogle?: Array<Record<string, unknown>> };
 
 export default function SiteMonetization() {
+  const pathname = usePathname();
   const slot = process.env.NEXT_PUBLIC_ADSENSE_CONTENT_SLOT?.trim();
 
   useEffect(() => {
@@ -20,6 +22,8 @@ export default function SiteMonetization() {
       // Ad blockers and delayed consent can prevent initialization safely.
     }
   }, [slot]);
+
+  if (pathname === '/insanlik-testi') return null;
 
   return (
     <>

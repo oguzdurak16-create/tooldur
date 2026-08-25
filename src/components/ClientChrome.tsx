@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CookieConsent from '@/components/CookieConsent';
@@ -19,11 +20,23 @@ type Props = {
  * sürerken sonradan ekleyerek seçici hydration sırasını bozabiliyordu.
  */
 export default function ClientChrome({ area }: Props) {
+  const pathname = usePathname();
+  const isHumanityTest = pathname === '/insanlik-testi';
+
   if (area === 'top') {
     return (
       <>
         <GoogleAnalytics />
-        <Header />
+        {!isHumanityTest && <Header />}
+      </>
+    );
+  }
+
+  if (isHumanityTest) {
+    return (
+      <>
+        <CookieConsent />
+        <ToastBridge />
       </>
     );
   }
