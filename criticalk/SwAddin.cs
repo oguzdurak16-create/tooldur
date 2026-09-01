@@ -45,8 +45,6 @@ namespace Tooldur.BaykalSwAddin
         {
             try
             {
-                // SOLIDWORKS, kullanici CommandManager yerlesimini registry'de saklar.
-                // Ilk asamada kullanici sekmesini agresif sekilde silmiyoruz.
                 _cmdMgr = null;
                 _swApp = null;
                 return true;
@@ -88,16 +86,16 @@ namespace Tooldur.BaykalSwAddin
 
             int commandId = group.CommandID[_criticalKCommandIndex];
 
-            ICommandTab oldTab = _cmdMgr.GetCommandTab(DrawingDocType, TabTitle);
+            CommandTab oldTab = _cmdMgr.GetCommandTab(DrawingDocType, TabTitle);
             if (oldTab != null)
             {
                 try { _cmdMgr.RemoveCommandTab(oldTab); } catch { }
             }
 
-            ICommandTab tab = _cmdMgr.AddCommandTab(DrawingDocType, TabTitle);
+            CommandTab tab = _cmdMgr.AddCommandTab(DrawingDocType, TabTitle);
             if (tab == null) return;
 
-            ICommandTabBox box = tab.AddCommandTabBox();
+            CommandTabBox box = tab.AddCommandTabBox();
             if (box == null) return;
 
             int[] commandIds = { commandId };
@@ -105,7 +103,7 @@ namespace Tooldur.BaykalSwAddin
             box.AddCommands(commandIds, textStyles);
         }
 
-        // İlk adımda mevcut PDM Runtime davranışını değiştirmiyoruz.
+        // İlk adım: mevcut PDM Runtime davranışını değiştirmiyoruz.
         // Buton sadece mevcut Shift+X hotkey'ini tetikler.
         public void OnCriticalK()
         {
