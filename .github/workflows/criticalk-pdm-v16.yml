@@ -1,0 +1,50 @@
+name: CriticalK PDM v1.6 Build
+
+on:
+  push:
+    branches: [ criticalk-build ]
+    paths:
+      - 'criticalk_v16/**'
+      - '.github/workflows/criticalk-pdm-v16.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build BAYKAL SW addin
+        run: dotnet build criticalk/Tooldur.BaykalSwAddin.csproj -c Release
+
+      - name: Build CriticalK runtime
+        run: dotnet build criticalk_v16/CriticalKRuntime.csproj -c Release
+
+      - name: Prepare embedded resources
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path criticalk_v16/resources | Out-Null
+          Copy-Item criticalk/bin/Release/net48/Tooldur.BaykalSwAddin.dll criticalk_v16/resources/CriticalK_SW2024_BAYKAL.dll -Force
+          Copy-Item criticalk_v16/bin/Release/net48/CriticalKRuntime.exe criticalk_v16/resources/CriticalKRuntime.exe -Force
+          $sw = Get-ChildItem criticalk_v16/bin/Release/net48 -Filter SolidWorks.Interop.sldworks.dll -Recurse | Select-Object -First 1
+          if (-not $sw) { throw 'SolidWorks.Interop.sldworks.dll not found' }
+          Copy-Item $sw.FullName criticalk_v16/resources/SolidWorks.Interop.sldworks.dll -Force
+
+      - name: Build PDM deployment DLL
+        run: dotnet build criticalk_v16/CriticalK.PdmBootstrap.csproj -c Release
+
+      - name: Collect DLL
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item criticalk_v16/bin/Release/net48/CriticalK_PDM2024.dll dist/CriticalK_PDM2024.dll -Force
+
+      - name: Upload DLL
+        uses: actions/upload-artifact@v4
+        with:
+          name: CriticalK_PDM2024_v16
+          path: dist/CriticalK_PDM2024.dll
