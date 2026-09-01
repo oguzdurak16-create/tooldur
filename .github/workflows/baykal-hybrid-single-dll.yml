@@ -1,0 +1,30 @@
+name: BAYKAL Hybrid Single DLL Build
+
+on:
+  push:
+    branches: [ criticalk-build ]
+    paths:
+      - 'baykal_hybrid/**'
+      - '.github/workflows/baykal-hybrid-single-dll.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build single DLL
+        run: dotnet build baykal_hybrid/BaykalToolsHybrid.csproj -c Release
+      - name: Collect DLL
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item baykal_hybrid/bin/Release/net48/BaykalTools_PDM2024.dll dist/BaykalTools_PDM2024_SINGLE.dll -Force
+      - name: Upload DLL
+        uses: actions/upload-artifact@v4
+        with:
+          name: BaykalTools_PDM2024_SINGLE
+          path: dist/BaykalTools_PDM2024_SINGLE.dll
