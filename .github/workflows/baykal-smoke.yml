@@ -1,0 +1,32 @@
+name: BAYKAL Clean Smoke Test Build
+
+on:
+  push:
+    branches: [ criticalk-build ]
+    paths:
+      - 'baykal_smoke/**'
+      - '.github/workflows/baykal-smoke.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build
+        run: dotnet build baykal_smoke/BaykalSmoke.csproj -c Release
+      - name: Collect
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item baykal_smoke/bin/Release/net48/BaykalTools_PDM2024_CLEAN_TEST.dll dist/BaykalTools_PDM2024_CLEAN_TEST.dll -Force
+          $epdm = Get-ChildItem baykal_smoke/bin/Release/net48 -Filter EPDM.Interop.epdm.dll -Recurse | Select-Object -First 1
+          if ($epdm) { Copy-Item $epdm.FullName dist/EPDM.Interop.epdm.dll -Force }
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: BaykalTools_PDM2024_CLEAN_TEST
+          path: dist/*
