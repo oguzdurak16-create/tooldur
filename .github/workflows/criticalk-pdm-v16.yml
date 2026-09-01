@@ -21,6 +21,14 @@ jobs:
       - name: Build BAYKAL SW addin
         run: dotnet build criticalk/Tooldur.BaykalSwAddin.csproj -c Release
 
+      - name: Normalize SW2024 interop signature
+        shell: pwsh
+        run: |
+          $p = 'criticalk_v16/CriticalKRuntime.cs'
+          $s = Get-Content $p -Raw
+          $s = $s.Replace('ext.GetPersistReference3(obj, out err)', 'ext.GetPersistReference3(obj)')
+          Set-Content $p $s -Encoding UTF8
+
       - name: Build CriticalK runtime
         run: dotnet build criticalk_v16/CriticalKRuntime.csproj -c Release
 
