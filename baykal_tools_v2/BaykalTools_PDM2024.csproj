@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputType>Library</OutputType>
+    <AssemblyName>BaykalTools_PDM2024</AssemblyName>
+    <RootNamespace>Tooldur.BaykalToolsPdm</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="BaykalToolsPdmBootstrap.cs" />
+    <PackageReference Include="SolidWorks.EPDM.Interop.epdm" Version="32.1.0">
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\BaykalToolsRuntime.exe" LogicalName="BaykalToolsRuntime.exe" />
+    <EmbeddedResource Include="resources\SolidWorks.Interop.sldworks.dll" LogicalName="SolidWorks.Interop.sldworks.dll" />
+    <EmbeddedResource Include="resources\SolidWorks.Interop.swconst.dll" LogicalName="SolidWorks.Interop.swconst.dll" />
+  </ItemGroup>
+</Project>
