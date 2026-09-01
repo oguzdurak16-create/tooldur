@@ -1,0 +1,41 @@
+name: CriticalK SW2024 Build
+
+on:
+  push:
+    branches:
+      - criticalk-build
+    paths:
+      - 'criticalk/**'
+      - '.github/workflows/criticalk-build.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore criticalk/Tooldur.BaykalSwAddin.csproj
+
+      - name: Build SW2024 x64 DLL
+        run: dotnet build criticalk/Tooldur.BaykalSwAddin.csproj -c Release --no-restore
+
+      - name: Collect DLL
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifact | Out-Null
+          Copy-Item criticalk/bin/Release/net48/Tooldur.BaykalSwAddin.dll artifact/CriticalK_SW2024.dll
+
+      - name: Upload DLL
+        uses: actions/upload-artifact@v4
+        with:
+          name: CriticalK_SW2024_DLL
+          path: artifact/CriticalK_SW2024.dll
+          if-no-files-found: error
