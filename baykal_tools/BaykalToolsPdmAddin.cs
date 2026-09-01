@@ -151,7 +151,7 @@ namespace Tooldur.BaykalTools
         {
             get
             {
-                string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Tooldur", "BaykalTools");
+                string dir = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "Tooldur", "BaykalTools");
                 try { Directory.CreateDirectory(dir); } catch { }
                 return Path.Combine(dir, "BaykalTools.log");
             }
@@ -161,7 +161,7 @@ namespace Tooldur.BaykalTools
         {
             try
             {
-                File.AppendAllText(LogPath, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture) + " | " + text + Environment.NewLine);
+                File.AppendAllText(LogPath, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture) + " | " + text + System.Environment.NewLine);
             }
             catch { }
         }
