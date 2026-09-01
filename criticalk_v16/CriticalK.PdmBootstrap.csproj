@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputType>Library</OutputType>
+    <AssemblyName>CriticalK_PDM2024</AssemblyName>
+    <RootNamespace>Tooldur.CriticalKPdm</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="SolidWorks.EPDM.Interop.epdm" Version="32.1.0">
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\CriticalKRuntime.exe" LogicalName="CriticalKRuntime.exe" />
+    <EmbeddedResource Include="resources\SolidWorks.Interop.sldworks.dll" LogicalName="SolidWorks.Interop.sldworks.dll" />
+    <EmbeddedResource Include="resources\CriticalK_SW2024_BAYKAL.dll" LogicalName="CriticalK_SW2024_BAYKAL.dll" />
+  </ItemGroup>
+</Project>
