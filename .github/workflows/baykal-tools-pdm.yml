@@ -1,0 +1,30 @@
+name: BAYKAL Tools PDM 2024 Build
+
+on:
+  push:
+    branches: [ criticalk-build ]
+    paths:
+      - 'baykal_tools/**'
+      - '.github/workflows/baykal-tools-pdm.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build separate BAYKAL DLL
+        run: dotnet build baykal_tools/BaykalTools_PDM2024.csproj -c Release
+      - name: Collect DLL
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item baykal_tools/bin/Release/net48/BaykalTools_PDM2024.dll dist/BaykalTools_PDM2024.dll -Force
+      - name: Upload DLL
+        uses: actions/upload-artifact@v4
+        with:
+          name: BaykalTools_PDM2024
+          path: dist/BaykalTools_PDM2024.dll
