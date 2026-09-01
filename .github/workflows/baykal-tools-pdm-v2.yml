@@ -1,0 +1,49 @@
+name: BAYKAL Tools PDM v2 Build
+
+on:
+  push:
+    branches: [ criticalk-build ]
+    paths:
+      - 'baykal_tools_v2/**'
+      - '.github/workflows/baykal-tools-pdm-v2.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build BAYKAL runtime
+        run: dotnet build baykal_tools_v2/BaykalToolsRuntime.csproj -c Release
+
+      - name: Prepare embedded resources
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path baykal_tools_v2/resources | Out-Null
+          Copy-Item baykal_tools_v2/bin/Release/net48/BaykalToolsRuntime.exe baykal_tools_v2/resources/BaykalToolsRuntime.exe -Force
+          $sw = Get-ChildItem baykal_tools_v2/bin/Release/net48 -Filter SolidWorks.Interop.sldworks.dll -Recurse | Select-Object -First 1
+          $sc = Get-ChildItem baykal_tools_v2/bin/Release/net48 -Filter SolidWorks.Interop.swconst.dll -Recurse | Select-Object -First 1
+          if (-not $sw) { throw 'SolidWorks.Interop.sldworks.dll not found' }
+          if (-not $sc) { throw 'SolidWorks.Interop.swconst.dll not found' }
+          Copy-Item $sw.FullName baykal_tools_v2/resources/SolidWorks.Interop.sldworks.dll -Force
+          Copy-Item $sc.FullName baykal_tools_v2/resources/SolidWorks.Interop.swconst.dll -Force
+
+      - name: Build PDM distributor DLL
+        run: dotnet build baykal_tools_v2/BaykalTools_PDM2024.csproj -c Release
+
+      - name: Collect DLL
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item baykal_tools_v2/bin/Release/net48/BaykalTools_PDM2024.dll dist/BaykalTools_PDM2024.dll -Force
+
+      - name: Upload DLL
+        uses: actions/upload-artifact@v4
+        with:
+          name: BaykalTools_PDM2024_v2
+          path: dist/BaykalTools_PDM2024.dll
