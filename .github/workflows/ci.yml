@@ -27,13 +27,8 @@ jobs:
         with:
           node-version: 24
 
-      - name: Enable pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.34.3 --activate
-
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm install --no-audit --no-fund
 
       - name: Production build
-        run: pnpm run build
+        run: npm run build
