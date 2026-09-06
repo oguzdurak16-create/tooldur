@@ -45,14 +45,14 @@ const meta: Record<string, PriorityToolMeta> = {
     keywords: ['kama kanalı ölçüsü', 'mil çapına göre kama', 'DIN 6885', 'kama ölçü tablosu', 'kama kanalı hesaplama'],
   },
   'kilavuz-matkap-hesaplama': {
-    title: 'Metrik Diş Tablosu – M2–M42 Kılavuz Matkap Çapları',
-    description: 'M2–M42 kaba ve ince metrik dişlerde kılavuz matkap çaplarını, M8, M10 ve M36 ön deliklerini, teorik diş dibi ölçülerini ve boşluk deliklerini görüntüleyin.',
-    keywords: ['metrik diş tablosu', 'metrik kılavuz tablosu', 'kılavuz tablosu', 'kılavuz matkap çapları', 'M36 kılavuz matkap çapı', 'metrik diş dibi hesaplama', 'M8 matkap çapı', 'M10 matkap çapı', 'iç diş dibi', 'dış diş dibi'],
+    title: 'Kılavuz Matkap Hesaplama – M2–M42 Matkap Çapları',
+    description: 'Kılavuz matkap çapını M2–M42 metrik dişlerde bulun. M6, M8, M10, M12 ve ince dişler için ön delik, adım ve teorik diş ölçülerini görüntüleyin.',
+    keywords: ['kılavuz matkap hesaplama', 'kılavuz matkap çapı', 'metrik diş tablosu', 'metrik kılavuz tablosu', 'kılavuz matkap çapları', 'M36 kılavuz matkap çapı', 'M8 matkap çapı', 'M10 matkap çapı', 'metrik diş dibi hesaplama'],
   },
   'konik-hesaplama': {
-    title: 'Konik ve Torna Derece Hesaplama – Çap, Boy, Açı ve 1:N',
-    description: 'Büyük çap, küçük çap, konik boy, toplam açı veya 1:N oranından torna yarım açısını, toplam koni açısını ve küçük çapı hesaplayın.',
-    keywords: ['konik hesaplama', 'torna derece hesaplama', 'koniklik oranı', 'koni açısı hesaplama', 'torna konik hesabı', '1:10 koniklik açısı'],
+    title: 'Koniklik Hesaplama – Konik Açı, Oran ve Torna Derecesi',
+    description: 'Koniklik hesaplama için büyük çap, küçük çap ve boydan konik açı, yarım açı ve 1:N oranını bulun; torna derece hesabını tek ekranda yapın.',
+    keywords: ['koniklik hesaplama', 'koniklik açısı hesaplama', 'koniklik hesaplama formülü', 'torna derece hesaplama', 'konik açı hesaplama', '1:N koniklik'],
   },
   'levha-agirlik-hesaplama': {
     title: 'Sac Ağırlık Hesaplama – Çelik, Galvanizli, Alüminyum Levha',
