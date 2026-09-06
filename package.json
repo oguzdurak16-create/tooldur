@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "postbuild": "node scripts/seo-data-audit.mjs",
+    "build": "next build && node scripts/seo-data-audit.mjs",
     "start": "next start",
     "lint": "next lint",
     "seo:audit": "node scripts/seo-data-audit.mjs"
