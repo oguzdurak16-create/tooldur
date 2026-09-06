@@ -60,6 +60,7 @@ const nextConfig = {
       { source: '/arac/mil-delik-toleransi-hesaplama', destination: '/arac/iso-gecme-tolerans-hesaplama', permanent: true },
       { source: '/arac/gecme-toleransi-hesaplama', destination: '/arac/iso-gecme-tolerans-hesaplama', permanent: true },
       { source: '/arac/tolerans-rehberi', destination: '/arac/iso-gecme-tolerans-hesaplama', permanent: true },
+      { source: '/arac/civata-tork-hesaplama', destination: '/arac/civata-sikma-torku-hesaplama', permanent: true },
       { source: '/arac/civata-torku-hesaplama', destination: '/arac/civata-sikma-torku-hesaplama', permanent: true },
       { source: '/arac/sac-agirlik-hesaplama', destination: '/arac/levha-agirlik-hesaplama', permanent: true },
 
