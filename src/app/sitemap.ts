@@ -67,10 +67,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/kullanim-sartlari`, lastModified: POLICY_RELEASE_DATE, changeFrequency: 'yearly', priority: 0.2 },
     { url: `${BASE}/cerez-politikasi`, lastModified: POLICY_RELEASE_DATE, changeFrequency: 'yearly', priority: 0.2 },
     { url: `${BASE}/kvkk-basvuru-formu`, lastModified: POLICY_RELEASE_DATE, changeFrequency: 'yearly', priority: 0.2 },
-    // This calculator has a dedicated static route and strong search intent but is
-    // intentionally not part of the shared tools registry yet. Keep it discoverable
-    // until it is migrated into the registry.
-    { url: `${BASE}/arac/konik-hesaplama`, lastModified: CONTENT_RELEASE_DATE, changeFrequency: 'weekly', priority: 0.9 },
   ];
 
   const categoryPages: MetadataRoute.Sitemap = indexableCategories.flatMap((category) =>
