@@ -11,8 +11,8 @@ const INDEXABLE_LOCALES: Locale[] = ['tr', 'en'];
 type LocalizedRoute = Parameters<typeof getLocalizedPath>[1];
 
 // Update only after a meaningful content or SEO change.
-const SITE_RELEASE_DATE = new Date('2026-08-25T00:00:00+03:00');
-const CONTENT_RELEASE_DATE = new Date('2026-08-25T00:00:00+03:00');
+const SITE_RELEASE_DATE = new Date('2026-09-14T00:00:00+03:00');
+const CONTENT_RELEASE_DATE = new Date('2026-09-14T00:00:00+03:00');
 const POLICY_RELEASE_DATE = new Date('2026-05-21T00:00:00+03:00');
 
 function priorityForTool(t: typeof tools[number]) {
@@ -67,6 +67,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/kullanim-sartlari`, lastModified: POLICY_RELEASE_DATE, changeFrequency: 'yearly', priority: 0.2 },
     { url: `${BASE}/cerez-politikasi`, lastModified: POLICY_RELEASE_DATE, changeFrequency: 'yearly', priority: 0.2 },
     { url: `${BASE}/kvkk-basvuru-formu`, lastModified: POLICY_RELEASE_DATE, changeFrequency: 'yearly', priority: 0.2 },
+    // This calculator has a dedicated static route and strong search intent but is
+    // intentionally not part of the shared tools registry yet. Keep it discoverable
+    // until it is migrated into the registry.
+    { url: `${BASE}/arac/konik-hesaplama`, lastModified: CONTENT_RELEASE_DATE, changeFrequency: 'weekly', priority: 0.9 },
   ];
 
   const categoryPages: MetadataRoute.Sitemap = indexableCategories.flatMap((category) =>
