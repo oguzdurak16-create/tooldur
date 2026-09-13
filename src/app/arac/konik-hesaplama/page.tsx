@@ -3,9 +3,9 @@ import ToolPage from '../[slug]/page';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: { absolute: 'Koniklik Hesaplama – Konik Açı, Oran ve Torna Derecesi | Tooldur' },
-    description: 'Koniklik hesaplama için büyük çap, küçük çap ve boydan konik açı, yarım açı ve 1:N oranını bulun; torna derece hesabını tek ekranda yapın.',
-    keywords: ['koniklik hesaplama', 'koniklik açısı hesaplama', 'koniklik hesaplama formülü', 'torna derece hesaplama', 'konik açı hesaplama', '1:N koniklik'],
+    title: { absolute: 'Torna Derece Hesaplama – Koniklik, Konik Açı ve 1:N | Tooldur' },
+    description: 'Torna derece hesaplama: büyük çap, küçük çap ve boydan konik yarım açıyı, toplam koni açısını ve 1:N koniklik oranını hesaplayın.',
+    keywords: ['torna derece hesaplama', 'koniklik hesaplama', 'koniklik açısı hesaplama', 'koniklik hesaplama formülü', 'konik açı hesaplama', '1:N koniklik'],
     alternates: { canonical: 'https://www.tooldur.com/arac/konik-hesaplama' },
     robots: { index: true, follow: true },
   };
