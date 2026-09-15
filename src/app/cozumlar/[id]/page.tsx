@@ -15,14 +15,15 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
   if (!data) {
     return {
-      title: 'Teknik Sorun ve Çözümler | Tooldur Çözüm Ağı',
+      title: 'Teknik Sorun ve Çözümler',
       description: 'Gerçek kullanıcıların paylaştığı teknik sorun, çözüm ve deneyimler.',
       alternates: { canonical },
       robots: { index: false, follow: true },
     };
   }
 
-  const title = `${data.baslik} | Tooldur`;
+  const title = data.baslik;
+  const socialTitle = `${data.baslik} | Tooldur`;
   const description = cozumAciklamasi(data.icerik);
   const kategori = data.kategori as { slug?: string | null } | null;
   const indexlenebilir = cozumIndexlenebilir(data) && cozumKategorisiMi(kategori?.slug);
@@ -33,14 +34,14 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     alternates: { canonical },
     robots: { index: indexlenebilir, follow: true },
     openGraph: {
-      title,
+      title: socialTitle,
       description,
       url: canonical,
       type: 'article',
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: socialTitle,
       description,
     },
   };
