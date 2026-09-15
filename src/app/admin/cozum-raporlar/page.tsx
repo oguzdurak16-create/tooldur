@@ -20,6 +20,11 @@ type Rapor = {
   yorum?: { id: string; konu_id: string; icerik: string; yazar_ad: string } | null;
 };
 
+type RpcBooleanResponse = {
+  data: boolean | null;
+  error: { message?: string } | null;
+};
+
 const NEDEN: Record<string, string> = {
   spam: 'Spam / tekrar',
   yanlis_bilgi: 'Yanlış veya tehlikeli bilgi',
@@ -47,7 +52,8 @@ export default function CozumRaporlarAdminPage() {
       return;
     }
 
-    supabase.rpc('is_mod_or_admin').then(({ data, error }) => {
+    supabase.rpc('is_mod_or_admin').then((response: RpcBooleanResponse) => {
+      const { data, error } = response;
       if (error) {
         setHata(error.message || 'Yetki kontrolü yapılamadı.');
         setYetkili(false);
