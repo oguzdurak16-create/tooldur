@@ -74,6 +74,14 @@ export async function kategoriGetir(slug: string): Promise<ForumKategori | null>
   return data;
 }
 
+function aramaDegeriniTemizle(value: string): string {
+  return value
+    .replace(/[,%(){}]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 80);
+}
+
 /* ── Konular ─────────────────────────────────────────── */
 export async function konulariGetir(opts: {
   kategoriId?: string;
@@ -89,13 +97,26 @@ export async function konulariGetir(opts: {
 
   if (opts.kategoriId) q = q.eq('kategori_id', opts.kategoriId);
   if (opts.arama) {
-    const aranan = opts.arama.replace(/[%_\\]/g, '\\$&').slice(0, 80);
-    q = q.ilike('baslik', `%${aranan}%`);
+    const aranan = aramaDegeriniTemizle(opts.arama);
+    if (aranan) {
+      const etiket = aranan.toLocaleLowerCase('tr-TR').replace(/\s+/g, '-');
+      const etiketUygun = /^[a-z0-9çğıöşü_-]{2,30}$/i.test(etiket);
+      const filtreler = [
+        `baslik.ilike.%${aranan}%`,
+        `icerik.ilike.%${aranan}%`,
+      ];
+      if (etiketUygun) filtreler.push(`etiketler.cs.{${etiket}}`);
+      q = q.or(filtreler.join(','));
+    }
   }
 
-  if (opts.siralama === 'populer') q = q.order('begeni_sayisi', { ascending: false });
-  else if (opts.siralama === 'aktif') q = q.order('yorum_sayisi', { ascending: false });
-  else q = q.order('pinli', { ascending: false }).order('son_aktif', { ascending: false });
+  if (opts.siralama === 'populer') {
+    q = q.order('begeni_sayisi', { ascending: false }).order('son_aktif', { ascending: false });
+  } else if (opts.siralama === 'yeni') {
+    q = q.order('created_at', { ascending: false });
+  } else {
+    q = q.order('son_aktif', { ascending: false });
+  }
 
   q = q.range(opts.offset ?? 0, (opts.offset ?? 0) + (opts.limit ?? 20) - 1);
   const { data } = await q;
@@ -105,6 +126,7 @@ export async function konulariGetir(opts: {
   // Beğeni kontrolü
   if (opts.userId) {
     const ids = konular.map((k: ForumKonu) => k.id);
+    if (ids.length === 0) return konular;
     const { data: begeniler } = await supabase
       .from('forum_begeni_konular')
       .select('konu_id')
@@ -178,7 +200,7 @@ export async function konuEkle(params: {
       baslik,
       icerik,
       etiketler,
-      yazar_uid:  user.id,          // ← auth'tan alınır
+      yazar_uid:  user.id,
       yazar_ad:   params.yazarAd,
       yazar_foto: params.yazarFoto ?? null,
     })
@@ -204,6 +226,7 @@ export async function yorumlariGetir(konuId: string, userId?: string): Promise<F
 
   if (userId) {
     const ids = yorumlar.map((y: ForumYorum) => y.id);
+    if (ids.length === 0) return yorumlar;
     const { data: begeniler } = await supabase
       .from('forum_begeni_yorumlar')
       .select('yorum_id')
