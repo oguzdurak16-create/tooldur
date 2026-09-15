@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Plus, Send, X } from 'lucide-react';
 import { useAuth } from '@/hooks/usePmAuth';
 import { kategorileriGetir, konuEkle, type ForumKategori } from '@/lib/forum-db';
-import { COZUM_MIN_BASLIK, COZUM_MIN_ICERIK } from '@/lib/cozum-seo';
+import { COZUM_MIN_BASLIK, COZUM_MIN_ICERIK, cozumKategorileriniFiltrele } from '@/lib/cozum-seo';
 
 export default function YeniCozumPage() {
   const router = useRouter();
@@ -20,7 +20,9 @@ export default function YeniCozumPage() {
   const [gonderiyor, setGonderiyor] = useState(false);
   const [hata, setHata] = useState('');
 
-  useEffect(() => { kategorileriGetir().then(setKategoriler); }, []);
+  useEffect(() => {
+    kategorileriGetir().then((data) => setKategoriler(cozumKategorileriniFiltrele(data)));
+  }, []);
   useEffect(() => {
     if (!loading && !user) router.replace('/giris');
   }, [loading, user, router]);
