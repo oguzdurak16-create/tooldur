@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
-import { cozumAciklamasi, cozumIndexlenebilir } from '@/lib/cozum-seo';
+import { cozumAciklamasi, cozumIndexlenebilir, cozumKategorisiMi } from '@/lib/cozum-seo';
 import CozumDetayClient from './CozumDetayClient';
 
 const BASE_URL = 'https://www.tooldur.com';
@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const canonical = `${BASE_URL}/cozumlar/${params.id}`;
   const { data } = await supabase
     .from('forum_konular')
-    .select('baslik,icerik')
+    .select('baslik,icerik,kategori:forum_kategoriler(slug)')
     .eq('id', params.id)
     .maybeSingle();
 
@@ -24,7 +24,8 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 
   const title = `${data.baslik} | Tooldur`;
   const description = cozumAciklamasi(data.icerik);
-  const indexlenebilir = cozumIndexlenebilir(data);
+  const kategori = data.kategori as { slug?: string | null } | null;
+  const indexlenebilir = cozumIndexlenebilir(data) && cozumKategorisiMi(kategori?.slug);
 
   return {
     title,
