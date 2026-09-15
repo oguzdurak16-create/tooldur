@@ -24,6 +24,18 @@ create unique index if not exists cozum_agi_rapor_yorum_unique
   on public.cozum_agi_raporlar (bildiren_uid, yorum_id)
   where yorum_id is not null;
 
+-- FK silme/cascade kontrollerinin hedef kolondan doğrudan index kullanabilmesi için.
+create index if not exists cozum_agi_rapor_konu_idx
+  on public.cozum_agi_raporlar (konu_id)
+  where konu_id is not null;
+
+create index if not exists cozum_agi_rapor_yorum_idx
+  on public.cozum_agi_raporlar (yorum_id)
+  where yorum_id is not null;
+
+create index if not exists cozum_agi_rapor_bildiren_idx
+  on public.cozum_agi_raporlar (bildiren_uid);
+
 create index if not exists cozum_agi_rapor_durum_created_idx
   on public.cozum_agi_raporlar (durum, created_at desc);
 
