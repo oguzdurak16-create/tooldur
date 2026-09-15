@@ -85,6 +85,7 @@ function aramaDegeriniTemizle(value: string): string {
 /* ── Konular ─────────────────────────────────────────── */
 export async function konulariGetir(opts: {
   kategoriId?: string;
+  kategoriIds?: string[];
   arama?: string;
   siralama?: 'yeni' | 'populer' | 'aktif';
   limit?: number;
@@ -95,7 +96,12 @@ export async function konulariGetir(opts: {
     .from('forum_konular')
     .select('*, kategori:forum_kategoriler(slug,ad,ikon,renk)');
 
-  if (opts.kategoriId) q = q.eq('kategori_id', opts.kategoriId);
+  if (opts.kategoriId) {
+    q = q.eq('kategori_id', opts.kategoriId);
+  } else if (opts.kategoriIds?.length) {
+    q = q.in('kategori_id', opts.kategoriIds);
+  }
+
   if (opts.arama) {
     const aranan = aramaDegeriniTemizle(opts.arama);
     if (aranan) {
