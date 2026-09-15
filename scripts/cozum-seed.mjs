@@ -186,7 +186,9 @@ for (const item of verified) {
 
   const title = String(item.title).trim();
   const problem = String(item.problem).trim();
-  const solution = String(item.solution_draft).trim();
+  const solutionBase = String(item.solution_draft).trim();
+  const sourceBlock = sourceEntry.sources.map((source, index) => `${index + 1}. ${source}`).join('\n');
+  const solution = `${solutionBase}\n\nKaynaklar (editoryal doğrulama):\n${sourceBlock}`;
   const tags = [...new Set([...(item.tags || []), 'editoryal', 'kaynakli'])].slice(0, 8);
 
   const { data: existing, error: existingError } = await supabase
