@@ -47,7 +47,7 @@ export default function CozumRaporlarAdminPage() {
       return;
     }
 
-    supabase.rpc('is_mod_or_admin').then(({ data, error }: { data: boolean | null; error: any }) => {
+    supabase.rpc('is_mod_or_admin').then(({ data, error }) => {
       if (error) {
         setHata(error.message || 'Yetki kontrolü yapılamadı.');
         setYetkili(false);
