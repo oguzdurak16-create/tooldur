@@ -54,7 +54,6 @@ export async function kategorileriGetir(): Promise<ForumKategori[]> {
   if (!data) return [];
   const kategoriler = data as ForumKategori[];
 
-  // Her kategori için konu sayısı
   const sonuc = await Promise.all(kategoriler.map(async (k: ForumKategori) => {
     const { count } = await supabase
       .from('forum_konular')
@@ -129,7 +128,6 @@ export async function konulariGetir(opts: {
   if (!data) return [];
   const konular = data as ForumKonu[];
 
-  // Beğeni kontrolü
   if (opts.userId) {
     const ids = konular.map((k: ForumKonu) => k.id);
     if (ids.length === 0) return konular;
@@ -144,11 +142,12 @@ export async function konulariGetir(opts: {
   return konular;
 }
 
-export async function konuGetir(id: string, userId?: string): Promise<ForumKonu | null> {
-  // Görüntüleme artır
-  try {
-    await supabase.rpc('forum_goruntulenme_artir', { konu_id: id });
-  } catch {}
+export async function konuGetir(id: string, userId?: string, goruntulenmeArtir = true): Promise<ForumKonu | null> {
+  if (goruntulenmeArtir) {
+    try {
+      await supabase.rpc('forum_goruntulenme_artir', { konu_id: id });
+    } catch {}
+  }
 
   const { data } = await supabase
     .from('forum_konular')
@@ -180,7 +179,6 @@ export async function konuEkle(params: {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Giriş yapmalısınız');
 
-  // Ban kontrolü
   const { data: profil } = await supabase
     .from('profiles')
     .select('is_banned')
@@ -188,7 +186,6 @@ export async function konuEkle(params: {
     .maybeSingle();
   if (profil?.is_banned) throw new Error('Hesabınız askıya alınmış');
 
-  // Basit input validasyonu
   const baslik = params.baslik.trim();
   const icerik = params.icerik.trim();
   if (baslik.length < 5 || baslik.length > 200) throw new Error('Başlık 5-200 karakter olmalı');
