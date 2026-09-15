@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 import { tools, categories } from '@/data/tools';
 import { blogPosts } from '@/data/blogPosts';
-import { cozumIndexlenebilir } from '@/lib/cozum-seo';
+import { cozumIndexlenebilir, cozumKategorisiMi } from '@/lib/cozum-seo';
 import { getIndexableCategories, getIndexableTools } from '@/lib/seoFocus';
 import { BASE_URL, getLocalizedPath, type Locale } from '@/lib/siteLanguage';
 import { supabase } from '@/lib/supabase';
@@ -41,7 +41,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const { data: cozumKayitlari } = await supabase
     .from('forum_konular')
-    .select('id,baslik,icerik,son_aktif,created_at,yorum_sayisi')
+    .select('id,baslik,icerik,son_aktif,created_at,yorum_sayisi,kategori:forum_kategoriler(slug)')
     .order('son_aktif', { ascending: false })
     .limit(5000);
 
@@ -108,7 +108,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const cozumPages: MetadataRoute.Sitemap = (cozumKayitlari ?? [])
-    .filter(cozumIndexlenebilir)
+    .filter((konu: any) => {
+      const kategori = konu.kategori as { slug?: string | null } | null;
+      return cozumIndexlenebilir(konu) && cozumKategorisiMi(kategori?.slug);
+    })
     .map((konu: any) => ({
       url: `${BASE}/cozumlar/${konu.id}`,
       lastModified: new Date(konu.son_aktif || konu.created_at),
