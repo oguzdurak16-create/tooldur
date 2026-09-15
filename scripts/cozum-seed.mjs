@@ -11,6 +11,16 @@ const publish = process.argv.includes('--publish');
 const raw = JSON.parse(await fs.readFile(DATA_PATH, 'utf8'));
 const items = Array.isArray(raw.items) ? raw.items : [];
 
+function validSourceUrl(value) {
+  if (typeof value !== 'string') return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' || url.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
 function validate(item) {
   const errors = [];
   if (!item.key) errors.push('key eksik');
@@ -22,7 +32,11 @@ function validate(item) {
 
   if (item.verified === true) {
     if (!String(item.reviewed_by || '').trim()) errors.push('verified kayıt için reviewed_by zorunlu');
-    if (!Array.isArray(item.sources) || item.sources.length === 0) errors.push('verified kayıt için en az 1 kaynak zorunlu');
+    if (!Array.isArray(item.sources) || item.sources.length === 0) {
+      errors.push('verified kayıt için en az 1 kaynak zorunlu');
+    } else if (!item.sources.every(validSourceUrl)) {
+      errors.push('verified kaydın tüm kaynakları geçerli http/https URL olmalı');
+    }
   }
 
   return errors;
