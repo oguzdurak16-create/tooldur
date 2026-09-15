@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Plus, Send, X } from 'lucide-react';
 import { useAuth } from '@/hooks/usePmAuth';
 import { kategorileriGetir, konuEkle, type ForumKategori } from '@/lib/forum-db';
+import { COZUM_MIN_BASLIK, COZUM_MIN_ICERIK } from '@/lib/cozum-seo';
 
 export default function YeniCozumPage() {
   const router = useRouter();
@@ -34,8 +35,8 @@ export default function YeniCozumPage() {
   const kaydet = async () => {
     if (!user || gonderiyor) return;
     if (!kategoriId) return setHata('Bir kategori seçin.');
-    if (baslik.trim().length < 5) return setHata('Başlık en az 5 karakter olmalı.');
-    if (icerik.trim().length < 20) return setHata('Sorunu veya deneyimi biraz daha ayrıntılı anlatın.');
+    if (baslik.trim().length < COZUM_MIN_BASLIK) return setHata(`Başlık en az ${COZUM_MIN_BASLIK} karakter olmalı.`);
+    if (icerik.trim().length < COZUM_MIN_ICERIK) return setHata(`Sorunu veya deneyimi en az ${COZUM_MIN_ICERIK} karakterle anlatın.`);
 
     setGonderiyor(true);
     setHata('');
@@ -90,13 +91,13 @@ export default function YeniCozumPage() {
           <div>
             <label style={labelStyle}>Sorun / deneyim başlığı *</label>
             <input value={baslik} onChange={(e) => setBaslik(e.target.value)} maxLength={200} placeholder="Örn. SolidWorks 2026 teknik resimde görünüş ters geliyor" style={inputStyle} />
-            <p style={helpStyle}>Google’da birinin gerçekten aratacağı kadar net yaz.</p>
+            <p style={helpStyle}>Google’da birinin gerçekten aratacağı kadar net yaz. {baslik.trim().length}/{COZUM_MIN_BASLIK}+ karakter</p>
           </div>
 
           <div>
             <label style={labelStyle}>Ne oldu, ne denedin, sonuç neydi? *</label>
             <textarea value={icerik} onChange={(e) => setIcerik(e.target.value)} rows={11} maxLength={20000} placeholder={'Sorunu ayrıntılı anlat.\n\nVarsa: cihaz / makine / yazılım, model, sürüm, hata kodu, ölçüler.\n\nDenediğin yöntemleri ve işe yarayan çözümü de ekle.'} style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.65 }} />
-            <p style={helpStyle}>{icerik.length} karakter</p>
+            <p style={helpStyle}>{icerik.trim().length}/{COZUM_MIN_ICERIK}+ karakter · ayrıntı arttıkça bulunabilirlik yükselir</p>
           </div>
 
           <div>
