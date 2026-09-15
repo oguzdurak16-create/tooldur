@@ -52,7 +52,10 @@ create policy cozum_rapor_insert_own
 on public.cozum_agi_raporlar
 for insert
 to authenticated
-with check (bildiren_uid = (select auth.uid()));
+with check (
+  bildiren_uid = (select auth.uid())
+  and durum = 'bekliyor'
+);
 
 drop policy if exists cozum_rapor_select_own on public.cozum_agi_raporlar;
 create policy cozum_rapor_select_own
@@ -114,6 +117,10 @@ begin
     raise exception 'Bu içerik Çözüm Ağı raporlama kapsamı dışında';
   end if;
 
+  -- Kullanıcı bu alanları request gövdesiyle değiştiremez; her yeni rapor
+  -- sunucu zamanıyla bekleyen moderasyon kuyruğuna girer.
+  new.durum := 'bekliyor';
+  new.created_at := now();
   new.aciklama := left(btrim(coalesce(new.aciklama, '')), 1000);
   return new;
 end;
