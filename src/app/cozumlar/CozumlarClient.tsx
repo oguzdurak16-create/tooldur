@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Eye, Heart, MessageCircle, Plus, Search, Sparkles, Wrench } from 'lucide-react';
 import { useAuth } from '@/hooks/usePmAuth';
+import { cozumKategorileriniFiltrele } from '@/lib/cozum-seo';
 import { kategorileriGetir, konulariGetir, type ForumKategori, type ForumKonu } from '@/lib/forum-db';
 
 type Siralama = 'yeni' | 'populer' | 'aktif';
@@ -20,6 +21,7 @@ function zaman(iso: string) {
 export default function CozumlarClient() {
   const { user } = useAuth();
   const [kategoriler, setKategoriler] = useState<ForumKategori[]>([]);
+  const [kategorilerHazir, setKategorilerHazir] = useState(false);
   const [konular, setKonular] = useState<ForumKonu[]>([]);
   const [kategoriId, setKategoriId] = useState('');
   const [arama, setArama] = useState('');
@@ -28,14 +30,18 @@ export default function CozumlarClient() {
   const [yukleniyor, setYukleniyor] = useState(true);
 
   useEffect(() => {
-    kategorileriGetir().then(setKategoriler);
+    kategorileriGetir()
+      .then((data) => setKategoriler(cozumKategorileriniFiltrele(data)))
+      .finally(() => setKategorilerHazir(true));
   }, []);
 
   useEffect(() => {
+    if (!kategorilerHazir) return;
     let aktif = true;
     setYukleniyor(true);
     konulariGetir({
       kategoriId: kategoriId || undefined,
+      kategoriIds: kategoriId ? undefined : kategoriler.map((kategori) => kategori.id),
       arama: arama || undefined,
       siralama,
       limit: 40,
@@ -46,7 +52,7 @@ export default function CozumlarClient() {
       setYukleniyor(false);
     });
     return () => { aktif = false; };
-  }, [kategoriId, arama, siralama, user?.uid]);
+  }, [kategorilerHazir, kategoriler, kategoriId, arama, siralama, user?.uid]);
 
   const toplamCozum = useMemo(() => konular.reduce((sum, item) => sum + (item.yorum_sayisi || 0), 0), [konular]);
   const aramaYap = () => setArama(aramaInput.trim());
