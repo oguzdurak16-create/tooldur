@@ -29,19 +29,25 @@ create index if not exists cozum_agi_rapor_durum_created_idx
 
 alter table public.cozum_agi_raporlar enable row level security;
 
+-- Public şemadaki yeni tablolara projeye göre varsayılan grant gelebilir.
+-- Raporlama giriş gerektirir; anon rolünün tabloya hiçbir doğrudan yetkisi olmasın.
+revoke all on table public.cozum_agi_raporlar from anon;
+revoke all on table public.cozum_agi_raporlar from authenticated;
+grant select, insert, update, delete on table public.cozum_agi_raporlar to authenticated;
+
 drop policy if exists cozum_rapor_insert_own on public.cozum_agi_raporlar;
 create policy cozum_rapor_insert_own
 on public.cozum_agi_raporlar
 for insert
 to authenticated
-with check (bildiren_uid = auth.uid());
+with check (bildiren_uid = (select auth.uid()));
 
 drop policy if exists cozum_rapor_select_own on public.cozum_agi_raporlar;
 create policy cozum_rapor_select_own
 on public.cozum_agi_raporlar
 for select
 to authenticated
-using (bildiren_uid = auth.uid() or public.is_mod_or_admin());
+using (bildiren_uid = (select auth.uid()) or public.is_mod_or_admin());
 
 drop policy if exists cozum_rapor_update_mod on public.cozum_agi_raporlar;
 create policy cozum_rapor_update_mod
