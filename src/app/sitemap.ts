@@ -11,8 +11,8 @@ const INDEXABLE_LOCALES: Locale[] = ['tr', 'en'];
 type LocalizedRoute = Parameters<typeof getLocalizedPath>[1];
 
 // Update only after a meaningful content or SEO change.
-const SITE_RELEASE_DATE = new Date('2026-09-14T00:00:00+03:00');
-const CONTENT_RELEASE_DATE = new Date('2026-09-14T00:00:00+03:00');
+const SITE_RELEASE_DATE = new Date('2026-09-15T00:00:00+03:00');
+const CONTENT_RELEASE_DATE = new Date('2026-09-15T00:00:00+03:00');
 const POLICY_RELEASE_DATE = new Date('2026-05-21T00:00:00+03:00');
 
 function priorityForTool(t: typeof tools[number]) {
@@ -61,6 +61,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   const trOnlyStatic: MetadataRoute.Sitemap = [
+    { url: `${BASE}/cozumlar`, lastModified: CONTENT_RELEASE_DATE, changeFrequency: 'daily', priority: 0.92 },
     { url: `${BASE}/hakkimizda`, lastModified: SITE_RELEASE_DATE, changeFrequency: 'monthly', priority: 0.45 },
     { url: `${BASE}/iletisim`, lastModified: SITE_RELEASE_DATE, changeFrequency: 'monthly', priority: 0.45 },
     { url: `${BASE}/gizlilik`, lastModified: POLICY_RELEASE_DATE, changeFrequency: 'yearly', priority: 0.2 },
