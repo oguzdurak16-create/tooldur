@@ -27,6 +27,7 @@ export default function Header() {
   const primaryLinks = [
     { href: toolsHref, label: nav.tools },
     { href: cadHref, label: nav.cad },
+    ...(locale === 'tr' ? [{ href: '/cozumlar', label: 'Çözümler' }] : []),
     { href: blogHref, label: nav.blog },
   ];
 
