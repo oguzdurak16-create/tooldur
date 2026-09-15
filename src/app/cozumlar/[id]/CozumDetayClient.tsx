@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, Eye, Heart, MessageCircle, Send, Share2 } from 'lucide-react';
 import { useAuth } from '@/hooks/usePmAuth';
+import CozumRaporButton from '@/components/CozumRaporButton';
 import {
   konuBegeniToggle,
   konuGetir,
@@ -195,6 +196,7 @@ export default function CozumDetayClient({ id }: { id: string }) {
               <Heart size={13} /> Bende de oldu · {konu.begeni_sayisi || 0}
             </button>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--ink-4)', fontSize: 11 }}><MessageCircle size={13} /> {anaYorumlar.length} çözüm</span>
+            <CozumRaporButton hedef={{ konuId: konu.id }} compact />
             <button onClick={paylas} style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 5, padding: '7px 10px', borderRadius: 999, border: '1px solid var(--border)', background: 'transparent', color: paylasildi ? 'var(--amber)' : 'var(--ink-3)', cursor: 'pointer', fontSize: 11 }}><Share2 size={12} /> {paylasildi ? 'Kopyalandı' : 'Paylaş'}</button>
           </div>
         </article>
@@ -215,7 +217,10 @@ export default function CozumDetayClient({ id }: { id: string }) {
                   {index === 0 && yorum.begeni_sayisi > 0 && <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 4, color: '#22c55e', fontSize: 10, fontWeight: 800 }}><CheckCircle2 size={12} /> En çok işe yarayan</span>}
                 </div>
                 <div style={{ whiteSpace: 'pre-wrap', color: 'var(--ink-2)', lineHeight: 1.7, fontSize: 13 }}>{yorum.icerik}</div>
-                <button onClick={() => iseYaradi(yorum)} style={{ marginTop: 13, display: 'inline-flex', alignItems: 'center', gap: 5, padding: '6px 9px', borderRadius: 8, border: `1px solid ${yorum.benim_begenim ? '#22c55e' : 'var(--border)'}`, background: yorum.benim_begenim ? 'rgba(34,197,94,.08)' : 'transparent', color: yorum.benim_begenim ? '#22c55e' : 'var(--ink-4)', fontSize: 11, cursor: 'pointer' }}><CheckCircle2 size={12} /> İşe yaradı · {yorum.begeni_sayisi || 0}</button>
+                <div style={{ display: 'flex', gap: 7, alignItems: 'center', flexWrap: 'wrap', marginTop: 13 }}>
+                  <button onClick={() => iseYaradi(yorum)} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '6px 9px', borderRadius: 8, border: `1px solid ${yorum.benim_begenim ? '#22c55e' : 'var(--border)'}`, background: yorum.benim_begenim ? 'rgba(34,197,94,.08)' : 'transparent', color: yorum.benim_begenim ? '#22c55e' : 'var(--ink-4)', fontSize: 11, cursor: 'pointer' }}><CheckCircle2 size={12} /> İşe yaradı · {yorum.begeni_sayisi || 0}</button>
+                  <CozumRaporButton hedef={{ yorumId: yorum.id }} compact />
+                </div>
               </article>
             ))}
           </div>
