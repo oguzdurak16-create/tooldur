@@ -19,9 +19,12 @@ export const COZUM_KATEGORI_SLUGLARI = [
   'ev-teknik-cihazlar',
 ] as const;
 
+export function cozumKategorisiMi(slug?: string | null): boolean {
+  return Boolean(slug && (COZUM_KATEGORI_SLUGLARI as readonly string[]).includes(slug));
+}
+
 export function cozumKategorileriniFiltrele<T extends CozumKategoriKaydi>(kategoriler: T[]): T[] {
-  const izinli = new Set<string>(COZUM_KATEGORI_SLUGLARI);
-  const cozumKategorileri = kategoriler.filter((kategori) => kategori.slug && izinli.has(kategori.slug));
+  const cozumKategorileri = kategoriler.filter((kategori) => cozumKategorisiMi(kategori.slug));
 
   // Bootstrap henüz uygulanmadıysa mevcut forum kategorileriyle MVP çalışmaya devam etsin.
   return cozumKategorileri.length > 0 ? cozumKategorileri : kategoriler;
