@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, Eye, Heart, MessageCircle, Send, Share2 } from 'lucide-react';
 import { useAuth } from '@/hooks/usePmAuth';
 import CozumRaporButton from '@/components/CozumRaporButton';
+import SafeTextWithLinks from '@/components/SafeTextWithLinks';
 import {
   konuBegeniToggle,
   konuGetir,
@@ -188,7 +189,7 @@ export default function CozumDetayClient({ id }: { id: string }) {
               <span>{formatDate(konu.created_at)}</span>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Eye size={12} /> {konu.goruntuleme || 0}</span>
             </div>
-            <div style={{ marginTop: 20, whiteSpace: 'pre-wrap', color: 'var(--ink-2)', lineHeight: 1.75, fontSize: 14 }}>{konu.icerik}</div>
+            <div style={{ marginTop: 20, color: 'var(--ink-2)', lineHeight: 1.75, fontSize: 14 }}><SafeTextWithLinks text={konu.icerik} /></div>
           </div>
 
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', padding: '12px 20px', borderTop: '1px solid var(--border)', background: 'var(--bg-muted)' }}>
@@ -216,7 +217,7 @@ export default function CozumDetayClient({ id }: { id: string }) {
                   <span style={{ color: 'var(--ink-4)', fontSize: 10 }}>{formatDate(yorum.created_at)}</span>
                   {index === 0 && yorum.begeni_sayisi > 0 && <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 4, color: '#22c55e', fontSize: 10, fontWeight: 800 }}><CheckCircle2 size={12} /> En çok işe yarayan</span>}
                 </div>
-                <div style={{ whiteSpace: 'pre-wrap', color: 'var(--ink-2)', lineHeight: 1.7, fontSize: 13 }}>{yorum.icerik}</div>
+                <div style={{ color: 'var(--ink-2)', lineHeight: 1.7, fontSize: 13 }}><SafeTextWithLinks text={yorum.icerik} /></div>
                 <div style={{ display: 'flex', gap: 7, alignItems: 'center', flexWrap: 'wrap', marginTop: 13 }}>
                   <button onClick={() => iseYaradi(yorum)} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '6px 9px', borderRadius: 8, border: `1px solid ${yorum.benim_begenim ? '#22c55e' : 'var(--border)'}`, background: yorum.benim_begenim ? 'rgba(34,197,94,.08)' : 'transparent', color: yorum.benim_begenim ? '#22c55e' : 'var(--ink-4)', fontSize: 11, cursor: 'pointer' }}><CheckCircle2 size={12} /> İşe yaradı · {yorum.begeni_sayisi || 0}</button>
                   <CozumRaporButton hedef={{ yorumId: yorum.id }} compact />
