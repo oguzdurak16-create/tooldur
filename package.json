@@ -7,7 +7,9 @@
     "build": "next build && node scripts/seo-data-audit.mjs",
     "start": "next start",
     "lint": "next lint",
-    "seo:audit": "node scripts/seo-data-audit.mjs"
+    "seo:audit": "node scripts/seo-data-audit.mjs",
+    "cozum:seed:check": "node scripts/cozum-seed.mjs",
+    "cozum:seed:publish": "node scripts/cozum-seed.mjs --publish"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
