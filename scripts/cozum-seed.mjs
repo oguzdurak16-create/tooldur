@@ -36,6 +36,21 @@ function duplicateKeys(list) {
   return [...duplicates];
 }
 
+function publishedSolutionText(item, sourceEntry) {
+  const solutionBase = String(item.solution_draft || '').trim();
+  const sources = Array.isArray(sourceEntry?.sources) ? sourceEntry.sources : [];
+  const sourceBlock = sources.map((source, index) => `${index + 1}. ${source}`).join('\n');
+  return `${solutionBase}\n\nKaynaklar (editoryal doğrulama):\n${sourceBlock}`;
+}
+
+function publishedTags(item) {
+  const reserved = new Set(['editoryal', 'kaynakli']);
+  const baseTags = [...new Set((item.tags || []).map((tag) => String(tag).trim()).filter(Boolean))]
+    .filter((tag) => !reserved.has(tag.toLocaleLowerCase('tr-TR')))
+    .slice(0, 6);
+  return [...baseTags, 'editoryal', 'kaynakli'];
+}
+
 const sourceErrors = [];
 const duplicateDraftKeys = duplicateKeys(items);
 const duplicateSourceKeys = duplicateKeys(sourceEntries);
@@ -62,8 +77,10 @@ for (const entry of sourceEntries) {
   }
   if (!Array.isArray(entry.sources) || entry.sources.length === 0) {
     sourceErrors.push(`${key}: en az 1 resmi/teknik kaynak zorunlu`);
-  } else if (!entry.sources.every(validSourceUrl)) {
-    sourceErrors.push(`${key}: tüm kaynaklar geçerli http/https URL olmalı`);
+  } else {
+    if (entry.sources.length > 5) sourceErrors.push(`${key}: en fazla 5 kaynak kullanılabilir`);
+    if (!entry.sources.every(validSourceUrl)) sourceErrors.push(`${key}: tüm kaynaklar geçerli http/https URL olmalı`);
+    if (entry.sources.some((source) => String(source).length > 1000)) sourceErrors.push(`${key}: kaynak URL 1000 karakterden uzun olamaz`);
   }
   sourceMap.set(key, entry);
 }
@@ -87,8 +104,12 @@ function validate(item) {
   if (String(item.title || '').trim().length < 12) errors.push('başlık 12 karakterden kısa');
   if (String(item.problem || '').trim().length < 80) errors.push('problem 80 karakterden kısa');
   if (String(item.solution_draft || '').trim().length < 20) errors.push('çözüm 20 karakterden kısa');
-  if (!Array.isArray(item.tags) || item.tags.length > 8) errors.push('etiket listesi geçersiz');
+  if (!Array.isArray(item.tags) || item.tags.length > 6) errors.push('editoryal taslakta en fazla 6 özel etiket kullanılabilir');
   if (!sourceEntry) errors.push('kaynak haritası kaydı eksik');
+  if (sourceEntry && publishedSolutionText(item, sourceEntry).length > 5000) {
+    errors.push('kaynaklar eklendiğinde yayınlanacak çözüm 5000 karakteri aşıyor');
+  }
+  if (publishedTags(item).length > 8) errors.push('yayın etiketleri 8 sınırını aşıyor');
 
   if (item.verified === true) {
     if (!String(item.reviewed_by || '').trim()) {
@@ -186,10 +207,8 @@ for (const item of verified) {
 
   const title = String(item.title).trim();
   const problem = String(item.problem).trim();
-  const solutionBase = String(item.solution_draft).trim();
-  const sourceBlock = sourceEntry.sources.map((source, index) => `${index + 1}. ${source}`).join('\n');
-  const solution = `${solutionBase}\n\nKaynaklar (editoryal doğrulama):\n${sourceBlock}`;
-  const tags = [...new Set([...(item.tags || []), 'editoryal', 'kaynakli'])].slice(0, 8);
+  const solution = publishedSolutionText(item, sourceEntry);
+  const tags = publishedTags(item);
 
   const { data: existing, error: existingError } = await supabase
     .from('forum_konular')
