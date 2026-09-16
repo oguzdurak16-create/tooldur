@@ -75,7 +75,9 @@ export async function kategoriGetir(slug: string): Promise<ForumKategori | null>
 
 function aramaDegeriniTemizle(value: string): string {
   return value
-    .replace(/[,%(){}]/g, ' ')
+    // .or() ham PostgREST sözdizimi kullanır. Filtre ayırıcıları, LIKE wildcard'ları
+    // ve quote/escape karakterlerini kullanıcı girdisinden çıkar.
+    .replace(/[,%_()*{}\[\]"'\\]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, 80);
