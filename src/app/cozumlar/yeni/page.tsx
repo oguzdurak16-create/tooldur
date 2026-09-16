@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Plus, Send, X } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Plus, Send, X } from 'lucide-react';
 import { useAuth } from '@/hooks/usePmAuth';
 import { kategorileriGetir, konuEkle, type ForumKategori } from '@/lib/forum-db';
 import { COZUM_MIN_BASLIK, COZUM_MIN_ICERIK, cozumKategorileriniFiltrele } from '@/lib/cozum-seo';
@@ -12,6 +12,7 @@ export default function YeniCozumPage() {
   const router = useRouter();
   const { user, loading } = useAuth();
   const [kategoriler, setKategoriler] = useState<ForumKategori[]>([]);
+  const [kategorilerHazir, setKategorilerHazir] = useState(false);
   const [kategoriId, setKategoriId] = useState('');
   const [baslik, setBaslik] = useState('');
   const [icerik, setIcerik] = useState('');
@@ -21,7 +22,9 @@ export default function YeniCozumPage() {
   const [hata, setHata] = useState('');
 
   useEffect(() => {
-    kategorileriGetir().then((data) => setKategoriler(cozumKategorileriniFiltrele(data)));
+    kategorileriGetir()
+      .then((data) => setKategoriler(cozumKategorileriniFiltrele(data)))
+      .finally(() => setKategorilerHazir(true));
   }, []);
   useEffect(() => {
     if (!loading && !user) router.replace('/giris');
@@ -36,6 +39,7 @@ export default function YeniCozumPage() {
 
   const kaydet = async () => {
     if (!user || gonderiyor) return;
+    if (kategorilerHazir && kategoriler.length === 0) return setHata('Çözüm Ağı kategorileri henüz etkin değil.');
     if (!kategoriId) return setHata('Bir kategori seçin.');
     if (baslik.trim().length < COZUM_MIN_BASLIK) return setHata(`Başlık en az ${COZUM_MIN_BASLIK} karakter olmalı.`);
     if (icerik.trim().length < COZUM_MIN_ICERIK) return setHata(`Sorunu veya deneyimi en az ${COZUM_MIN_ICERIK} karakterle anlatın.`);
@@ -60,6 +64,8 @@ export default function YeniCozumPage() {
 
   if (loading || !user) return null;
 
+  const kategoriAltyapisiHazir = kategorilerHazir && kategoriler.length > 0;
+
   return (
     <main style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--ink)' }}>
       <div style={{ maxWidth: 780, margin: '0 auto', padding: '28px 16px 70px' }}>
@@ -78,16 +84,25 @@ export default function YeniCozumPage() {
         <div style={{ display: 'grid', gap: 18, padding: 20, border: '1px solid var(--border)', borderRadius: 14, background: 'var(--bg-card)' }}>
           <div>
             <label style={labelStyle}>Kategori *</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 8 }}>
-              {kategoriler.map((kategori) => {
-                const secili = kategori.id === kategoriId;
-                return (
-                  <button key={kategori.id} type="button" onClick={() => setKategoriId(kategori.id)} style={{ padding: '10px 11px', borderRadius: 9, border: `1px solid ${secili ? 'var(--amber)' : 'var(--border)'}`, background: secili ? 'rgba(245,158,11,.09)' : 'var(--bg-input)', color: secili ? 'var(--amber)' : 'var(--ink-2)', textAlign: 'left', cursor: 'pointer', fontSize: 12, fontWeight: secili ? 700 : 500 }}>
-                    {kategori.ikon} {kategori.ad}
-                  </button>
-                );
-              })}
-            </div>
+            {!kategorilerHazir ? (
+              <div style={{ padding: 12, border: '1px solid var(--border)', borderRadius: 9, color: 'var(--ink-4)', fontSize: 12 }}>Kategoriler yükleniyor...</div>
+            ) : kategoriler.length === 0 ? (
+              <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', padding: 12, border: '1px solid rgba(245,158,11,.28)', borderRadius: 9, background: 'rgba(245,158,11,.07)', color: 'var(--ink-3)', fontSize: 12, lineHeight: 1.5 }}>
+                <AlertTriangle size={15} style={{ color: 'var(--amber)', flexShrink: 0, marginTop: 1 }} />
+                <span>Çözüm Ağı kategorileri henüz etkin değil. Kategori kurulumu tamamlanmadan yeni kayıt yayınlanamaz.</span>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 8 }}>
+                {kategoriler.map((kategori) => {
+                  const secili = kategori.id === kategoriId;
+                  return (
+                    <button key={kategori.id} type="button" onClick={() => setKategoriId(kategori.id)} style={{ padding: '10px 11px', borderRadius: 9, border: `1px solid ${secili ? 'var(--amber)' : 'var(--border)'}`, background: secili ? 'rgba(245,158,11,.09)' : 'var(--bg-input)', color: secili ? 'var(--amber)' : 'var(--ink-2)', textAlign: 'left', cursor: 'pointer', fontSize: 12, fontWeight: secili ? 700 : 500 }}>
+                      {kategori.ikon} {kategori.ad}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div>
@@ -124,7 +139,7 @@ export default function YeniCozumPage() {
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 9, paddingTop: 4 }}>
             <Link href="/cozumlar" style={{ padding: '10px 15px', borderRadius: 9, border: '1px solid var(--border)', color: 'var(--ink-3)', textDecoration: 'none', fontSize: 13 }}>İptal</Link>
-            <button type="button" onClick={kaydet} disabled={gonderiyor} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '10px 17px', borderRadius: 9, border: 0, background: 'var(--amber)', color: '#0a0a0f', fontWeight: 800, cursor: gonderiyor ? 'wait' : 'pointer' }}>
+            <button type="button" onClick={kaydet} disabled={gonderiyor || !kategoriAltyapisiHazir} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '10px 17px', borderRadius: 9, border: 0, background: kategoriAltyapisiHazir ? 'var(--amber)' : 'var(--bg-muted)', color: kategoriAltyapisiHazir ? '#0a0a0f' : 'var(--ink-4)', fontWeight: 800, cursor: gonderiyor ? 'wait' : kategoriAltyapisiHazir ? 'pointer' : 'not-allowed' }}>
               <Send size={14} /> {gonderiyor ? 'Yayınlanıyor...' : 'Yayınla'}
             </button>
           </div>
