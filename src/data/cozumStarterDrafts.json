@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "warning": "Bu kayıtlar editoryal TASLAKTIR. Gerçek kullanıcı deneyimi gibi yayınlanmamalıdır. Her kayıt teknik olarak doğrulanmalı, kaynaklandırılmalı ve verified=true yapılmadan import edilmemelidir.",
+  "items": [
+    {
+      "key": "cad-projected-view-orientation",
+      "category_slug": "cad-teknik-cizim",
+      "title": "SolidWorks teknik resimde izdüşüm görünüşü beklenen yönde oluşmuyor",
+      "problem": "Bir ana görünüşten Projected View alındığında alt veya yan görünüş beklenen yönün tersinde oluşabiliyor. Bu durum özellikle farklı çizim şablonları veya farklı projeksiyon standardıyla açılmış dosyalarda karışıklık yaratıyor.",
+      "solution_draft": "Önce Sheet Properties içindeki First Angle / Third Angle projection ayarını ve kullanılan drawing template standardını kontrol et. Görünüş yönü hâlâ hatalıysa modelin Front/Top referanslarını ve ana görünüş orientation seçimini doğrula.",
+      "tags": ["solidworks", "teknik-resim", "projected-view", "cad"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    },
+    {
+      "key": "cad-broken-references",
+      "category_slug": "cad-teknik-cizim",
+      "title": "SolidWorks montajında dosya taşındıktan sonra parça referansları kayboluyor",
+      "problem": "Montaj veya teknik resim dosyaları klasörler arasında elle taşındığında SolidWorks bazı bileşenleri bulamıyor ve suppressed/missing reference uyarıları oluşuyor. Aynı dosya isimlerinin farklı klasörlerde bulunması sorunu daha da zorlaştırabiliyor.",
+      "solution_draft": "Dosyaları taşımadan önce Pack and Go kullanmak en güvenli yöntemlerden biridir. Mevcut kırık referanslarda Find References ve Replace Components ile gerçek dosya konumlarını doğrula; PDM kullanılıyorsa dosyaları Windows Explorer yerine PDM üzerinden taşı.",
+      "tags": ["solidworks", "assembly", "references", "pdm"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    },
+    {
+      "key": "cad-dwg-unit-scale",
+      "category_slug": "cad-teknik-cizim",
+      "title": "DWG dosyası içe aktarılınca ölçüler 25,4 kat veya 1000 kat hatalı geliyor",
+      "problem": "Başka bir CAD yazılımından gelen DWG/DXF dosyası açıldığında ölçülerin katlanarak büyümesi veya küçülmesi çoğunlukla dosyanın gerçek çizim birimi ile içe aktarma sırasında seçilen birimin uyuşmamasından kaynaklanır.",
+      "solution_draft": "Kaynak dosyanın mm, cm, metre veya inch olarak hangi birimde çizildiğini doğrula. Import seçeneklerinde aynı birimi seç ve bilinen bir referans ölçüsüyle ölçeği kontrol et. Sadece Scale komutuyla düzeltmeden önce birim uyuşmazlığını çözmek sonraki hataları önler.",
+      "tags": ["dwg", "dxf", "olcek", "birim"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    },
+    {
+      "key": "machine-bearing-heating",
+      "category_slug": "makine-uretim",
+      "title": "Yeni takılan rulman kısa sürede ısınıyor ve sıcaklık sürekli yükseliyor",
+      "problem": "Rulman değişiminden sonra ilk çalıştırmada sıcaklığın sürekli yükselmesi yalnız rulmanın kalitesiyle ilgili olmayabilir. Fazla sıkı geçme, yanlış boşluk, aşırı gres, hizasızlık veya montaj sırasında rulmana kuvvet uygulanması benzer belirti oluşturabilir.",
+      "solution_draft": "Mil ve yatak toleranslarını, rulmanın iç boşluk sınıfını, eksen kaçıklığını ve gres miktarını kontrol et. Presleme kuvvetinin yük taşıyan bileziğe uygulanıp uygulanmadığını doğrula. Yük ve devir altında sıcaklık trendi ölçülmeden yalnız elle kontrolle karar verme.",
+      "tags": ["rulman", "isinma", "tolerans", "gres"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    },
+    {
+      "key": "machine-linear-guide-binding",
+      "category_slug": "makine-uretim",
+      "title": "Lineer ray arabası montajdan sonra strokun belirli bölgesinde sıkışıyor",
+      "problem": "Lineer kızak arabasının ray üzerinde boşta rahat hareket edip makineye bağlandıktan sonra belirli bölgelerde sertleşmesi; montaj yüzeyi düzlemsizliği, iki ray arasındaki paralellik hatası veya bağlantı vidalarının rayı zorlayarak hizadan çıkarmasıyla ilişkili olabilir.",
+      "solution_draft": "Rayları referans yüzeye göre kademeli sık, paralelliği komparatörle kontrol et ve arabaları bağlayan plakanın sistemi zorlayıp zorlamadığını test et. Vidaları gevşetince hareket rahatlıyorsa montaj geometrisi ve ön yük kombinasyonunu yeniden incele.",
+      "tags": ["lineer-ray", "lineer-araba", "paralellik", "hizalama"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    },
+    {
+      "key": "machine-press-brake-tonnage",
+      "category_slug": "makine-uretim",
+      "title": "Abkant tonaj hesabı yeterli görünmesine rağmen sac istenen açıya bükülmüyor",
+      "problem": "Teorik tonaj hesabı makinenin kapasitesinin altında görünse bile malzeme çekme dayanımı, V kalıp açıklığı, büküm boyu, kalıp yarıçapı ve gerçek makine tonaj dağılımı nedeniyle parça istenen açıya ulaşmayabilir.",
+      "solution_draft": "Hesabı yalnız sac kalınlığına göre değil gerçek malzeme dayanımı, büküm boyu ve kullanılan V açıklığıyla tekrar yap. Alt kalıp açıklığının uygunluğunu, üst kalıp yük sınırını ve makinenin ilgili boydaki izin verilen ton/m değerini ayrıca kontrol et.",
+      "tags": ["abkant", "tonaj", "sac-bukme", "v-kalip"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    },
+    {
+      "key": "automation-vfd-overcurrent",
+      "category_slug": "elektrik-otomasyon",
+      "title": "Frekans invertörü hızlanma sırasında aşırı akım hatasına düşüyor",
+      "problem": "Motor ilk kalkışta veya hızlanırken inverterin overcurrent hatası vermesi; çok kısa acceleration süresi, yanlış motor parametreleri, mekanik sıkışma, yüksek ataletli yük veya motor-kablo tarafındaki elektriksel problem nedeniyle oluşabilir.",
+      "solution_draft": "Motor etiket değerlerini sürücü parametreleriyle karşılaştır, acceleration süresini kontrollü biçimde artır ve mekanik yükü ayırarak test et. Motor/kablo izolasyonu ile faz akımlarını ölçmeden yalnız sürücü parametresini yükselterek korumayı bastırma.",
+      "tags": ["inverter", "vfd", "overcurrent", "motor"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    },
+    {
+      "key": "automation-inductive-sensor-false-trigger",
+      "category_slug": "elektrik-otomasyon",
+      "title": "Endüktif sensör metal parça yaklaşmadan aralıklı olarak tetikleniyor",
+      "problem": "Endüktif yaklaşım sensörü kararsız biçimde ON/OFF oluyorsa sensörün çevresindeki metal yüzeyler, montaj mesafesi, besleme gürültüsü, kablo güzergâhı veya shielded/unshielded sensör tipine uygun olmayan gömme montaj etkili olabilir.",
+      "solution_draft": "Sensör datasheet’indeki flush/non-flush montaj boşluklarını kontrol et, sabit bir 24 VDC beslemeyle test et ve sensör kablosunu motor/servo güç kablolarından ayır. Hedef olmadan LED değişiyorsa çevre metal mesafelerini ve kablo ekranlamasını sırayla ele.",
+      "tags": ["sensor", "enduktif", "24v", "parazit"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    },
+    {
+      "key": "automation-24v-voltage-drop",
+      "category_slug": "elektrik-otomasyon",
+      "title": "24 VDC sistemde solenoid çekince PLC ve sensör gerilimi anlık düşüyor",
+      "problem": "Solenoid valf, kontaktör veya fren bobini devreye girdiğinde 24 V hattının düşmesi; güç kaynağının tepe akımı karşılayamaması, ince/uzun kablo, gevşek terminal veya endüktif yükün oluşturduğu transient nedeniyle PLC ve sensörlerde reset oluşturabilir.",
+      "solution_draft": "PSU’nun sürekli ve tepe akım kapasitesini gerçek yükle karşılaştır, bobin uçlarında ve PLC beslemesinde eşzamanlı gerilim ölç. Geri tepme bastırma elemanlarını, ortak 0 V bağlantısını ve kablo kesitlerini kontrol et; kritik kontrol beslemesini ağır bobin yüklerinden ayırmak gerekebilir.",
+      "tags": ["24vdc", "plc", "solenoid", "gerilim-dusumu"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    },
+    {
+      "key": "vehicle-battery-green-eye-no-start",
+      "category_slug": "arac-mekanik",
+      "title": "Akü göstergesi yeşil olmasına rağmen araç marş basmıyor veya elektronik uyarılar veriyor",
+      "problem": "Bazı akülerdeki renkli gösterge yalnız belirli bir hücrenin elektrolit yoğunluğunu temsil eder. Gösterge yeşil görünürken akü yük altında yeterli akımı veremeyebilir ve marş sırasında voltaj çökmesi çok sayıda elektronik uyarıya neden olabilir.",
+      "solution_draft": "Dinlenme voltajı tek başına yeterli değildir; marş anındaki voltaj düşümünü veya profesyonel yük/CCA testini kontrol et. Kutup başı ve şase bağlantılarını da ölç. Takviye ile araç normal çalışıyorsa akü kapasitesi ve şarj sistemi birlikte test edilmeli.",
+      "tags": ["aku", "mars", "voltaj", "cca"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    },
+    {
+      "key": "vehicle-ac-compressor-not-engaging",
+      "category_slug": "arac-mekanik",
+      "title": "Araç klimasında kompresör devreye girmiyor ve kabin soğutmuyor",
+      "problem": "Klima kompresörünün devreye girmemesi yalnız kompresör arızası anlamına gelmez. Düşük soğutucu basıncı, basınç sensörü, sigorta/röle, klima talep sinyali veya bazı araçlarda değişken deplasman kontrol valfi aynı belirtiyi oluşturabilir.",
+      "solution_draft": "Araç şemasına göre klima talep sinyalini, basınç sensörü değerini ve ilgili sigorta/röleleri kontrol et. Sisteme körlemesine gaz eklemek yerine manifold/diagnostic ölçümüyle basıncı doğrula; değişken kompresörlerde klasik kavrama sesi beklenmeyebilir.",
+      "tags": ["klima", "kompresor", "arac", "basinc"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    },
+    {
+      "key": "vehicle-suspension-squeak",
+      "category_slug": "arac-mekanik",
+      "title": "Kasis geçerken ön takımdan gıcırtı geliyor fakat düz yolda ses duyulmuyor",
+      "problem": "Düşük hızda kasis veya gövde burulmasında duyulan gıcırtılar; salıncak burçları, viraj demiri lastikleri, amortisör üst takozu veya kuru çalışan mafsal noktalarından gelebilir. Sadece sesin geldiği tarafa göre parça değiştirmek yanıltıcı olabilir.",
+      "solution_draft": "Aracı liftte yalnız boşta sallamak yerine süspansiyonu yük altında hareket ettirerek sesi lokalize et. Burçlarda çatlak, boşluk ve metal-metal teması kontrol et. Geçici yağlama ile ses kesilmesi teşhise yardımcı olabilir ancak kalıcı onarım olarak kullanılmamalıdır.",
+      "tags": ["on-takim", "gicirti", "burc", "suspansiyon"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    },
+    {
+      "key": "software-excel-large-search-freeze",
+      "category_slug": "yazilim-bilgisayar",
+      "title": "Yüz binlerce satırlı Excel verisinde anlık arama uygulaması donuyor",
+      "problem": "Büyük Excel/CSV dosyasını her tuş vuruşunda baştan okuyup tüm satırlarda filtrelemek kullanıcı arayüzünü kilitleyebilir. Özellikle 100 bin üzeri satırlarda disk okuma, Python GUI ana thread’i ve gereksiz DataFrame kopyaları gecikmeyi büyütür.",
+      "solution_draft": "Dosyayı her aramada yeniden okumak yerine başlangıçta belleğe veya SQLite benzeri yerel bir indekse al. Aramayı debounce et, normalize edilmiş arama kolonu oluştur ve GUI thread’inde ağır tarama yapma. Çok büyük veri için prefix/FTS indeksleri doğrusal taramadan daha iyi ölçeklenir.",
+      "tags": ["excel", "python", "arama", "performans"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    },
+    {
+      "key": "software-nextjs-vercel-build-only-fails",
+      "category_slug": "yazilim-bilgisayar",
+      "title": "Next.js proje yerelde çalışıyor fakat Vercel production build aşamasında hata veriyor",
+      "problem": "Yerel development sunucusunun çalışması production build’in geçeceğini garanti etmez. Eksik environment variable, Linux dosya adı büyük-küçük harf farkı, build sırasında çalışan server kodu veya farklı Node sürümü yalnız CI/Vercel ortamında hata oluşturabilir.",
+      "solution_draft": "Önce yerelde `next build` çalıştırarak development ile production farkını ayır. Vercel build logundaki ilk gerçek hatayı takip et; environment variable kapsamını, import path harflerini ve Node sürümünü karşılaştır. Tekrarlanan sonraki hatalar çoğu zaman ilk hatanın sonucudur.",
+      "tags": ["nextjs", "vercel", "build", "nodejs"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    },
+    {
+      "key": "software-windows-app-ui-freeze",
+      "category_slug": "yazilim-bilgisayar",
+      "title": "Windows masaüstü uygulaması büyük işlem sırasında donuyor ve pencere yanıt vermiyor",
+      "problem": "Dosya tarama, indeks oluşturma veya ağ sorgusu gibi uzun süren işlemler GUI ana thread’inde çalıştırılırsa Windows mesaj döngüsü işlenemez ve uygulama 'yanıt vermiyor' görünür. İşlem bitse bile kullanıcı deneyimi ciddi biçimde bozulur.",
+      "solution_draft": "Uzun işi worker thread/process veya async görevde çalıştır; UI güncellemelerini yalnız ana thread’e geri gönder. Büyük listeleri tek seferde çizmek yerine sayfalama/virtualization kullan ve kullanıcıya ilerleme/iptal imkânı ver.",
+      "tags": ["windows", "gui", "thread", "performans"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    },
+    {
+      "key": "home-ro-slow-flow",
+      "category_slug": "ev-teknik-cihazlar",
+      "title": "Ters osmoz su arıtma cihazında musluktan su çok yavaş akıyor",
+      "problem": "RO cihazında düşük debi; giriş basıncı, tıkanmış ön filtreler, membran kapasitesi, tank hava basıncı veya flow restrictor gibi farklı noktalardan kaynaklanabilir. Yalnız TDS değerinin iyi olması debinin normal olduğu anlamına gelmez.",
+      "solution_draft": "Önce giriş basıncını ve tanksız membran üretim hızını ayrı ölç. Ön filtrelerin kullanım süresini, tank boşken hava basıncını ve vanaların tam açık olduğunu kontrol et. Pompalı sistemlerde pompa basıncı ve basınç switch’i de ölçümle doğrulanmalı.",
+      "tags": ["su-aritma", "ro", "debi", "basinc"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    },
+    {
+      "key": "home-inverter-ac-cooling-drops",
+      "category_slug": "ev-teknik-cihazlar",
+      "title": "İnverter klima ilk başta iyi soğutuyor fakat bir süre sonra performansı belirgin düşüyor",
+      "problem": "İnverter klima hedef sıcaklığa yaklaşınca kapasiteyi doğal olarak düşürür; ancak oda sıcaklığı hâlâ yüksekken performans düşüyorsa kirli filtre/eşanjör, dış ünite hava akışı, sensör sapması veya soğutucu devresi problemi araştırılmalıdır.",
+      "solution_draft": "Filtre ve eşanjör hava akışını kontrol et, cihazın emiş-üfleme sıcaklıklarını kararlı çalışmada ölç ve dış ünitenin sıcak havayı tekrar emmediğini doğrula. Soğutucu gaz miktarı yalnız basınç/tartım ve üretici prosedürüyle değerlendirilmelidir.",
+      "tags": ["klima", "inverter", "sogutma", "hava-akisi"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    },
+    {
+      "key": "home-cordless-vacuum-low-suction",
+      "category_slug": "ev-teknik-cihazlar",
+      "title": "Şarjlı dikey süpürgenin çekişi filtre temiz olsa bile belirgin şekilde düşüyor",
+      "problem": "Kablosuz süpürgede çekiş kaybı yalnız filtre kirinden oluşmaz. Siklon haznesi, boru/başlık tıkanıklığı, conta kaçakları, fırçaya dolanan saç veya batarya gerilim düşümü de motorun gerçek hava debisini azaltabilir.",
+      "solution_draft": "Başlık, boru ve hazneyi ayrı ayrı sökerek hava yolunu test et; filtreyi tamamen kuru olduğundan emin olmadan takma. Conta ve kapakların tam oturduğunu kontrol et. Turbo modda devir hızla düşüyorsa batarya ve motor akım tarafı ayrıca incelenmeli.",
+      "tags": ["supurge", "filtre", "cekis", "batarya"],
+      "verified": false,
+      "reviewed_by": "",
+      "sources": []
+    }
+  ]
+}

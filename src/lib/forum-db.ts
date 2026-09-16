@@ -54,7 +54,6 @@ export async function kategorileriGetir(): Promise<ForumKategori[]> {
   if (!data) return [];
   const kategoriler = data as ForumKategori[];
 
-  // Her kategori için konu sayısı
   const sonuc = await Promise.all(kategoriler.map(async (k: ForumKategori) => {
     const { count } = await supabase
       .from('forum_konular')
@@ -74,37 +73,73 @@ export async function kategoriGetir(slug: string): Promise<ForumKategori | null>
   return data;
 }
 
+function aramaDegeriniTemizle(value: string): string {
+  return value
+    // .or() ham PostgREST sözdizimi kullanır. Filtre ayırıcıları, LIKE wildcard'ları
+    // ve quote/escape karakterlerini kullanıcı girdisinden çıkar.
+    .replace(/[,%_()*{}\[\]"'\\]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 80);
+}
+
 /* ── Konular ─────────────────────────────────────────── */
 export async function konulariGetir(opts: {
   kategoriId?: string;
+  kategoriIds?: string[];
   arama?: string;
   siralama?: 'yeni' | 'populer' | 'aktif';
   limit?: number;
   offset?: number;
   userId?: string;
 }): Promise<ForumKonu[]> {
+  // Explicitly passing an empty category set means “search nowhere”, not
+  // “remove the category filter”. This prevents legacy forum topics from
+  // leaking into /cozumlar before Solution Network categories are installed.
+  if (opts.kategoriIds && opts.kategoriIds.length === 0 && !opts.kategoriId) {
+    return [];
+  }
+
   let q = supabase
     .from('forum_konular')
     .select('*, kategori:forum_kategoriler(slug,ad,ikon,renk)');
 
-  if (opts.kategoriId) q = q.eq('kategori_id', opts.kategoriId);
-  if (opts.arama) {
-    const aranan = opts.arama.replace(/[%_\\]/g, '\\$&').slice(0, 80);
-    q = q.ilike('baslik', `%${aranan}%`);
+  if (opts.kategoriId) {
+    q = q.eq('kategori_id', opts.kategoriId);
+  } else if (opts.kategoriIds?.length) {
+    q = q.in('kategori_id', opts.kategoriIds);
   }
 
-  if (opts.siralama === 'populer') q = q.order('begeni_sayisi', { ascending: false });
-  else if (opts.siralama === 'aktif') q = q.order('yorum_sayisi', { ascending: false });
-  else q = q.order('pinli', { ascending: false }).order('son_aktif', { ascending: false });
+  if (opts.arama) {
+    const aranan = aramaDegeriniTemizle(opts.arama);
+    if (aranan) {
+      const etiket = aranan.toLocaleLowerCase('tr-TR').replace(/\s+/g, '-');
+      const etiketUygun = /^[a-z0-9çğıöşü_-]{2,30}$/i.test(etiket);
+      const filtreler = [
+        `baslik.ilike.%${aranan}%`,
+        `icerik.ilike.%${aranan}%`,
+      ];
+      if (etiketUygun) filtreler.push(`etiketler.cs.{${etiket}}`);
+      q = q.or(filtreler.join(','));
+    }
+  }
+
+  if (opts.siralama === 'populer') {
+    q = q.order('begeni_sayisi', { ascending: false }).order('son_aktif', { ascending: false });
+  } else if (opts.siralama === 'yeni') {
+    q = q.order('created_at', { ascending: false });
+  } else {
+    q = q.order('son_aktif', { ascending: false });
+  }
 
   q = q.range(opts.offset ?? 0, (opts.offset ?? 0) + (opts.limit ?? 20) - 1);
   const { data } = await q;
   if (!data) return [];
   const konular = data as ForumKonu[];
 
-  // Beğeni kontrolü
   if (opts.userId) {
     const ids = konular.map((k: ForumKonu) => k.id);
+    if (ids.length === 0) return konular;
     const { data: begeniler } = await supabase
       .from('forum_begeni_konular')
       .select('konu_id')
@@ -116,11 +151,12 @@ export async function konulariGetir(opts: {
   return konular;
 }
 
-export async function konuGetir(id: string, userId?: string): Promise<ForumKonu | null> {
-  // Görüntüleme artır
-  try {
-    await supabase.rpc('forum_goruntulenme_artir', { konu_id: id });
-  } catch {}
+export async function konuGetir(id: string, userId?: string, goruntulenmeArtir = true): Promise<ForumKonu | null> {
+  if (goruntulenmeArtir) {
+    try {
+      await supabase.rpc('forum_goruntulenme_artir', { konu_id: id });
+    } catch {}
+  }
 
   const { data } = await supabase
     .from('forum_konular')
@@ -152,7 +188,6 @@ export async function konuEkle(params: {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Giriş yapmalısınız');
 
-  // Ban kontrolü
   const { data: profil } = await supabase
     .from('profiles')
     .select('is_banned')
@@ -160,7 +195,6 @@ export async function konuEkle(params: {
     .maybeSingle();
   if (profil?.is_banned) throw new Error('Hesabınız askıya alınmış');
 
-  // Basit input validasyonu
   const baslik = params.baslik.trim();
   const icerik = params.icerik.trim();
   if (baslik.length < 5 || baslik.length > 200) throw new Error('Başlık 5-200 karakter olmalı');
@@ -178,7 +212,7 @@ export async function konuEkle(params: {
       baslik,
       icerik,
       etiketler,
-      yazar_uid:  user.id,          // ← auth'tan alınır
+      yazar_uid:  user.id,
       yazar_ad:   params.yazarAd,
       yazar_foto: params.yazarFoto ?? null,
     })
@@ -204,6 +238,7 @@ export async function yorumlariGetir(konuId: string, userId?: string): Promise<F
 
   if (userId) {
     const ids = yorumlar.map((y: ForumYorum) => y.id);
+    if (ids.length === 0) return yorumlar;
     const { data: begeniler } = await supabase
       .from('forum_begeni_yorumlar')
       .select('yorum_id')
