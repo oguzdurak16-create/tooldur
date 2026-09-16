@@ -23,12 +23,19 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
-export default function CozumDetayClient({ id }: { id: string }) {
+type CozumDetayClientProps = {
+  id: string;
+  initialKonu?: ForumKonu | null;
+  initialYorumlar?: ForumYorum[];
+};
+
+export default function CozumDetayClient({ id, initialKonu = null, initialYorumlar = [] }: CozumDetayClientProps) {
   const { user } = useAuth();
-  const [konu, setKonu] = useState<ForumKonu | null>(null);
-  const [yorumlar, setYorumlar] = useState<ForumYorum[]>([]);
+  const baslangicKonuUygun = initialKonu?.id === id;
+  const [konu, setKonu] = useState<ForumKonu | null>(baslangicKonuUygun ? initialKonu : null);
+  const [yorumlar, setYorumlar] = useState<ForumYorum[]>(baslangicKonuUygun ? initialYorumlar : []);
   const [benzerler, setBenzerler] = useState<ForumKonu[]>([]);
-  const [yukleniyor, setYukleniyor] = useState(true);
+  const [yukleniyor, setYukleniyor] = useState(!baslangicKonuUygun);
   const [cozum, setCozum] = useState('');
   const [gonderiyor, setGonderiyor] = useState(false);
   const [hata, setHata] = useState('');
@@ -38,7 +45,7 @@ export default function CozumDetayClient({ id }: { id: string }) {
 
   useEffect(() => {
     let aktif = true;
-    setYukleniyor(true);
+    if (!baslangicKonuUygun) setYukleniyor(true);
 
     const goruntulenmeArtir = goruntulenmeSayildiRef.current !== id;
     if (goruntulenmeArtir) goruntulenmeSayildiRef.current = id;
@@ -61,7 +68,7 @@ export default function CozumDetayClient({ id }: { id: string }) {
     });
 
     return () => { aktif = false; };
-  }, [id, user?.uid]);
+  }, [id, user?.uid, baslangicKonuUygun]);
 
   const anaYorumlar = useMemo(() => yorumlar.filter((y) => !y.ust_id), [yorumlar]);
 
@@ -147,31 +154,10 @@ export default function CozumDetayClient({ id }: { id: string }) {
     </div>
   );
 
-  const qaJson = JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'QAPage',
-    mainEntity: {
-      '@type': 'Question',
-      name: konu.baslik,
-      text: konu.icerik,
-      answerCount: anaYorumlar.length,
-      dateCreated: konu.created_at,
-      author: { '@type': 'Person', name: konu.yazar_ad },
-      suggestedAnswer: anaYorumlar.map((yorum) => ({
-        '@type': 'Answer',
-        text: yorum.icerik,
-        dateCreated: yorum.created_at,
-        upvoteCount: yorum.begeni_sayisi || 0,
-        author: { '@type': 'Person', name: yorum.yazar_ad },
-      })),
-    },
-  }).replace(/</g, '\\u003c');
-
   const cozumYeterli = cozum.trim().length >= MIN_COZUM_UZUNLUGU;
 
   return (
     <main style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--ink)' }}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: qaJson }} />
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '26px 16px 70px' }}>
         <Link href="/cozumlar" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--ink-4)', textDecoration: 'none', fontSize: 12, marginBottom: 18 }}>
           <ArrowLeft size={14} /> Çözüm Ağı
