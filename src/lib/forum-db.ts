@@ -91,6 +91,13 @@ export async function konulariGetir(opts: {
   offset?: number;
   userId?: string;
 }): Promise<ForumKonu[]> {
+  // Explicitly passing an empty category set means “search nowhere”, not
+  // “remove the category filter”. This prevents legacy forum topics from
+  // leaking into /cozumlar before Solution Network categories are installed.
+  if (opts.kategoriIds && opts.kategoriIds.length === 0 && !opts.kategoriId) {
+    return [];
+  }
+
   let q = supabase
     .from('forum_konular')
     .select('*, kategori:forum_kategoriler(slug,ad,ikon,renk)');
