@@ -1,17 +1,39 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { cozumAciklamasi, cozumIndexlenebilir, cozumKategorisiMi } from '@/lib/cozum-seo';
 import CozumDetayClient from './CozumDetayClient';
 
 const BASE_URL = 'https://www.tooldur.com';
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const canonical = `${BASE_URL}/cozumlar/${params.id}`;
+type CozumKonuMeta = {
+  baslik: string;
+  icerik: string;
+  kategori: { slug?: string | null } | null;
+};
+
+async function cozumKonuMetaGetir(id: string): Promise<CozumKonuMeta | null> {
   const { data } = await supabase
     .from('forum_konular')
     .select('baslik,icerik,kategori:forum_kategoriler(slug)')
-    .eq('id', params.id)
+    .eq('id', id)
     .maybeSingle();
+
+  if (!data) return null;
+
+  const kategori = data.kategori as { slug?: string | null } | null;
+  if (!cozumKategorisiMi(kategori?.slug)) return null;
+
+  return {
+    baslik: data.baslik,
+    icerik: data.icerik,
+    kategori,
+  };
+}
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const canonical = `${BASE_URL}/cozumlar/${params.id}`;
+  const data = await cozumKonuMetaGetir(params.id);
 
   if (!data) {
     return {
@@ -25,8 +47,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   const title = data.baslik;
   const socialTitle = `${data.baslik} | Tooldur`;
   const description = cozumAciklamasi(data.icerik);
-  const kategori = data.kategori as { slug?: string | null } | null;
-  const indexlenebilir = cozumIndexlenebilir(data) && cozumKategorisiMi(kategori?.slug);
+  const indexlenebilir = cozumIndexlenebilir(data);
 
   return {
     title,
@@ -47,6 +68,9 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   };
 }
 
-export default function CozumDetayPage({ params }: { params: { id: string } }) {
+export default async function CozumDetayPage({ params }: { params: { id: string } }) {
+  const data = await cozumKonuMetaGetir(params.id);
+  if (!data) notFound();
+
   return <CozumDetayClient id={params.id} />;
 }
