@@ -1,6 +1,21 @@
 -- Tooldur Çözüm Ağı: kalite, duplicate ve hız limiti korumaları
 -- Yalnız Çözüm Ağı kategori slug'larına uygulanır; mevcut forum akışını etkilemez.
 
+-- Guard sorguları kullanıcı + zaman penceresi üzerinden çalışır. Mevcut tek kolonlu
+-- indexler büyüyen veri setinde yeterli seçiciliği sağlamadığından bu birleşik indexler
+-- rate-limit ve duplicate kontrollerinin tüm tabloyu taramasını önler.
+create index if not exists idx_forum_konular_yazar_created
+  on public.forum_konular (yazar_uid, created_at desc);
+
+create index if not exists idx_forum_konular_yazar_baslik_created
+  on public.forum_konular (yazar_uid, lower(btrim(baslik)), created_at desc);
+
+create index if not exists idx_forum_yorumlar_yazar_konu_created
+  on public.forum_yorumlar (yazar_uid, konu_id, created_at desc);
+
+create index if not exists idx_forum_yorumlar_yazar_created
+  on public.forum_yorumlar (yazar_uid, created_at desc);
+
 create or replace function public.cozum_agi_konu_guard()
 returns trigger
 language plpgsql
