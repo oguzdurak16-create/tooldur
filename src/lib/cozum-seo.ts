@@ -24,10 +24,10 @@ export function cozumKategorisiMi(slug?: string | null): boolean {
 }
 
 export function cozumKategorileriniFiltrele<T extends CozumKategoriKaydi>(kategoriler: T[]): T[] {
-  const cozumKategorileri = kategoriler.filter((kategori) => cozumKategorisiMi(kategori.slug));
-
-  // Bootstrap henüz uygulanmadıysa mevcut forum kategorileriyle MVP çalışmaya devam etsin.
-  return cozumKategorileri.length > 0 ? cozumKategorileri : kategoriler;
+  // Çözüm Ağı ile eski forum kesin olarak ayrıdır. Bootstrap migration henüz
+  // uygulanmadıysa boş liste dönmek, eski forum kategorilerini fallback olarak
+  // göstermekten daha güvenlidir.
+  return kategoriler.filter((kategori) => cozumKategorisiMi(kategori.slug));
 }
 
 export function cozumIndexlenebilir(konu: CozumSeoKaydi): boolean {
