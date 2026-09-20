@@ -187,7 +187,7 @@ export default function KilavuzMatkapCalculator({ tool, locale = 'tr' }: { tool?
           <div className="p-3 rounded-2xl bg-amber-500/10"><Drill className="w-6 h-6 text-amber-500" /></div>
           <div>
             <h2 className="text-xl font-bold text-[var(--foreground)]">{tool?.name || (isEnglish ? 'Metric Thread Table and Tap Drill' : 'Metrik Diş Tablosu ve Kılavuz Matkap')}</h2>
-            <p className="calc-prose mt-1">{isEnglish ? 'View tap drill size, theoretical thread diameters, clearance hole and a copyable drawing callout for metric threads.' : 'Metrik vida ölçüsüne göre kılavuz matkap çapını, teorik diş dibi çaplarını, boşluk deliğini ve teknik resim çağrısını görüntüleyin.'}</p>
+            <p className="calc-prose mt-1">{isEnglish ? 'View tap drill size, theoretical thread diameters, clearance hole and a copyable drawing callout for metric threads.' : 'M2–M42 metrik diş hatvelerini ve kılavuz matkap çaplarını görüntüleyin; M8 diş adımı, M30 hatve, teorik diş dibi çapları, boşluk deliği ve teknik resim çağrısı aynı tabloda yer alır.'}</p>
           </div>
         </div>
 
@@ -245,7 +245,7 @@ export default function KilavuzMatkapCalculator({ tool, locale = 'tr' }: { tool?
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h3 className="calc-section-title">{isEnglish ? 'Metric thread, tap drill and thread diameter table' : 'Metrik diş, kılavuz matkap ve diş dibi tablosu'}</h3>
-            <p className="calc-prose mt-1">{isEnglish ? 'Pilot holes, basic-profile diameters and normal bolt clearances for M2–M42 coarse and common fine pitches.' : 'M2–M42 kaba ve yaygın ince hatveler için ön delik, temel profil çapları ve normal cıvata boşluğu.'}</p>
+            <p className="calc-prose mt-1">{isEnglish ? 'Pilot holes, basic-profile diameters and normal bolt clearances for M2–M42 coarse and common fine pitches.' : 'M2–M42 kaba ve yaygın ince diş hatveleri için ön delik ve kılavuz matkap çapları; M8, M10, M12, M16, M30 ve diğer metrik ölçüler için temel profil çapları ve normal cıvata boşluğu.'}</p>
           </div>
           <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
             <select value={seriesFilter} onChange={(e) => setSeriesFilter(e.target.value as SeriesFilter)} className="calc-panel rounded-xl px-4 py-2.5 outline-none">
