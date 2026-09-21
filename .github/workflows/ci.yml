@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
+      - name: Validate solution starter drafts
+        run: node scripts/cozum-seed.mjs
+
       - name: Audit SEO data integrity
         run: npm run seo:audit
 

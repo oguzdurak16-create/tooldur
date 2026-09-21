@@ -1,8 +1,10 @@
 import { MetadataRoute } from 'next';
 import { tools, categories } from '@/data/tools';
 import { blogPosts } from '@/data/blogPosts';
+import { cozumIndexlenebilir, cozumKategorisiMi } from '@/lib/cozum-seo';
 import { getIndexableCategories, getIndexableTools } from '@/lib/seoFocus';
 import { BASE_URL, getLocalizedPath, type Locale } from '@/lib/siteLanguage';
+import { supabase } from '@/lib/supabase';
 
 const BASE = BASE_URL;
 // ES/ZH/HI/AR remain available to visitors but are intentionally noindex until
@@ -10,9 +12,11 @@ const BASE = BASE_URL;
 const INDEXABLE_LOCALES: Locale[] = ['tr', 'en'];
 type LocalizedRoute = Parameters<typeof getLocalizedPath>[1];
 
+export const revalidate = 3600;
+
 // Update only after a meaningful content or SEO change.
-const SITE_RELEASE_DATE = new Date('2026-09-14T00:00:00+03:00');
-const CONTENT_RELEASE_DATE = new Date('2026-09-14T00:00:00+03:00');
+const SITE_RELEASE_DATE = new Date('2026-09-15T00:00:00+03:00');
+const CONTENT_RELEASE_DATE = new Date('2026-09-15T00:00:00+03:00');
 const POLICY_RELEASE_DATE = new Date('2026-05-21T00:00:00+03:00');
 
 function priorityForTool(t: typeof tools[number]) {
@@ -34,6 +38,12 @@ function languageAlternates(route: LocalizedRoute, slug?: string) {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const indexableTools = getIndexableTools(tools);
   const indexableCategories = getIndexableCategories(categories);
+
+  const { data: cozumKayitlari } = await supabase
+    .from('forum_konular')
+    .select('id,baslik,icerik,son_aktif,created_at,yorum_sayisi,kategori:forum_kategoriler(slug)')
+    .order('son_aktif', { ascending: false })
+    .limit(5000);
 
   const localizedStaticRoutes: Array<{
     route: LocalizedRoute;
@@ -61,6 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   const trOnlyStatic: MetadataRoute.Sitemap = [
+    { url: `${BASE}/cozumlar`, lastModified: CONTENT_RELEASE_DATE, changeFrequency: 'daily', priority: 0.92 },
     { url: `${BASE}/hakkimizda`, lastModified: SITE_RELEASE_DATE, changeFrequency: 'monthly', priority: 0.45 },
     { url: `${BASE}/iletisim`, lastModified: SITE_RELEASE_DATE, changeFrequency: 'monthly', priority: 0.45 },
     { url: `${BASE}/gizlilik`, lastModified: POLICY_RELEASE_DATE, changeFrequency: 'yearly', priority: 0.2 },
@@ -96,11 +107,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  const cozumPages: MetadataRoute.Sitemap = (cozumKayitlari ?? [])
+    .filter((konu: any) => {
+      const kategori = konu.kategori as { slug?: string | null } | null;
+      return cozumIndexlenebilir(konu) && cozumKategorisiMi(kategori?.slug);
+    })
+    .map((konu: any) => ({
+      url: `${BASE}/cozumlar/${konu.id}`,
+      lastModified: new Date(konu.son_aktif || konu.created_at),
+      changeFrequency: 'weekly' as const,
+      priority: Number(konu.yorum_sayisi || 0) > 0 ? 0.78 : 0.7,
+    }));
+
   return [
     ...localizedStatic,
     ...trOnlyStatic,
     ...categoryPages,
     ...toolPages,
     ...blogPages,
+    ...cozumPages,
   ];
 }

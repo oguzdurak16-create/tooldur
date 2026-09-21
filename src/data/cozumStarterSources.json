@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 1,
+  "checked_at": "2026-09-16",
+  "policy": "Kaynak bulunması insan doğrulaması değildir. verified=true yayın için güçlü kaynak kapsamı ve ayrıca insan incelemesi gerekir.",
+  "items": [
+    {
+      "key": "cad-projected-view-orientation",
+      "coverage": "strong",
+      "human_reviewed": false,
+      "sources": [
+        "https://help.solidworks.com/2025/English/SolidWorks/sldworks/c_projected_view.htm",
+        "https://help.solidworks.com/2026/English/SolidWorks/sldworks/c_first_angle_and_third_angle_projection.htm"
+      ],
+      "note": "Projected View yönünün sheet First/Third Angle ayarından etkilendiğini doğrudan destekliyor."
+    },
+    {
+      "key": "cad-broken-references",
+      "coverage": "strong",
+      "human_reviewed": false,
+      "sources": [
+        "https://help.solidworks.com/2026/English/SolidWorks/sldworks/c_pack_and_go.htm",
+        "https://help.solidworks.com/2025/english/SolidWorks/sldworks/HIDD_FINDREFERENCES_HELP.htm"
+      ],
+      "note": "Pack and Go ilişkili dosyaları toplar; Find References aktif belgenin referanslarını ve kayıp referansları listeler."
+    },
+    {
+      "key": "cad-dwg-unit-scale",
+      "coverage": "strong",
+      "human_reviewed": false,
+      "sources": [
+        "https://www.autodesk.com/support/technical/article/caas/sfdcarticles/sfdcarticles/Convert-imperial-unit-drawing-to-metric-units.html"
+      ],
+      "note": "Autodesk resmi destek sayfası inch-mm dönüşümünde 25.4 ölçek faktörünü ve DWGUNITS akışını veriyor."
+    },
+    {
+      "key": "machine-bearing-heating",
+      "coverage": "strong",
+      "human_reviewed": false,
+      "sources": [
+        "https://cdn.skfmediahub.skf.com/api/public/093168a92d25cc46/pdf_preview_medium/093168a92d25cc46_pdf_preview_medium.pdf",
+        "https://cdn.skfmediahub.skf.com/api/public/0901d196802809de/pdf_preview_medium/0901d196802809de_pdf_preview_medium.pdf"
+      ],
+      "note": "SKF troubleshooting: fazla/az yağlama, yetersiz iç boşluk, sıkı geçme ve hizasızlık aşırı sıcaklık nedenleri; montaj kılavuzu kuvvetin rolling element üzerinden aktarılmamasını ister."
+    },
+    {
+      "key": "machine-linear-guide-binding",
+      "coverage": "strong",
+      "human_reviewed": false,
+      "sources": [
+        "https://www.hiwin.com/wp-content/uploads/Linear-Guideway-Assembly-Manual-HIWIN-Corp.pdf"
+      ],
+      "note": "HIWIN resmi montaj kılavuzu paralellik, montaj toleransları, ray/blok montajı ve sıkma torklarını kapsıyor."
+    },
+    {
+      "key": "machine-press-brake-tonnage",
+      "coverage": "strong",
+      "human_reviewed": false,
+      "sources": [
+        "https://www.bystronic.com/zaf/en/news/how-calculate-press-brake-tonnage"
+      ],
+      "note": "Bystronic resmi tonaj rehberi malzeme, V açıklığı, sac kalınlığı ve büküm boyunun gerekli kuvvete etkisini açıklıyor."
+    },
+    {
+      "key": "automation-vfd-overcurrent",
+      "coverage": "strong",
+      "human_reviewed": false,
+      "sources": [
+        "https://library.e.abb.com/public/d03c76db17d34239a838ed3baf814028/EN_ACS580_FW_J_A5.pdf"
+      ],
+      "note": "ABB ACS580 fault 2310 resmi açıklaması motor yükü, acceleration time, motor etiket parametreleri, motor/kablo ve toprak hatası kontrollerini doğrudan öneriyor."
+    },
+    {
+      "key": "automation-inductive-sensor-false-trigger",
+      "coverage": "strong",
+      "human_reviewed": false,
+      "sources": [
+        "https://www.pepperl-fuchs.com/no-no/support/knowledge-and-literature/knowledge-bases-for-industrial-sensors/knowledge-base-for-inductive-sensors/fault-repair-faq-gp28650",
+        "https://www.ia.omron.com/support/guide/41/introduction.html"
+      ],
+      "note": "Resmi kaynaklar flush/non-flush montajı, çevre metal etkisini, mutual interference ve elektriksel gürültüyü kapsıyor."
+    },
+    {
+      "key": "automation-24v-voltage-drop",
+      "coverage": "partial",
+      "human_reviewed": false,
+      "sources": [
+        "https://www.ia.omron.com/product/cautions/16/safety_precautions.html",
+        "https://www.ia.omron.com/product/cautions/36/safety_precautions.html"
+      ],
+      "note": "Omron, düşük bobin geriliminin kararsızlığa yol açabileceğini ve DC endüktif yüklerde surge suppressor kullanımını destekliyor. PSU tepe kapasitesi/kablo kesiti kısmı ayrıca insan incelemesi istiyor."
+    },
+    {
+      "key": "vehicle-battery-green-eye-no-start",
+      "coverage": "strong",
+      "human_reviewed": false,
+      "sources": [
+        "https://www.gs-yuasa.eu/en-de/info-hub/guide-to-understanding-battery-specifications",
+        "https://www.gs-yuasa.eu/de/info-hub/smart-devices-for-testing-and-finding-the-right-battery"
+      ],
+      "note": "GS Yuasa renkli göstergenin yalnız bir hücrede hızlı görsel kılavuz olduğunu; tester'ın voltaj ve gerçek CCA/sağlık kontrolü yaptığını açıklıyor."
+    },
+    {
+      "key": "vehicle-ac-compressor-not-engaging",
+      "coverage": "strong",
+      "human_reviewed": false,
+      "sources": [
+        "https://www.mahle-aftermarket.com/media/homepage/facelift/media-center/klima/kompaktwissen-ac-fahrzeugklimatisierung-en-screen.pdf",
+        "https://www.mahle-aftermarket.com/media/media-global-%26-europe/thermal-management/download/en/2023/2-2-broschuere-klimakompressortausch-spuelen-221029-en-screen.pdf"
+      ],
+      "note": "MAHLE teşhis akışı kompresör aktivasyonu, elektrik bağlantısı/control valve, soğutucu miktarı, basınç ölçümü ve fault memory kontrolünü destekliyor."
+    },
+    {
+      "key": "vehicle-suspension-squeak",
+      "coverage": "partial",
+      "human_reviewed": false,
+      "sources": [
+        "https://www.kyb.com/resource/install-tip/diagnosing-noise-after-installation/",
+        "https://www.kyb.com/resource/faqs/why-would-i-hear-clunking-noises-even-though-my-shocks-struts-are-new/"
+      ],
+      "note": "KYB, stabilizer bar bushings/link pins ve montaj noktalarını yaygın ses kaynakları olarak veriyor. Geçici yağlama ile teşhis kısmı ayrıca insan incelemesi istiyor."
+    },
+    {
+      "key": "software-excel-large-search-freeze",
+      "coverage": "strong",
+      "human_reviewed": false,
+      "sources": [
+        "https://www.sqlite.org/fts5.html",
+        "https://learn.microsoft.com/en-us/windows/apps/develop/performance/keep-ui-thread-responsive"
+      ],
+      "note": "SQLite FTS5 büyük metin koleksiyonlarında indeksli full-text search sağlar; Microsoft uzun işi UI thread dışında çalıştırmayı öneriyor."
+    },
+    {
+      "key": "software-nextjs-vercel-build-only-fails",
+      "coverage": "strong",
+      "human_reviewed": false,
+      "sources": [
+        "https://vercel.com/docs/deployments/troubleshoot-a-build",
+        "https://vercel.com/kb/guide/how-do-i-resolve-a-module-not-found-error",
+        "https://vercel.com/docs/environment-variables"
+      ],
+      "note": "Vercel resmi rehberleri build loglarını, case-sensitive import farklarını ve deployment environment variable davranışını kapsıyor."
+    },
+    {
+      "key": "software-windows-app-ui-freeze",
+      "coverage": "strong",
+      "human_reviewed": false,
+      "sources": [
+        "https://learn.microsoft.com/en-us/windows/apps/develop/performance/keep-ui-thread-responsive",
+        "https://learn.microsoft.com/en-us/dotnet/desktop/winforms/controls/how-to-make-thread-safe-calls"
+      ],
+      "note": "Microsoft UI thread'i uzun işlerle bloklamamayı ve background thread sonuçlarını UI thread'e güvenli taşımayı doğrudan öneriyor."
+    },
+    {
+      "key": "home-ro-slow-flow",
+      "coverage": "strong",
+      "human_reviewed": false,
+      "sources": [
+        "https://www.apecwater.com/collections/reverse-osmosis-all-filters",
+        "https://www.apecwater.com/blogs/water-quality/ro-perm-waste-water-slow-to-no-shutoff"
+      ],
+      "note": "APEC resmi troubleshooting düşük giriş basıncı, tıkalı prefilter/membran ve düşük su sıcaklığını düşük/uzun üretimle ilişkilendiriyor."
+    },
+    {
+      "key": "home-inverter-ac-cooling-drops",
+      "coverage": "strong",
+      "human_reviewed": false,
+      "sources": [
+        "https://www.daikin.com/products/ac/services/troubleshooting"
+      ],
+      "note": "Daikin resmi split/multi-split troubleshooting 'does not cool/warm' ve filtre/ayar/ünite kontrollerini kapsıyor."
+    },
+    {
+      "key": "home-cordless-vacuum-low-suction",
+      "coverage": "partial",
+      "human_reviewed": false,
+      "sources": [
+        "https://www.centralamerica.philips.com/c-t/XC000016022/mi-aspirador-philips-tiene-poca-potencia-de-succi%C3%B3n"
+      ],
+      "note": "Philips resmi destek kirli filtre, dolu hazne ve tıkanmış hava yolunun emişi düşürdüğünü destekliyor. Batarya/elektronik performans iddiası varsa ayrıca insan incelemesi gerekir."
+    }
+  ]
+}

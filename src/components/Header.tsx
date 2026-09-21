@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { ChevronDown, Globe, LayoutDashboard, LogIn, Search, WalletCards } from 'lucide-react';
+import { ChevronDown, Globe, LayoutDashboard, LogIn, Menu, Search, WalletCards, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import GlobalToolSearch from '@/components/GlobalToolSearch';
 import { ALL_LOCALES, LANGUAGE_META, UI_TEXT, getLocaleFromPathname, getLocalizedPath, localizeCurrentPath, type Locale } from '@/lib/siteLanguage';
@@ -14,6 +14,7 @@ const LANGUAGES = ALL_LOCALES.map((locale) => ({ code: locale, label: LANGUAGE_M
 export default function Header() {
   const pathname = usePathname();
   const [langOpen, setLangOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [authReady, setAuthReady] = useState(false);
 
@@ -27,6 +28,7 @@ export default function Header() {
   const primaryLinks = [
     { href: toolsHref, label: nav.tools },
     { href: cadHref, label: nav.cad },
+    ...(locale === 'tr' ? [{ href: '/cozumlar', label: 'Çözümler' }] : []),
     { href: blogHref, label: nav.blog },
   ];
 
@@ -49,15 +51,25 @@ export default function Header() {
     return () => { mounted = false; subscription.unsubscribe(); };
   }, []);
 
-  useEffect(() => { setLangOpen(false); }, [pathname]);
+  useEffect(() => {
+    setLangOpen(false);
+    setMobileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
 
   const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
   const openSearch = () => {
     setLangOpen(false);
+    setMobileOpen(false);
     window.dispatchEvent(new Event('tooldur:open-search'));
   };
   const changeLanguage = (code: Locale) => {
     setLangOpen(false);
+    setMobileOpen(false);
     window.location.href = localizeCurrentPath(pathname, code);
   };
 
@@ -91,9 +103,50 @@ export default function Header() {
               <button className={styles.iconButton} type="button" onClick={() => setLangOpen((value) => !value)} aria-expanded={langOpen} aria-label="Dil seç"><Globe size={16} /><ChevronDown size={13} /></button>
               {langOpen && <div className={styles.langMenu}>{LANGUAGES.map((item) => <button className={styles.langOption} type="button" key={item.code} onClick={() => changeLanguage(item.code)}><span>{item.label}</span><strong>{item.short}</strong></button>)}</div>}
             </div>
+
+            <button type="button" className={`${styles.iconButton} ${styles.mobileButton}`} onClick={() => setMobileOpen(true)} aria-label="Menüyü aç" aria-expanded={mobileOpen}>
+              <Menu size={18} />
+            </button>
           </div>
         </div>
       </header>
+
+      {mobileOpen && <button className={styles.backdrop} type="button" onClick={() => setMobileOpen(false)} aria-label="Menüyü kapat" />}
+      <aside className={`${styles.drawer} ${mobileOpen ? styles.drawerOpen : ''}`} aria-hidden={!mobileOpen}>
+        <div className={styles.drawerTop}>
+          <Link href={homeHref} className={styles.brand} aria-label="Tooldur ana sayfa">
+            <span className={styles.mark}>T</span>
+            <span className={styles.brandText}><span className={styles.brandName}>tool<span>dur</span></span><span className={styles.brandTag}>engineering tools</span></span>
+          </Link>
+          <button type="button" className={styles.iconButton} onClick={() => setMobileOpen(false)} aria-label="Menüyü kapat"><X size={18} /></button>
+        </div>
+
+        <button type="button" className={styles.drawerSearch} onClick={openSearch}>
+          <Search size={17} /><span>Araç ve içerik ara</span><kbd>Ctrl K</kbd>
+        </button>
+
+        <nav className={styles.drawerNav} aria-label="Mobil menü">
+          {primaryLinks.map((item) => (
+            <Link key={item.href} href={item.href} className={`${styles.drawerLink} ${isActive(item.href) ? styles.active : ''}`}>
+              <span>{item.label}</span><span>→</span>
+            </Link>
+          ))}
+          {authReady && user ? (
+            <>
+              <Link href="/dashboard/butce" className={styles.drawerLink}><span>Bütçe</span><span>→</span></Link>
+              <Link href="/dashboard" className={`${styles.drawerLink} ${isActive('/dashboard') ? styles.active : ''}`}><span>{nav.panel}</span><span>→</span></Link>
+            </>
+          ) : (
+            <Link href="/giris" className={styles.drawerLink}><span>{nav.login}</span><span>→</span></Link>
+          )}
+        </nav>
+
+        <div className={styles.drawerBottom}>
+          <div className={styles.languageGrid}>
+            {LANGUAGES.map((item) => <button type="button" key={item.code} onClick={() => changeLanguage(item.code)}>{item.short}</button>)}
+          </div>
+        </div>
+      </aside>
 
       <GlobalToolSearch locale={locale} />
     </>
