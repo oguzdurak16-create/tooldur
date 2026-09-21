@@ -1,23 +1,29 @@
 import type { Metadata } from 'next';
 import DownloadSetupClient from './DownloadSetupClient';
+import FolderPilotDownloadClient from './FolderPilotDownloadClient';
 
 export const metadata: Metadata = {
-  title: 'TooldurCAD Kurulum Dosyaları',
+  title: 'Tooldur Masaüstü Uygulamaları | FolderPilot ve TooldurCAD',
   description:
-    'TooldurCAD Universal Lite ve SolidWorks destek paketlerini güvenli, üyeye özel bağlantılarla indirin.',
+    'Tooldur FolderPilot ve TooldurCAD Windows kurulum paketlerini güvenli, üyeye özel indirme bağlantılarıyla indirin.',
   alternates: {
     canonical: 'https://www.tooldur.com/kurulum-indir',
   },
   openGraph: {
-    title: 'TooldurCAD Kurulum Dosyaları | Tooldur',
+    title: 'Tooldur Masaüstü Uygulamaları | Tooldur',
     description:
-      'TooldurCAD Universal Lite ve SolidWorks destek paketleri, özellikleri ve ekran görüntüleri.',
+      'Tooldur FolderPilot dosya çalışma alanı ile TooldurCAD mühendislik destek paketlerini keşfedin ve üyelik doğrulamasıyla indirin.',
     url: 'https://www.tooldur.com/kurulum-indir',
     type: 'website',
-    images: [{ url: '/visuals/topics/tool-software-og.webp', width: 1200, height: 630, alt: 'TooldurCAD mühendislik çalışma alanı' }],
+    images: [{ url: '/visuals/topics/tool-software-og.webp', width: 1200, height: 630, alt: 'Tooldur masaüstü yazılımları' }],
   },
 };
 
 export default function DownloadSetupPage() {
-  return <DownloadSetupClient />;
+  return (
+    <>
+      <FolderPilotDownloadClient />
+      <DownloadSetupClient />
+    </>
+  );
 }
