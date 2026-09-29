@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import { Calculator, Users, Clock, Zap, CheckCircle, Globe, Heart, Shield, Cpu, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { tools } from '@/data/tools';
+import { categories, tools } from '@/data/tools';
+import { getIndexableCategories, getIndexableTools } from '@/lib/seoFocus';
 
 export const metadata: Metadata = {
   title: 'Hakkımızda – Ücretsiz Mühendislik Hesaplama Araçları',
@@ -12,16 +13,18 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
+  const indexableTools = getIndexableTools(tools);
+  const indexableCategories = getIndexableCategories(categories);
   const stats = [
-    { icon: Calculator, value: `${tools.length}+`, label: 'Hesaplama Aracı' },
+    { icon: Calculator, value: `${indexableTools.length}`, label: 'Hesaplama Aracı' },
     { icon: Clock, value: '7/24', label: 'Erişim' },
     { icon: Users, value: '%100', label: 'Ücretsiz' },
-    { icon: Globe, value: '5+', label: 'Kategori' },
+    { icon: Globe, value: `${indexableCategories.length}`, label: 'Kategori' },
   ];
 
   const features = [
     { icon: Zap, title: 'Hızlı ve Anlık', desc: 'Kayıt gerektirmez, bekletmez. Tüm hesaplamalar tarayıcınızda gerçek zamanlı yapılır.', color: '#f59e0b' },
-    { icon: CheckCircle, title: 'Doğru ve Güvenilir', desc: 'DIN, ISO ve TS EN standartlarına uygun formüllerle geliştirilmiş hesaplamalar.', color: '#22c55e' },
+    { icon: CheckCircle, title: 'Kaynaklı ve Doğrulanabilir', desc: 'Hesaplamalarda ilgili DIN, ISO, EN ve mühendislik kaynakları esas alınır; kritik tasarım kararları güncel standart ve üretici verileriyle doğrulanmalıdır.', color: '#22c55e' },
     { icon: Shield, title: 'Güvenli', desc: 'HTTPS bağlantısı, kontrollü oturum yönetimi ve kullanıcı verisini azaltan yerel depolama yaklaşımı.', color: '#60a5fa' },
     { icon: Cpu, title: 'Modern Teknoloji', desc: 'Next.js, React ve Supabase ile inşa edilmiş performans odaklı modern mimari.', color: '#a78bfa' },
     { icon: Globe, title: 'Her Cihazda', desc: 'Masaüstü, tablet ve mobilde sorunsuz çalışan responsive tasarım.', color: '#fb923c' },
@@ -38,7 +41,7 @@ export default function AboutPage() {
             Mühendisliği Herkes İçin<br/>Erişilebilir Kılıyoruz
           </h1>
           <p style={{ fontSize: 16, color: 'var(--ink-3)', lineHeight: 1.8, maxWidth: 640 }}>
-            Tooldur, mühendislerin ve teknik profesyonellerin günlük hesaplamalarını hızlı, doğru ve ücretsiz yapabilmeleri için tasarlanmış kapsamlı bir online araç platformudur.
+            Tooldur, mühendislerin ve teknik profesyonellerin günlük hesaplamalarını hızlı, anlaşılır ve ücretsiz yapabilmeleri için tasarlanmış kapsamlı bir online araç platformudur.
           </p>
         </div>
 

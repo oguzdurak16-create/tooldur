@@ -18,6 +18,12 @@ export const metadata: Metadata = {
     siteName: 'Tooldur',
     images: [{ url: siteVisuals.guides.og, width: 1200, height: 630, alt: siteVisuals.guides.alt }],
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Tooldur Blog - Mühendislik Rehberleri',
+    description: 'Makine tasarımı, tolerans, teknik resim ve TooldurCAD odaklı pratik mühendislik içerikleri.',
+    images: [siteVisuals.guides.og],
+  },
 };
 
 export default function BlogPage() {
