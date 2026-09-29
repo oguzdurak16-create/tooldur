@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Calculator, CheckCircle2, Clipboard, Copy, Drill, Info, Ruler, Wrench } from 'lucide-react';
 import type { Tool } from '@/data/tools';
 import type { Locale } from '@/lib/siteLanguage';
@@ -104,6 +105,21 @@ const pitchDiameter = (d: number, pitch: number) => d - 0.649519 * pitch;
 const internalMinorDiameter = (d: number, pitch: number) => d - 1.082532 * pitch;
 const externalRootDiameter = (d: number, pitch: number) => d - 1.226869 * pitch;
 
+function threadSizeFromQuery(value: string | null): string | null {
+  if (!value) return null;
+  const normalized = value
+    .trim()
+    .toLocaleLowerCase('tr-TR')
+    .replace(/×/g, 'x')
+    .replace(/,/g, '.')
+    .replace(/\s+/g, '');
+  const match = normalized.match(/^m?(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)$/);
+  if (!match) return null;
+  const d = Number(match[1]);
+  const pitch = Number(match[2]);
+  return threadTable.find((item) => item.d === d && item.pitch === pitch)?.size || null;
+}
+
 function ResultCard({ label, value, note }: { label: string; value: string; note?: string }) {
   return (
     <div className="calc-soft rounded-2xl p-4 border border-[var(--border)]">
@@ -115,6 +131,7 @@ function ResultCard({ label, value, note }: { label: string; value: string; note
 }
 
 export default function KilavuzMatkapCalculator({ tool, locale = 'tr' }: { tool?: Tool; locale?: Locale }) {
+  const searchParams = useSearchParams();
   const isEnglish = locale === 'en';
   const numberLocale = isEnglish ? 'en-US' : 'tr-TR';
   const fmt = (n: number, digits = 3) => n.toLocaleString(numberLocale, { maximumFractionDigits: digits });
@@ -126,7 +143,7 @@ export default function KilavuzMatkapCalculator({ tool, locale = 'tr' }: { tool?
     loose: isEnglish ? 'Loose clearance' : 'Rahat montaj',
   };
 
-  const [size, setSize] = useState('M10 × 1,5');
+  const [size, setSize] = useState(() => threadSizeFromQuery(searchParams.get('size')) || 'M10 × 1,5');
   const [tableQuery, setTableQuery] = useState('');
   const [seriesFilter, setSeriesFilter] = useState<SeriesFilter>('all');
   const [fit, setFit] = useState<FitClass>('normal');

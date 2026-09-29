@@ -13,6 +13,11 @@ type LocalizedRoute = Parameters<typeof getLocalizedPath>[1];
 // Update only after a meaningful content or SEO change.
 const SITE_RELEASE_DATE = new Date('2026-09-14T00:00:00+03:00');
 const CONTENT_RELEASE_DATE = new Date('2026-09-14T00:00:00+03:00');
+const HOME_RELEASE_DATE = new Date('2026-09-29T00:00:00+03:00');
+const TOOL_RELEASE_DATES: Record<string, Date> = {
+  'kilavuz-matkap-hesaplama': new Date('2026-09-29T00:00:00+03:00'),
+  'konik-hesaplama': new Date('2026-09-29T00:00:00+03:00'),
+};
 const POLICY_RELEASE_DATE = new Date('2026-05-21T00:00:00+03:00');
 
 function priorityForTool(t: typeof tools[number]) {
@@ -53,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const localizedStatic: MetadataRoute.Sitemap = INDEXABLE_LOCALES.flatMap((locale) =>
     localizedStaticRoutes.map((item) => ({
       url: `${BASE}${getLocalizedPath(locale, item.route)}`,
-      lastModified: CONTENT_RELEASE_DATE,
+      lastModified: item.route === 'home' ? HOME_RELEASE_DATE : CONTENT_RELEASE_DATE,
       changeFrequency: item.frequency,
       priority: locale === 'tr' ? item.priority : Math.max(item.priority - 0.08, 0.45),
       alternates: languageAlternates(item.route),
@@ -82,7 +87,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const toolPages: MetadataRoute.Sitemap = indexableTools.flatMap((tool) =>
     INDEXABLE_LOCALES.map((locale) => ({
       url: `${BASE}${getLocalizedPath(locale, 'tool', tool.slug)}`,
-      lastModified: CONTENT_RELEASE_DATE,
+      lastModified: TOOL_RELEASE_DATES[tool.slug] || CONTENT_RELEASE_DATE,
       changeFrequency: tool.new ? ('weekly' as const) : ('monthly' as const),
       priority: locale === 'tr' ? priorityForTool(tool) : Math.max(priorityForTool(tool) - 0.08, 0.45),
       alternates: languageAlternates('tool', tool.slug),

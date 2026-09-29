@@ -15,14 +15,18 @@ const quickAnswers: Record<string, QuickAnswer> = {
     lead: 'Standart kaba hatvede ön delik çapı için pratik başlangıç değeri nominal çap eksi hatvedir. Nihai seçimde malzeme, diş yüzdesi ve kılavuz üreticisinin verisi kontrol edilmelidir.',
     rows: [
       { label: 'M6 × 1,0', value: 'Ø5,0 mm', note: 'Standart kaba hatve' },
-      { label: 'M8 × 1,25', value: 'Ø6,8 mm', note: 'En sık kullanılan M8 ön delik' },
+      { label: 'M8 × 1,25', value: 'Ø6,8 mm', note: 'M8 diş adımı 1,25 mm' },
       { label: 'M10 × 1,5', value: 'Ø8,5 mm', note: 'Standart M10 kaba hatve' },
       { label: 'M12 × 1,75', value: 'Ø10,2 mm', note: 'Standart M12 kaba hatve' },
+      { label: 'M16 × 2,0', value: 'Ø14,0 mm', note: 'Standart M16 kaba hatve' },
+      { label: 'M20 × 2,5', value: 'Ø17,5 mm', note: 'Standart M20 kaba hatve' },
+      { label: 'M30 × 3,5', value: 'Ø26,5 mm', note: 'M30 kaba hatve 3,5 mm' },
     ],
     links: [
       { href: '/blog/metrik-dis-tablosu-m3-m36-kilavuz-matkap-caplari', label: 'M3–M36 kılavuz matkap tablosunu aç' },
+      { href: '/blog/m12-kilavuz-matkap-capi-kac-mm', label: 'M12 ön delik rehberini aç' },
+      { href: '/blog/m16-kilavuz-matkap-capi-kac-mm', label: 'M16 ön delik rehberini aç' },
       { href: '/arac/civata-sikma-torku-hesaplama', label: 'Cıvata sıkma torkunu hesapla' },
-      { href: '/arac/teknik-resim-cagri-olusturucu', label: 'Teknik resim çağrısı oluştur' },
     ],
   },
   'iso-gecme-tolerans-hesaplama': {

@@ -326,7 +326,7 @@ export const blogPosts: BlogPost[] = [
     readTime: '4 dk okuma',
     category: 'Kılavuz Matkap',
     keywords: ['M8 kılavuz matkap çapı', 'M8 matkap kaç mm', 'M8 diş çekme', 'metrik kılavuz tablosu'],
-    relatedTools: [{ label: 'Kılavuz Matkap Hesapla', href: '/arac/kilavuz-matkap-hesaplama' }, { label: 'Teknik Çağrı Oluşturucu', href: '/arac/teknik-resim-cagri-olusturucu' }],
+    relatedTools: [{ label: 'Kılavuz Matkap Hesapla', href: '/arac/kilavuz-matkap-hesaplama?size=M8x1.25#hesaplama' }, { label: 'Teknik Çağrı Oluşturucu', href: '/arac/teknik-resim-cagri-olusturucu' }],
     intro: ['M8 kılavuz çekilecek bir parçada ilk kontrol edilmesi gereken konu delik çapıdır. Delik küçük olursa kılavuz zorlanır, büyük olursa diş tutma yüzeyi azalır.', 'Bu nedenle kılavuz öncesi matkap çapı hem imalat kalitesi hem de bağlantı güvenliği açısından kritik bir değerdir.'],
     sections: [{ heading: 'M8 için temel mantık', body: ['Metrik kaba dişte pratik hesap, nominal çap eksi adım şeklinde yapılır. M8 kaba diş için adım genellikle 1.25 mm kabul edilir. Bu mantıkla ön delik çapı yaklaşık 6.8 mm seviyesindedir.'], list: ['Kör delikte talaş boşluğu bırakılmalıdır.', 'Diş boyu teknik resimde açıkça belirtilmelidir.', 'Malzeme sertliği ve kılavuz tipi delik kalitesini etkiler.'] }, { heading: 'Teknik resimde nasıl yazılır?', body: ['Teknik resimde yalnızca M8 yazmak bazı durumlarda yeterli değildir. Kör delik, etkin diş boyu, havşa ve yüzey şartı gibi bilgiler ayrıca verilmelidir.'] }],
     faq: [{ question: 'M8 için her zaman 6.8 mm matkap mı kullanılır?', answer: 'Genel metrik kaba dişte pratik değer 6.8 mm civarıdır; ancak standart, malzeme ve diş tipi kontrol edilmelidir.' }],
@@ -339,7 +339,7 @@ export const blogPosts: BlogPost[] = [
     readTime: '4 dk okuma',
     category: 'Kılavuz Matkap',
     keywords: ['M10 kılavuz matkap çapı', 'M10 matkap kaç mm', 'M10 diş çekme', 'M10 ön delik'],
-    relatedTools: [{ label: 'Kılavuz Matkap Hesapla', href: '/arac/kilavuz-matkap-hesaplama' }, { label: 'Teknik Çağrı Kütüphanesi', href: '/teknik-cagri-kutuphanesi' }],
+    relatedTools: [{ label: 'Kılavuz Matkap Hesapla', href: '/arac/kilavuz-matkap-hesaplama?size=M10x1.5#hesaplama' }, { label: 'Teknik Çağrı Kütüphanesi', href: '/teknik-cagri-kutuphanesi' }],
     intro: ['M10 vida bağlantıları makine imalatında çok sık kullanılır. Kılavuz öncesi delik çapı doğru seçilmezse kılavuz kırılması, zayıf diş formu veya montaj problemi oluşabilir.'],
     sections: [{ heading: 'M10 kaba dişte pratik yaklaşım', body: ['M10 kaba dişte adım çoğunlukla 1.5 mm kabul edilir. Pratik hesapla ön delik çapı yaklaşık 8.5 mm seviyesine gelir. İnce dişte ise adım farklı olduğu için matkap çapı da değişir.'], list: ['Diş adımı mutlaka doğrulanmalıdır.', 'Kör deliklerde delik derinliği etkin diş boyundan fazla olmalıdır.', 'Kılavuz girişi için uygun pah bırakılmalıdır.'] }],
     faq: [{ question: 'M10 ince diş için aynı matkap kullanılır mı?', answer: 'Hayır. İnce dişte adım değiştiği için ön delik çapı da değişir.' }],
@@ -447,6 +447,168 @@ export const blogPosts: BlogPost[] = [
     intro: ['Kaynaklı imalatta sadece geometri çizmek yeterli değildir. Kaynak tipi, kaynak boyu, temizlik ve ölçü kontrol notları imalat kalitesini doğrudan etkiler.'],
     sections: [{ heading: 'Kaynak notunda neler olmalı?', body: ['Kaynak tipi ve ölçüsü sembolle verilir; ek imalat şartları ise teknik not olarak yazılabilir. Özellikle çapak, cüruf, sıçrantı ve çarpılma kontrolü belirtilmelidir.'], list: ['Kaynak sonrası temizlik notu eklenebilir.', 'Çarpılma ve ölçü kontrolü belirtilmelidir.', 'Kritik kaynaklarda kalite standardı ayrıca yazılmalıdır.'] }],
     faq: [{ question: 'Kaynak sembolü olmadan sadece not yeterli mi?', answer: 'Basit işlerde açıklayıcı not yardımcı olabilir; fakat teknik resimde doğru sembol kullanımı daha nettir.' }],
+  },
+
+
+  {
+    slug: 'm6-kilavuz-matkap-capi-kac-mm',
+    title: 'M6 Kılavuz Matkap Çapı Kaç mm? M6 × 1 ve İnce Diş Tablosu',
+    description: 'M6 kaba ve ince diş için kılavuz matkap çapını, diş adımını ve kör delikte dikkat edilmesi gereken temel ölçüleri görün.',
+    date: '2026-09-29',
+    readTime: '4 dk okuma',
+    category: 'Kılavuz Matkap',
+    keywords: ['M6 matkap çapı', 'M6 kılavuz matkap çapı', 'M6 diş adımı', 'M6 hatve', 'M6 ön delik'],
+    relatedTools: [
+      { label: 'Metrik Diş ve Kılavuz Matkap Tablosu', href: '/arac/kilavuz-matkap-hesaplama?size=M6x1#hesaplama' },
+      { label: 'Cıvata Sıkma Torku', href: '/arac/civata-sikma-torku-hesaplama' },
+    ],
+    intro: [
+      'M6 kaba metrik dişin standart adımı 1,0 mm’dir. Pratik ön delik değeri Ø5,0 mm’dir. M6 × 0,75 ince dişte ise ön delik yaklaşık Ø5,2 mm seçilir.',
+      'Bu değerler genel başlangıç değeridir. Malzeme, istenen diş yüzdesi, kılavuz tipi ve üretici tavsiyesi nihai matkap çapını etkileyebilir.',
+    ],
+    sections: [
+      {
+        heading: 'M6 kaba ve ince diş değerleri',
+        body: ['M6 × 1,0 kaba dişte nominal çap 6 mm ve hatve 1,0 mm’dir. M6 × 0,75 ince dişte hatve küçüldüğü için ön delik çapı büyür.'],
+        list: ['M6 × 1,0: Ø5,0 mm kılavuz matkap.', 'M6 × 0,75: yaklaşık Ø5,2 mm kılavuz matkap.', 'Normal cıvata boşluk deliği yaklaşık Ø6,6 mm’dir.'],
+      },
+      {
+        heading: 'Kör delikte yalnız matkap çapı yeterli değildir',
+        body: ['Etkin diş derinliğinin altında talaş ve kılavuz çıkışı için ek delik derinliği bırakılmalıdır. Giriş pahı da kılavuzun düzgün başlamasına yardımcı olur.'],
+      },
+    ],
+    faq: [
+      { question: 'M6 kılavuz için kaçlık matkap kullanılır?', answer: 'M6 × 1,0 kaba diş için yaygın başlangıç değeri Ø5,0 mm’dir. İnce dişte hatveye göre değer değişir.' },
+      { question: 'M6 diş adımı kaç mm?', answer: 'Standart kaba M6 diş adımı 1,0 mm’dir. Yaygın ince seri M6 × 0,75’tir.' },
+    ],
+  },
+  {
+    slug: 'm12-kilavuz-matkap-capi-kac-mm',
+    title: 'M12 Kılavuz Matkap Çapı Kaç mm? M12 Hatve ve Ön Delik',
+    description: 'M12 × 1,75 kaba diş ve M12 ince dişlerde hatveye göre kılavuz matkap çaplarını karşılaştırın.',
+    date: '2026-09-29',
+    readTime: '4 dk okuma',
+    category: 'Kılavuz Matkap',
+    keywords: ['M12 matkap çapı', 'M12 kılavuz matkap çapı', 'M12 diş adımı', 'M12 hatve', 'M12 ön delik'],
+    relatedTools: [
+      { label: 'Metrik Diş ve Kılavuz Matkap Tablosu', href: '/arac/kilavuz-matkap-hesaplama?size=M12x1.75#hesaplama' },
+      { label: 'Teknik Resim Çağrısı', href: '/arac/teknik-resim-cagri-olusturucu' },
+    ],
+    intro: [
+      'M12 kaba metrik dişte standart hatve 1,75 mm’dir ve pratik kılavuz matkap çapı Ø10,2 mm’dir. İnce seride M12 × 1,5 için yaklaşık Ø10,5 mm, M12 × 1,25 için yaklaşık Ø10,8 mm kullanılır.',
+      'Teknik resimde yalnız M12 yazmak kaba dişi ifade edebilir; fakat ince dişte hatvenin açıkça yazılması gerekir.',
+    ],
+    sections: [
+      {
+        heading: 'M12 diş adımı ve matkap çapları',
+        body: ['Hatve küçüldükçe diş oluğunun derinliği azalır ve kılavuz öncesi delik çapı büyür. Bu yüzden kaba ve ince diş aynı matkapla hazırlanmaz.'],
+        list: ['M12 × 1,75: Ø10,2 mm.', 'M12 × 1,5: Ø10,5 mm.', 'M12 × 1,25: Ø10,8 mm.', 'Normal bağlantı boşluk deliği yaklaşık Ø13,5 mm’dir.'],
+      },
+      {
+        heading: 'İmalatta hangi değer esas alınmalı?',
+        body: ['Tablo değeri iyi bir başlangıçtır. Paslanmaz, yüksek dayanımlı çelik veya form kılavuzu gibi uygulamalarda takım üreticisinin önerdiği ön delik çapı esas alınmalıdır.'],
+      },
+    ],
+    faq: [
+      { question: 'M12 kılavuz için kaçlık matkap?', answer: 'M12 × 1,75 kaba diş için yaygın kılavuz matkap değeri Ø10,2 mm’dir.' },
+      { question: 'M12 ince diş için 10,2 mm kullanılır mı?', answer: 'Genellikle hayır. Örneğin M12 × 1,5 için yaklaşık Ø10,5 mm, M12 × 1,25 için yaklaşık Ø10,8 mm kullanılır.' },
+    ],
+  },
+  {
+    slug: 'm16-kilavuz-matkap-capi-kac-mm',
+    title: 'M16 Kılavuz Matkap Çapı Kaç mm? M16 × 2 ve M16 × 1,5',
+    description: 'M16 kaba ve ince dişlerde kılavuz matkap çapı, diş adımı ve bağlantı boşluk deliği değerlerini görün.',
+    date: '2026-09-29',
+    readTime: '4 dk okuma',
+    category: 'Kılavuz Matkap',
+    keywords: ['M16 kılavuz matkap çapı', 'M16 matkap çapı', 'M16 diş adımı', 'M16 hatve', 'M16 ön delik'],
+    relatedTools: [
+      { label: 'Metrik Diş ve Kılavuz Matkap Tablosu', href: '/arac/kilavuz-matkap-hesaplama?size=M16x2#hesaplama' },
+      { label: 'Cıvata Sıkma Torku', href: '/arac/civata-sikma-torku-hesaplama' },
+    ],
+    intro: [
+      'M16 kaba dişin standart hatvesi 2,0 mm’dir. M16 × 2 için pratik kılavuz matkap çapı Ø14,0 mm’dir. Yaygın M16 × 1,5 ince dişte yaklaşık Ø14,5 mm ön delik kullanılır.',
+      'Kılavuz çapı seçiminde diş standardının yanında malzeme ve takım tipi de kontrol edilmelidir.',
+    ],
+    sections: [
+      {
+        heading: 'M16 için hızlı tablo',
+        body: ['Kaba ve ince diş arasındaki 0,5 mm hatve farkı ön delik çapını da değiştirir.'],
+        list: ['M16 × 2,0: Ø14,0 mm kılavuz matkap.', 'M16 × 1,5: Ø14,5 mm kılavuz matkap.', 'Normal bağlantı boşluk deliği yaklaşık Ø17,5 mm’dir.'],
+      },
+      {
+        heading: 'Teknik resimde M16 nasıl belirtilir?',
+        body: ['Kaba dişte M16 çağrısı çoğu durumda yeterlidir; ince dişte M16 × 1,5 şeklinde hatve açıkça belirtilmelidir. Kör delikte etkin diş boyu ile toplam delik derinliği ayrı düşünülmelidir.'],
+      },
+    ],
+    faq: [
+      { question: 'M16 kılavuz için kaçlık matkap kullanılır?', answer: 'M16 × 2 kaba diş için yaygın başlangıç değeri Ø14,0 mm’dir.' },
+      { question: 'M16 diş adımı kaç?', answer: 'Standart kaba M16 hatvesi 2,0 mm’dir. Yaygın ince seri M16 × 1,5’tir.' },
+    ],
+  },
+  {
+    slug: 'm20-kilavuz-matkap-capi-kac-mm',
+    title: 'M20 Kılavuz Matkap Çapı Kaç mm? Kaba ve İnce Diş Değerleri',
+    description: 'M20 × 2,5 kaba diş ile M20 × 2 ve M20 × 1,5 ince dişlerin kılavuz matkap çaplarını karşılaştırın.',
+    date: '2026-09-29',
+    readTime: '4 dk okuma',
+    category: 'Kılavuz Matkap',
+    keywords: ['M20 matkap çapı', 'M20 kılavuz matkap çapı', 'M20 diş adımı', 'M20 hatve', 'M20 ön delik'],
+    relatedTools: [
+      { label: 'Metrik Diş ve Kılavuz Matkap Tablosu', href: '/arac/kilavuz-matkap-hesaplama?size=M20x2.5#hesaplama' },
+      { label: 'Cıvata Sıkma Torku', href: '/arac/civata-sikma-torku-hesaplama' },
+    ],
+    intro: [
+      'M20 kaba dişte standart hatve 2,5 mm’dir ve yaygın kılavuz matkap çapı Ø17,5 mm’dir. M20 × 2 için yaklaşık Ø18,0 mm, M20 × 1,5 için yaklaşık Ø18,5 mm ön delik kullanılır.',
+      'Büyük çaplı dişlerde delik doğruluğu, eksen kaçıklığı ve kılavuzlama torku küçük çaplara göre daha kritik hale gelir.',
+    ],
+    sections: [
+      {
+        heading: 'M20 kaba ve ince hatve tablosu',
+        body: ['İnce diş seçildiğinde daha büyük ön delik gerekir; çünkü hatve küçüldükçe diş profili sığlaşır.'],
+        list: ['M20 × 2,5: Ø17,5 mm.', 'M20 × 2,0: Ø18,0 mm.', 'M20 × 1,5: Ø18,5 mm.', 'Normal bağlantı boşluk deliği yaklaşık Ø22 mm’dir.'],
+      },
+      {
+        heading: 'M20 kılavuzlamada pratik kontrol',
+        body: ['Derin kör deliklerde talaş tahliyesi, kesme sıvısı ve kılavuz geometrisi önemlidir. Seri üretimde takım üreticisinin tavsiye ettiği delik toleransı ayrıca kontrol edilmelidir.'],
+      },
+    ],
+    faq: [
+      { question: 'M20 kılavuz için kaçlık matkap?', answer: 'M20 × 2,5 kaba diş için yaygın başlangıç değeri Ø17,5 mm’dir.' },
+      { question: 'M20 ince dişte matkap çapı nedir?', answer: 'M20 × 2 için yaklaşık Ø18,0 mm, M20 × 1,5 için yaklaşık Ø18,5 mm kullanılır.' },
+    ],
+  },
+  {
+    slug: 'm30-hatve-kilavuz-matkap-capi',
+    title: 'M30 Hatve Kaç mm? M30 Kılavuz Matkap Çapı ve İnce Diş',
+    description: 'M30 kaba diş hatvesi, M30 × 3,5 kılavuz matkap çapı ve M30 × 2 ince diş ön delik değerlerini görün.',
+    date: '2026-09-29',
+    readTime: '4 dk okuma',
+    category: 'Kılavuz Matkap',
+    keywords: ['M30 hatve', 'M30 diş adımı', 'M30 matkap çapı', 'M30 kılavuz matkap çapı', 'M30 ince diş'],
+    relatedTools: [
+      { label: 'Metrik Diş ve Kılavuz Matkap Tablosu', href: '/arac/kilavuz-matkap-hesaplama?size=M30x3.5#hesaplama' },
+      { label: 'Teknik Resim Çağrısı', href: '/arac/teknik-resim-cagri-olusturucu' },
+    ],
+    intro: [
+      'M30 kaba metrik dişin standart hatvesi 3,5 mm’dir. M30 × 3,5 için yaygın kılavuz matkap çapı Ø26,5 mm’dir. M30 × 2 ince dişte ise yaklaşık Ø28,0 mm ön delik kullanılır.',
+      'M30 gibi büyük dişlerde kaba ve ince seri farkı hem ön delik çapını hem de bağlantının mekanik davranışını belirgin biçimde değiştirir.',
+    ],
+    sections: [
+      {
+        heading: 'M30 hatve ve ön delik değerleri',
+        body: ['Kaba seri genel amaçlı bağlantılarda yaygındır. İnce seri daha küçük hatveyle daha fazla diş turu sağlar; ancak uygulamaya göre dayanım ve montaj şartları ayrıca değerlendirilmelidir.'],
+        list: ['M30 × 3,5 kaba diş: Ø26,5 mm kılavuz matkap.', 'M30 × 2 ince diş: Ø28,0 mm kılavuz matkap.', 'Normal bağlantı boşluk deliği yaklaşık Ø33 mm’dir.'],
+      },
+      {
+        heading: 'M30 teknik resim çağrısı',
+        body: ['Kaba dişte M30 çağrısı çoğu standart uygulamada kaba hatveyi ifade eder. İnce dişte hatve M30 × 2 şeklinde açıkça yazılmalıdır. Tolerans sınıfı gerekiyorsa M30 × 2 - 6H gibi tamamlanabilir.'],
+      },
+    ],
+    faq: [
+      { question: 'M30 hatve kaç mm?', answer: 'Standart kaba M30 diş hatvesi 3,5 mm’dir.' },
+      { question: 'M30 kılavuz matkap çapı kaç?', answer: 'M30 × 3,5 kaba diş için yaygın kılavuz matkap değeri Ø26,5 mm’dir. M30 × 2 ince dişte yaklaşık Ø28,0 mm kullanılır.' },
+    ],
   },
 
   ...seoBlogExpansionPosts,

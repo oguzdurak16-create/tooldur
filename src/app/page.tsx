@@ -27,13 +27,13 @@ const prioritySlugs = [
 const quickSearches = [
   { label: 'Metrik diş tablosu', href: '/arac/kilavuz-matkap-hesaplama' },
   { label: 'Dalgıç pompa hesabı', href: '/arac/pompa-guc-hesaplama' },
-  { label: 'Torna derece hesabı', href: '/arac/konik-hesaplama' },
+  { label: 'Torna derece hesaplama', href: '/arac/konik-hesaplama' },
 ];
 
 const searchIntentLinks = [
   { label: 'Metrik diş tablosu', detail: 'M2–M42 kılavuz matkap ve teorik diş ölçüleri', href: '/arac/kilavuz-matkap-hesaplama' },
   { label: 'Dalgıç pompa hesabı', detail: 'Debi, basma yüksekliği, verim ve motor gücü', href: '/arac/pompa-guc-hesaplama' },
-  { label: 'Torna derece hesabı', detail: 'Konik açı, yarım açı ve 1:N koniklik oranı', href: '/arac/konik-hesaplama' },
+  { label: 'Torna derece hesaplama', detail: 'Konik açı, yarım açı ve 1:N koniklik oranı', href: '/arac/konik-hesaplama' },
   { label: 'ISO geçme toleransı', detail: 'H7/h6, H7/g6 ve mil-delik sapmaları', href: '/arac/iso-gecme-tolerans-hesaplama' },
   { label: 'Sac ağırlık hesabı', detail: 'Çelik, galvaniz, paslanmaz ve alüminyum levha', href: '/arac/levha-agirlik-hesaplama' },
   { label: 'Sac büküm hesabı', detail: 'V kalıp, tonaj, büküm payı ve açınım', href: '/arac/sac-bukum-kesim-hesaplayici' },
