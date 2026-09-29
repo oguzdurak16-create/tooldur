@@ -326,7 +326,7 @@ export const blogPosts: BlogPost[] = [
     readTime: '4 dk okuma',
     category: 'Kılavuz Matkap',
     keywords: ['M8 kılavuz matkap çapı', 'M8 matkap kaç mm', 'M8 diş çekme', 'metrik kılavuz tablosu'],
-    relatedTools: [{ label: 'Kılavuz Matkap Hesapla', href: '/arac/kilavuz-matkap-hesaplama' }, { label: 'Teknik Çağrı Oluşturucu', href: '/arac/teknik-resim-cagri-olusturucu' }],
+    relatedTools: [{ label: 'Kılavuz Matkap Hesapla', href: '/arac/kilavuz-matkap-hesaplama?size=M8x1.25#hesaplama' }, { label: 'Teknik Çağrı Oluşturucu', href: '/arac/teknik-resim-cagri-olusturucu' }],
     intro: ['M8 kılavuz çekilecek bir parçada ilk kontrol edilmesi gereken konu delik çapıdır. Delik küçük olursa kılavuz zorlanır, büyük olursa diş tutma yüzeyi azalır.', 'Bu nedenle kılavuz öncesi matkap çapı hem imalat kalitesi hem de bağlantı güvenliği açısından kritik bir değerdir.'],
     sections: [{ heading: 'M8 için temel mantık', body: ['Metrik kaba dişte pratik hesap, nominal çap eksi adım şeklinde yapılır. M8 kaba diş için adım genellikle 1.25 mm kabul edilir. Bu mantıkla ön delik çapı yaklaşık 6.8 mm seviyesindedir.'], list: ['Kör delikte talaş boşluğu bırakılmalıdır.', 'Diş boyu teknik resimde açıkça belirtilmelidir.', 'Malzeme sertliği ve kılavuz tipi delik kalitesini etkiler.'] }, { heading: 'Teknik resimde nasıl yazılır?', body: ['Teknik resimde yalnızca M8 yazmak bazı durumlarda yeterli değildir. Kör delik, etkin diş boyu, havşa ve yüzey şartı gibi bilgiler ayrıca verilmelidir.'] }],
     faq: [{ question: 'M8 için her zaman 6.8 mm matkap mı kullanılır?', answer: 'Genel metrik kaba dişte pratik değer 6.8 mm civarıdır; ancak standart, malzeme ve diş tipi kontrol edilmelidir.' }],
@@ -339,7 +339,7 @@ export const blogPosts: BlogPost[] = [
     readTime: '4 dk okuma',
     category: 'Kılavuz Matkap',
     keywords: ['M10 kılavuz matkap çapı', 'M10 matkap kaç mm', 'M10 diş çekme', 'M10 ön delik'],
-    relatedTools: [{ label: 'Kılavuz Matkap Hesapla', href: '/arac/kilavuz-matkap-hesaplama' }, { label: 'Teknik Çağrı Kütüphanesi', href: '/teknik-cagri-kutuphanesi' }],
+    relatedTools: [{ label: 'Kılavuz Matkap Hesapla', href: '/arac/kilavuz-matkap-hesaplama?size=M10x1.5#hesaplama' }, { label: 'Teknik Çağrı Kütüphanesi', href: '/teknik-cagri-kutuphanesi' }],
     intro: ['M10 vida bağlantıları makine imalatında çok sık kullanılır. Kılavuz öncesi delik çapı doğru seçilmezse kılavuz kırılması, zayıf diş formu veya montaj problemi oluşabilir.'],
     sections: [{ heading: 'M10 kaba dişte pratik yaklaşım', body: ['M10 kaba dişte adım çoğunlukla 1.5 mm kabul edilir. Pratik hesapla ön delik çapı yaklaşık 8.5 mm seviyesine gelir. İnce dişte ise adım farklı olduğu için matkap çapı da değişir.'], list: ['Diş adımı mutlaka doğrulanmalıdır.', 'Kör deliklerde delik derinliği etkin diş boyundan fazla olmalıdır.', 'Kılavuz girişi için uygun pah bırakılmalıdır.'] }],
     faq: [{ question: 'M10 ince diş için aynı matkap kullanılır mı?', answer: 'Hayır. İnce dişte adım değiştiği için ön delik çapı da değişir.' }],
@@ -459,7 +459,7 @@ export const blogPosts: BlogPost[] = [
     category: 'Kılavuz Matkap',
     keywords: ['M6 matkap çapı', 'M6 kılavuz matkap çapı', 'M6 diş adımı', 'M6 hatve', 'M6 ön delik'],
     relatedTools: [
-      { label: 'Metrik Diş ve Kılavuz Matkap Tablosu', href: '/arac/kilavuz-matkap-hesaplama' },
+      { label: 'Metrik Diş ve Kılavuz Matkap Tablosu', href: '/arac/kilavuz-matkap-hesaplama?size=M6x1#hesaplama' },
       { label: 'Cıvata Sıkma Torku', href: '/arac/civata-sikma-torku-hesaplama' },
     ],
     intro: [
@@ -491,7 +491,7 @@ export const blogPosts: BlogPost[] = [
     category: 'Kılavuz Matkap',
     keywords: ['M12 matkap çapı', 'M12 kılavuz matkap çapı', 'M12 diş adımı', 'M12 hatve', 'M12 ön delik'],
     relatedTools: [
-      { label: 'Metrik Diş ve Kılavuz Matkap Tablosu', href: '/arac/kilavuz-matkap-hesaplama' },
+      { label: 'Metrik Diş ve Kılavuz Matkap Tablosu', href: '/arac/kilavuz-matkap-hesaplama?size=M12x1.75#hesaplama' },
       { label: 'Teknik Resim Çağrısı', href: '/arac/teknik-resim-cagri-olusturucu' },
     ],
     intro: [
@@ -523,7 +523,7 @@ export const blogPosts: BlogPost[] = [
     category: 'Kılavuz Matkap',
     keywords: ['M16 kılavuz matkap çapı', 'M16 matkap çapı', 'M16 diş adımı', 'M16 hatve', 'M16 ön delik'],
     relatedTools: [
-      { label: 'Metrik Diş ve Kılavuz Matkap Tablosu', href: '/arac/kilavuz-matkap-hesaplama' },
+      { label: 'Metrik Diş ve Kılavuz Matkap Tablosu', href: '/arac/kilavuz-matkap-hesaplama?size=M16x2#hesaplama' },
       { label: 'Cıvata Sıkma Torku', href: '/arac/civata-sikma-torku-hesaplama' },
     ],
     intro: [
@@ -555,7 +555,7 @@ export const blogPosts: BlogPost[] = [
     category: 'Kılavuz Matkap',
     keywords: ['M20 matkap çapı', 'M20 kılavuz matkap çapı', 'M20 diş adımı', 'M20 hatve', 'M20 ön delik'],
     relatedTools: [
-      { label: 'Metrik Diş ve Kılavuz Matkap Tablosu', href: '/arac/kilavuz-matkap-hesaplama' },
+      { label: 'Metrik Diş ve Kılavuz Matkap Tablosu', href: '/arac/kilavuz-matkap-hesaplama?size=M20x2.5#hesaplama' },
       { label: 'Cıvata Sıkma Torku', href: '/arac/civata-sikma-torku-hesaplama' },
     ],
     intro: [
@@ -587,7 +587,7 @@ export const blogPosts: BlogPost[] = [
     category: 'Kılavuz Matkap',
     keywords: ['M30 hatve', 'M30 diş adımı', 'M30 matkap çapı', 'M30 kılavuz matkap çapı', 'M30 ince diş'],
     relatedTools: [
-      { label: 'Metrik Diş ve Kılavuz Matkap Tablosu', href: '/arac/kilavuz-matkap-hesaplama' },
+      { label: 'Metrik Diş ve Kılavuz Matkap Tablosu', href: '/arac/kilavuz-matkap-hesaplama?size=M30x3.5#hesaplama' },
       { label: 'Teknik Resim Çağrısı', href: '/arac/teknik-resim-cagri-olusturucu' },
     ],
     intro: [
