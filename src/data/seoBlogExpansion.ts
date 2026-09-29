@@ -758,12 +758,12 @@ export const seoBlogExpansionPosts: BlogPost[] = [
   },
   {
     slug: 'konik-hesaplama-buyuk-cap-kucuk-cap-boy-aci',
-    title: 'Konik Hesaplama: Büyük Çap, Küçük Çap, Boy ve Açı Formülleri',
-    description: 'Torna ve makine tasarımında koniklik oranı, 1:N gösterimi, toplam koni açısı ve yarım açı nasıl hesaplanır?',
+    title: 'Torna Derece Hesaplama: Konik Açı, Yarım Açı ve 1:N Koniklik',
+    description: 'Torna derece hesabında büyük çap, küçük çap ve boydan konik açı ile üst kızak yarım açısı nasıl bulunur? 1:N koniklik formülleriyle birlikte.',
     date: '2026-06-18',
     readTime: '7 dk okuma',
     category: 'Makine Tasarımı',
-    keywords: ['konik hesaplama', 'koniklik oranı', 'koni açısı hesaplama', 'torna konik hesabı', '1:10 koniklik'],
+    keywords: ['torna derece hesaplama', 'konik hesabı', 'konik hesabi', 'konik hesaplama', 'koniklik oranı', 'koni açısı hesaplama', 'torna konik hesabı', 'torna yarım açı', '1:10 koniklik'],
     relatedTools: [
       { label: 'Konik Hesaplama Aracı', href: '/arac/konik-hesaplama' },
       { label: 'Mil Mukavemet Hesapla', href: '/arac/mil-mukavemet-hesaplama' },
