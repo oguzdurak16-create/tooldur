@@ -82,7 +82,8 @@ export function getToolVisual(categoryId?: string, slug = ''): SiteVisual {
 export function getBlogVisual(post: { title: string; category: string; keywords?: string[] }): SiteVisual {
   const text = [post.title, post.category, ...(post.keywords || [])].join(' ').toLocaleLowerCase('tr-TR');
   if (/(sac|büküm|bukum|açınım|acinim|kesim|levha)/.test(text)) return blogVisuals.sheetMetal;
-  if (/(cıvata|civata|tork|vida|kama|kılavuz|kilavuz)/.test(text)) return blogVisuals.fastener;
+  if (/(kılavuz|kilavuz|metrik diş|metrik dis|hatve|ön delik|on delik)/.test(text)) return getToolVisual('makine', 'kilavuz-matkap-hesaplama');
+  if (/(cıvata|civata|tork|vida|kama)/.test(text)) return blogVisuals.fastener;
   if (/(rulman)/.test(text)) return blogVisuals.bearing;
   if (/(dişli|disli)/.test(text)) return blogVisuals.gear;
   if (/(kayış|kayis|kasnak)/.test(text)) return blogVisuals.beltPulley;
