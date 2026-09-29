@@ -46,7 +46,7 @@ export default function Home() {
   const featuredTools = prioritySlugs
     .map((slug) => tools.find((tool) => tool.slug === slug))
     .filter((tool): tool is Tool => Boolean(tool));
-  const visibleCategories = getIndexableCategories(categories).slice(0, 6);
+  const visibleCategories = getIndexableCategories(categories);
   const homeJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -98,19 +98,6 @@ export default function Home() {
           <Link href="/araclar" className={styles.textLink}>Tümünü gör <ArrowRight size={15} /></Link>
         </div>
         <div className={styles.toolsGrid}>{featuredTools.map((tool) => <ToolCard tool={tool} key={tool.slug} />)}</div>
-      </section>
-
-      <section className={`td-container ${styles.section}`}>
-        <div className={styles.sectionHead}>
-          <div><span className={styles.sectionLabel}>DOĞRUDAN ÇÖZÜM</span><h2>Aradığın teknik hesaba doğrudan git</h2><p>En çok aranan mühendislik teriminden ilgili tabloya veya hesaplama ekranına tek adımda ulaş.</p></div>
-        </div>
-        <div className={styles.intentGrid}>
-          {searchIntentLinks.map((item) => (
-            <Link href={item.href} className={styles.intentCard} key={item.href}>
-              <span>{item.label}</span><strong>{item.detail}</strong><b aria-hidden="true"><ArrowRight size={15} /></b>
-            </Link>
-          ))}
-        </div>
       </section>
 
       <section className={`td-container ${styles.section}`}>
