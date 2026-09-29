@@ -45,14 +45,14 @@ const meta: Record<string, PriorityToolMeta> = {
     keywords: ['kama kanalı ölçüsü', 'mil çapına göre kama', 'DIN 6885', 'kama ölçü tablosu', 'kama kanalı hesaplama'],
   },
   'kilavuz-matkap-hesaplama': {
-    title: 'Kılavuz Matkap Hesaplama – M2–M42 Matkap Çapları',
-    description: 'Kılavuz matkap çapını M2–M42 metrik dişlerde bulun. M6, M8, M10, M12 ve ince dişler için ön delik, adım ve teorik diş ölçülerini görüntüleyin.',
-    keywords: ['kılavuz matkap hesaplama', 'kılavuz matkap çapı', 'metrik diş tablosu', 'metrik kılavuz tablosu', 'kılavuz matkap çapları', 'M36 kılavuz matkap çapı', 'M8 matkap çapı', 'M10 matkap çapı', 'metrik diş dibi hesaplama'],
+    title: 'Metrik Diş Tablosu ve Kılavuz Matkap – M2–M42 Hatve ve Çaplar',
+    description: 'M2–M42 metrik diş hatvelerini ve kılavuz matkap çaplarını görüntüleyin. M6, M8, M10, M12, M16, M20 ve M30 için kaba/ince hatve, ön delik ve teorik diş ölçülerini bulun.',
+    keywords: ['kılavuz matkap hesaplama', 'kılavuz matkap çapı', 'metrik diş tablosu', 'metrik kılavuz tablosu', 'kılavuz matkap çapları', 'diş hatveleri', 'M6 matkap çapı', 'M8 diş adımı', 'M8 matkap çapı', 'M10 matkap çapı', 'M12 matkap çapı', 'M16 kılavuz matkap çapı', 'M16 matkap çapı', 'M20 matkap çapı', 'M30 hatve', 'M36 kılavuz matkap çapı', 'metrik diş dibi hesaplama'],
   },
   'konik-hesaplama': {
-    title: 'Koniklik Hesaplama – Konik Açı, Oran ve Torna Derecesi',
-    description: 'Koniklik hesaplama için büyük çap, küçük çap ve boydan konik açı, yarım açı ve 1:N oranını bulun; torna derece hesabını tek ekranda yapın.',
-    keywords: ['koniklik hesaplama', 'koniklik açısı hesaplama', 'koniklik hesaplama formülü', 'torna derece hesaplama', 'konik açı hesaplama', '1:N koniklik'],
+    title: 'Torna Derece Hesaplama – Konik Açı, Yarım Açı ve 1:N Koniklik',
+    description: 'Torna derece hesaplama için büyük çap, küçük çap ve boydan konik açıyı ve torna üst kızak yarım açısını bulun; 1:N koniklik oranını tek ekranda hesaplayın.',
+    keywords: ['torna derece hesaplama', 'konik hesabı', 'konik hesabi', 'koniklik hesaplama', 'koniklik açısı hesaplama', 'koniklik hesaplama formülü', 'konik açı hesaplama', 'torna konik hesabı', '1:N koniklik'],
   },
   'levha-agirlik-hesaplama': {
     title: 'Sac Ağırlık Hesaplama – Çelik, Galvanizli, Alüminyum Levha',
