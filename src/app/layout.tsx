@@ -142,8 +142,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               (function () {
                 if (!('serviceWorker' in navigator)) return;
                 var controller = navigator.serviceWorker.controller;
-                if (!controller || controller.scriptURL.indexOf('runtime=v6') !== -1) return;
-                var reloadKey = 'tooldur_old_sw_cleanup_v6';
+                if (!controller || controller.scriptURL.indexOf('runtime=v7') !== -1) return;
+                var reloadKey = 'tooldur_old_sw_cleanup_v7';
                 if (sessionStorage.getItem(reloadKey)) return;
                 sessionStorage.setItem(reloadKey, '1');
                 Promise.all([

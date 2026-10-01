@@ -13,7 +13,7 @@ type InstallPromptEvent = Event & {
 const DISMISS_KEY = 'tooldur_pwa_install_dismissed_at';
 const IOS_DISMISS_KEY = 'tooldur_budget_ios_install_dismissed_at';
 const VISIT_KEY = 'tooldur_pwa_visit_count';
-const SW_RELOAD_KEY = 'tooldur_sw_runtime_v6_reloaded';
+const SW_RELOAD_KEY = 'tooldur_sw_runtime_v7_reloaded';
 const DISMISS_DAYS = 14;
 
 function isStandalone() {
@@ -31,7 +31,7 @@ async function registerSafeServiceWorker() {
   if (!('serviceWorker' in navigator) || process.env.NODE_ENV !== 'production') return;
 
   const hadController = Boolean(navigator.serviceWorker.controller);
-  const registration = await navigator.serviceWorker.register('/sw.js?runtime=v6', {
+  const registration = await navigator.serviceWorker.register('/sw.js?runtime=v7', {
     updateViaCache: 'none',
   });
 
