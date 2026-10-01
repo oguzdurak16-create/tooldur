@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import {
   Store,
   Calculator,
@@ -549,7 +549,7 @@ function InputPercent({
   label: string;
   value: string;
   onChange: (value: string) => void;
-  icon?: JSX.Element;
+  icon?: ReactNode;
 }) {
   return (
     <div>
