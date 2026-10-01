@@ -31,14 +31,13 @@ export default defineConfig([
     files: sourceFiles,
     plugins: {
       '@next/next': nextPlugin,
+      'react-hooks': reactHooks,
     },
     rules: {
       ...nextPlugin.configs['core-web-vitals'].rules,
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
     },
-  },
-  {
-    ...reactHooks.configs.flat.recommended,
-    files: sourceFiles,
   },
   globalIgnores([
     '.next/**',
