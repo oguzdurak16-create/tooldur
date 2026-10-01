@@ -20,6 +20,10 @@ const TOOL_RELEASE_DATES: Record<string, Date> = {
 };
 const POLICY_RELEASE_DATE = new Date('2026-05-21T00:00:00+03:00');
 
+function roundPriority(value: number) {
+  return Math.round(value * 100) / 100;
+}
+
 function priorityForTool(t: typeof tools[number]) {
   return t.featured ? 0.9 : t.popular ? 0.82 : t.category === 'makine' ? 0.74 : 0.62;
 }
@@ -60,7 +64,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${BASE}${getLocalizedPath(locale, item.route)}`,
       lastModified: item.route === 'home' ? HOME_RELEASE_DATE : CONTENT_RELEASE_DATE,
       changeFrequency: item.frequency,
-      priority: locale === 'tr' ? item.priority : Math.max(item.priority - 0.08, 0.45),
+      priority: roundPriority(locale === 'tr' ? item.priority : Math.max(item.priority - 0.08, 0.45)),
       alternates: languageAlternates(item.route),
     }))
   );
@@ -89,7 +93,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${BASE}${getLocalizedPath(locale, 'tool', tool.slug)}`,
       lastModified: TOOL_RELEASE_DATES[tool.slug] || CONTENT_RELEASE_DATE,
       changeFrequency: tool.new ? ('weekly' as const) : ('monthly' as const),
-      priority: locale === 'tr' ? priorityForTool(tool) : Math.max(priorityForTool(tool) - 0.08, 0.45),
+      priority: roundPriority(locale === 'tr' ? priorityForTool(tool) : Math.max(priorityForTool(tool) - 0.08, 0.45)),
       alternates: languageAlternates('tool', tool.slug),
     }))
   );

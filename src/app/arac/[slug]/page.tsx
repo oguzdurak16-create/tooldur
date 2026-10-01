@@ -20,7 +20,7 @@ import styles from './ToolPage.module.css';
 export const revalidate = 86400;
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 const colorMap: Record<string, { accent: string; bg: string; soft: string }> = {
@@ -55,7 +55,7 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = params;
+  const { slug } = await params;
   const tool = getToolBySlug(slug);
 
   if (!tool) {
@@ -100,7 +100,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ToolPage({ params }: Props) {
-  const { slug } = params;
+  const { slug } = await params;
   const tool = getToolBySlug(slug);
 
   if (!tool) notFound();

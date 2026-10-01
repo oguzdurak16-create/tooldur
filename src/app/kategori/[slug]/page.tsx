@@ -16,7 +16,7 @@ import styles from '@/components/CategoryPage.module.css';
 export const revalidate = 86400;
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 const colorMap: Record<string, { accent: string }> = {
@@ -38,7 +38,8 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const category = categories.find((item) => item.slug === params.slug);
+  const { slug } = await params;
+  const category = categories.find((item) => item.slug === slug);
   if (!category) return { title: 'Kategori Bulunamadı' };
 
   const visual = getCategoryVisual(category.id);
@@ -60,8 +61,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function CategoryPage({ params }: Props) {
-  const category = categories.find((item) => item.slug === params.slug);
+export default async function CategoryPage({ params }: Props) {
+  const { slug } = await params;
+  const category = categories.find((item) => item.slug === slug);
   if (!category) notFound();
 
   const allCategoryTools = getToolsByCategory(category.id);
