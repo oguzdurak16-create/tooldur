@@ -133,8 +133,9 @@ function hashColor(slug: string) {
   return palette[hash % palette.length];
 }
 
-export async function GET(_request: Request, { params }: { params: { file: string } }) {
-  const slug = decodeURIComponent(params.file).replace(/\.svg$/i, '');
+export async function GET(_request: Request, { params }: { params: Promise<{ file: string }> }) {
+  const { file } = await params;
+  const slug = decodeURIComponent(file).replace(/\.svg$/i, '');
   const tool = getToolBySlug(slug);
   if (!tool) return new Response('Not found', { status: 404 });
   const category = getCategoryById(tool.category);

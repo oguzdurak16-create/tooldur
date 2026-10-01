@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   Zap,
   RotateCcw,
@@ -120,8 +120,8 @@ function temizSayisalDeger(value: string) {
 export default function VoltajDusumuCalculator({ locale = 'tr' }: { locale?: Locale }) {
   const isEnglish = locale === 'en';
   const numberLocale = isEnglish ? 'en-US' : 'tr-TR';
-  const phaseName = (key: FazKey) => isEnglish ? fazTipleri[key].adEn : fazTipleri[key].ad;
-  const conductorName = (key: IletkenKey) => isEnglish ? iletkenler[key].adEn : iletkenler[key].ad;
+  const phaseName = useCallback((key: FazKey) => isEnglish ? fazTipleri[key].adEn : fazTipleri[key].ad, [isEnglish]);
+  const conductorName = useCallback((key: IletkenKey) => isEnglish ? iletkenler[key].adEn : iletkenler[key].ad, [isEnglish]);
 
   const [akim, setAkim] = useState('32');
   const [gerilim, setGerilim] = useState('400');
@@ -207,7 +207,7 @@ export default function VoltajDusumuCalculator({ locale = 'tr' }: { locale?: Loc
       load: parseLocalizedNumber(akim) || 0,
       label: `${isEnglish ? 'Voltage drop' : 'Voltaj düşümü'} • ${phaseName(fazTipi)} • ${conductorName(iletkenTipi)}`,
     });
-  }, [hesap, kesit, akim, fazTipi, iletkenTipi, isEnglish]);
+  }, [hesap, kesit, akim, fazTipi, iletkenTipi, isEnglish, phaseName, conductorName]);
 
   const sifirla = () => {
     setAkim('');

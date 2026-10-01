@@ -9,14 +9,15 @@ export const revalidate = 86400;
 
 const BASE = 'https://www.tooldur.com';
 
-type PageProps = { params: { slug: string } };
+type PageProps = { params: Promise<{ slug: string }> };
 
 export function generateStaticParams() {
   return [];
 }
 
-export function generateMetadata({ params }: PageProps): Metadata {
-  const post = getBlogPost(params.slug);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const post = getBlogPost(slug);
   if (!post) return {};
   const visual = getBlogVisual(post);
 
@@ -45,8 +46,9 @@ export function generateMetadata({ params }: PageProps): Metadata {
   };
 }
 
-export default function BlogDetailPage({ params }: PageProps) {
-  const post = getBlogPost(params.slug);
+export default async function BlogDetailPage({ params }: PageProps) {
+  const { slug } = await params;
+  const post = getBlogPost(slug);
   if (!post) notFound();
 
   const visual = getBlogVisual(post);

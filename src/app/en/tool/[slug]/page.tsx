@@ -5,15 +5,16 @@ import { getLocalizedToolBySlug, getOriginalToolBySlug } from '@/lib/toolLocaliz
 import { isIndexableTool } from '@/lib/seoFocus';
 export const revalidate = 86400;
 
-interface Props { params: { slug: string } }
+interface Props { params: Promise<{ slug: string }> }
 
 export function generateStaticParams() {
   return [];
 }
 
-export function generateMetadata({ params }: Props): Metadata {
-  const tool = getLocalizedToolBySlug(params.slug, 'en');
-  const originalTool = getOriginalToolBySlug(params.slug);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const tool = getLocalizedToolBySlug(slug, 'en');
+  const originalTool = getOriginalToolBySlug(slug);
   if (!tool || !originalTool) return { robots: { index: false, follow: false } };
   return {
     title: tool.name,
@@ -24,6 +25,7 @@ export function generateMetadata({ params }: Props): Metadata {
   };
 }
 
-export default function EnglishToolRoute({ params }: Props) {
-  return <LocalizedToolPage locale="en" slug={params.slug} />;
+export default async function EnglishToolRoute({ params }: Props) {
+  const { slug } = await params;
+  return <LocalizedToolPage locale="en" slug={slug} />;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   Plus,
   Trash2,
@@ -982,7 +982,7 @@ function TabButton({
 }: {
   active: boolean;
   onClick: () => void;
-  icon: JSX.Element;
+  icon: ReactNode;
   label: string;
 }) {
   return (
@@ -1161,7 +1161,7 @@ function Overlay({
   children,
   onClose,
 }: {
-  children: JSX.Element;
+  children: ReactNode;
   onClose: () => void;
 }) {
   return (
@@ -1181,7 +1181,7 @@ function Field({
   children,
 }: {
   label: string;
-  children: JSX.Element;
+  children: ReactNode;
 }) {
   return (
     <div>

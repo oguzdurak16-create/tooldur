@@ -1,6 +1,7 @@
 'use client';
+/* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -128,7 +129,7 @@ export default function BudgetPage() {
     return () => URL.revokeObjectURL(url);
   }, [receipt]);
 
-  const loadMonth = async () => {
+  const loadMonth = useCallback(async () => {
     if (!user || !month) return;
     setLoading(true);
     const { start, next } = monthBounds(month);
@@ -146,9 +147,9 @@ export default function BudgetPage() {
       setLimits(DEFAULT_LIMITS);
     }
     setLoading(false);
-  };
+  }, [user, month]);
 
-  useEffect(() => { loadMonth(); }, [user, month]);
+  useEffect(() => { loadMonth(); }, [loadMonth]);
 
   const spent = useMemo(() => expenses.reduce((s, x) => s + Number(x.amount || 0), 0), [expenses]);
   const byCategory = useMemo(() => {
@@ -257,7 +258,7 @@ export default function BudgetPage() {
 
       <button className="fab" onClick={()=>setShowAdd(true)}><Plus size={23}/></button>
 
-      {showAdd && <div className="backdrop" onClick={resetForm}><div className="modal" onClick={e=>e.stopPropagation()}><div className="modalHead"><div><span>YENİ HARCAMA</span><h2>Harcama kaydet</h2></div><button onClick={resetForm}><X size={20}/></button></div><label className="receipt">{preview?<img src={preview} alt="Fiş önizleme"/>:<div><Camera size={26}/><strong>Fişin fotoğrafını çek</strong><span>Kamera açılır; galeriden de seçebilirsin.</span></div>}<input type="file" accept="image/*" capture="environment" onChange={e=>setReceipt(e.target.files?.[0]||null)}/>{preview&&<i>Fotoğrafı değiştir</i>}</label><div className="form"><label className="amount"><span>Tutar *</span><div className="moneyInput"><input inputMode="decimal" placeholder="0,00" value={form.amount} onChange={e=>setForm({...form,amount:e.target.value})}/><b>TL</b></div></label><label><span>Kategori</span><div className="select"><select value={form.category} onChange={e=>setForm({...form,category:e.target.value})}>{CATEGORIES.map(c=><option key={c.key}>{c.key}</option>)}</select><ChevronDown size={14}/></div></label><label><span>İşyeri / açıklama</span><input placeholder="ŞOK, akaryakıt, kahve..." value={form.merchant} onChange={e=>setForm({...form,merchant:e.target.value})}/></label><label><span>Tarih</span><input type="date" value={form.spent_at} onChange={e=>setForm({...form,spent_at:e.target.value})}/></label><label><span>Ödeme</span><div className="select"><select value={form.payment_method} onChange={e=>setForm({...form,payment_method:e.target.value})}>{PAYMENT_METHODS.map(x=><option key={x}>{x}</option>)}</select><ChevronDown size={14}/></div></label><label><span>Not</span><input placeholder="İsteğe bağlı" value={form.note} onChange={e=>setForm({...form,note:e.target.value})}/></label></div><div className="actions"><button className="secondary" onClick={resetForm}>Vazgeç</button><button className="primary" disabled={saving} onClick={addExpense}><Save size={16}/>{saving?'Kaydediliyor...':'Kaydet'}</button></div></div></div>}
+      {showAdd && <div className="backdrop" onClick={resetForm}><div className="modal" onClick={e=>e.stopPropagation()}><div className="modalHead"><div><span>YENİ HARCAMA</span><h2>Harcama kaydet</h2></div><button onClick={resetForm}><X size={20}/></button></div><label className="receipt">{preview?<><span className="sr-only">Fiş önizleme</span>{/* eslint-disable-next-line @next/next/no-img-element */}<img src={preview} alt="Fiş önizleme"/></>:<div><Camera size={26}/><strong>Fişin fotoğrafını çek</strong><span>Kamera açılır; galeriden de seçebilirsin.</span></div>}<input type="file" accept="image/*" capture="environment" onChange={e=>setReceipt(e.target.files?.[0]||null)}/>{preview&&<i>Fotoğrafı değiştir</i>}</label><div className="form"><label className="amount"><span>Tutar *</span><div className="moneyInput"><input inputMode="decimal" placeholder="0,00" value={form.amount} onChange={e=>setForm({...form,amount:e.target.value})}/><b>TL</b></div></label><label><span>Kategori</span><div className="select"><select value={form.category} onChange={e=>setForm({...form,category:e.target.value})}>{CATEGORIES.map(c=><option key={c.key}>{c.key}</option>)}</select><ChevronDown size={14}/></div></label><label><span>İşyeri / açıklama</span><input placeholder="ŞOK, akaryakıt, kahve..." value={form.merchant} onChange={e=>setForm({...form,merchant:e.target.value})}/></label><label><span>Tarih</span><input type="date" value={form.spent_at} onChange={e=>setForm({...form,spent_at:e.target.value})}/></label><label><span>Ödeme</span><div className="select"><select value={form.payment_method} onChange={e=>setForm({...form,payment_method:e.target.value})}>{PAYMENT_METHODS.map(x=><option key={x}>{x}</option>)}</select><ChevronDown size={14}/></div></label><label><span>Not</span><input placeholder="İsteğe bağlı" value={form.note} onChange={e=>setForm({...form,note:e.target.value})}/></label></div><div className="actions"><button className="secondary" onClick={resetForm}>Vazgeç</button><button className="primary" disabled={saving} onClick={addExpense}><Save size={16}/>{saving?'Kaydediliyor...':'Kaydet'}</button></div></div></div>}
 
       {showSettings && <div className="backdrop" onClick={()=>setShowSettings(false)}><div className="modal settings" onClick={e=>e.stopPropagation()}><div className="modalHead"><div><span>BÜTÇE AYARLARI</span><h2>Aylık limitler</h2></div><button onClick={()=>setShowSettings(false)}><X size={20}/></button></div><label className="totalField"><span>Toplam aylık tavan</span><div className="moneyInput"><input inputMode="decimal" value={totalLimit} onChange={e=>setTotalLimit(amountOf(e.target.value))}/><b>TL</b></div></label><div className="limitList">{CATEGORIES.map(c=>{const Icon=c.icon;return <label key={c.key}><span><Icon size={15}/>{c.key}</span><div className="moneyInput"><input inputMode="decimal" value={limits[c.key]||0} onChange={e=>setLimits({...limits,[c.key]:amountOf(e.target.value)})}/><b>TL</b></div></label>})}</div><div className="limitTotal"><span>Kategori toplamı</span><b>{money(Object.values(limits).reduce((s,x)=>s+Number(x||0),0))}</b></div><div className="actions"><button className="secondary" onClick={()=>{setTotalLimit(DEFAULT_TOTAL);setLimits(DEFAULT_LIMITS)}}>36.000 TL hedefi</button><button className="primary" disabled={saving} onClick={saveBudget}><Save size={16}/>{saving?'Kaydediliyor...':'Kaydet'}</button></div></div></div>}
     </main>

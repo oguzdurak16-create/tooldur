@@ -6,17 +6,18 @@ import { getLocalizedToolBySlug, getOriginalToolBySlug } from '@/lib/toolLocaliz
 import { isIndexableTool } from '@/lib/seoFocus';
 export const revalidate = 86400;
 
-interface Props { params: { locale: string; slug: string } }
+interface Props { params: Promise<{ locale: string; slug: string }> }
 
 export function generateStaticParams() {
   return [];
 }
 
-export function generateMetadata({ params }: Props): Metadata {
-  const locale = params.locale as PublicLocale;
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const resolvedParams = await params;
+  const locale = resolvedParams.locale as PublicLocale;
   if (!isPublicLocale(locale)) return { robots: { index: false, follow: false } };
-  const tool = getLocalizedToolBySlug(params.slug, locale);
-  const originalTool = getOriginalToolBySlug(params.slug);
+  const tool = getLocalizedToolBySlug(resolvedParams.slug, locale);
+  const originalTool = getOriginalToolBySlug(resolvedParams.slug);
   if (!tool || !originalTool) return { robots: { index: false, follow: false } };
   const robots = locale === 'en' && isIndexableTool(originalTool) ? { index: true, follow: true } : { index: false, follow: true };
   return {
@@ -28,7 +29,8 @@ export function generateMetadata({ params }: Props): Metadata {
   };
 }
 
-export default function LocalizedToolRoute({ params }: Props) {
-  if (!isPublicLocale(params.locale)) notFound();
-  return <LocalizedToolPage locale={params.locale as PublicLocale} slug={params.slug} />;
+export default async function LocalizedToolRoute({ params }: Props) {
+  const resolvedParams = await params;
+  if (!isPublicLocale(resolvedParams.locale)) notFound();
+  return <LocalizedToolPage locale={resolvedParams.locale as PublicLocale} slug={resolvedParams.slug} />;
 }

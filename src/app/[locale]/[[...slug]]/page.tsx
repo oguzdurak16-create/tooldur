@@ -77,13 +77,14 @@ export function generateStaticParams() {
   return [];
 }
 
-export function generateMetadata({ params }: { params: PageParams }): Metadata {
-  if (!isGeneratedLocale(params.locale)) return {};
+export async function generateMetadata({ params }: { params: Promise<PageParams> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  if (!isGeneratedLocale(resolvedParams.locale)) return {};
 
-  const resolved = resolveSlug(params.slug);
+  const resolved = resolveSlug(resolvedParams.slug);
   if (!resolved) return {};
 
-  const locale = params.locale as Locale;
+  const locale = resolvedParams.locale as Locale;
   const copy = getCopy(locale);
   const route = resolved.route;
   const robots: Metadata['robots'] = locale === 'en' && route !== 'project-management'
@@ -159,17 +160,18 @@ export function generateMetadata({ params }: { params: PageParams }): Metadata {
   };
 }
 
-export default function LocalizedRoutePage({ params }: { params: PageParams }) {
-  if (!isGeneratedLocale(params.locale)) {
+export default async function LocalizedRoutePage({ params }: { params: Promise<PageParams> }) {
+  const resolvedParams = await params;
+  if (!isGeneratedLocale(resolvedParams.locale)) {
     notFound();
   }
 
-  const resolved = resolveSlug(params.slug);
+  const resolved = resolveSlug(resolvedParams.slug);
   if (!resolved) {
     notFound();
   }
 
-  const locale = params.locale as Locale;
+  const locale = resolvedParams.locale as Locale;
 
   if (resolved.route === 'blog-post' && !blogPosts.some((item) => item.slug === resolved.itemSlug)) notFound();
 
