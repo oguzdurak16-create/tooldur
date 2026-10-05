@@ -102,7 +102,7 @@ const siteIdentityJsonLd = {
       url: 'https://www.tooldur.com',
       name: 'Tooldur',
       alternateName: 'Tooldur Mühendislik Araçları',
-      inLanguage: 'tr-TR',
+      inLanguage: ['tr-TR', 'en'],
       publisher: { '@id': 'https://www.tooldur.com/#organization' },
       potentialAction: {
         '@type': 'SearchAction',
@@ -116,10 +116,21 @@ const siteIdentityJsonLd = {
   ],
 };
 
+const documentLanguageBootstrap = `
+  (function () {
+    var first = window.location.pathname.split('/').filter(Boolean)[0] || 'tr';
+    var locales = { en: ['en', 'ltr'], es: ['es', 'ltr'], zh: ['zh-Hans', 'ltr'], hi: ['hi', 'ltr'], ar: ['ar', 'rtl'] };
+    var active = locales[first] || ['tr-TR', 'ltr'];
+    document.documentElement.lang = active[0];
+    document.documentElement.dir = active[1];
+  })();
+`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="tr" data-theme="dark" suppressHydrationWarning>
       <head>
+        <script id="tooldur-document-language" dangerouslySetInnerHTML={{ __html: documentLanguageBootstrap }} />
         <script id="tooldur-consent-default" src="/consent-default.js" />
         <script
           id="tooldur-adsense-script"

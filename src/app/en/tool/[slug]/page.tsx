@@ -21,7 +21,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     robots: isIndexableTool(originalTool) ? { index: true, follow: true } : { index: false, follow: true },
     description: tool.description,
     alternates: { canonical: `/en/tool/${tool.slug}`, languages: languageAlternates('tool', tool.slug) },
-    openGraph: { title: tool.name, description: tool.description, type: 'website' },
+    openGraph: {
+      title: tool.name,
+      description: tool.description,
+      url: `/en/tool/${tool.slug}`,
+      type: 'website',
+      locale: 'en_US',
+      siteName: 'Tooldur',
+      images: [{ url: '/og-image.png', width: 1200, height: 630, alt: `${tool.name} | Tooldur` }],
+    },
+    twitter: { card: 'summary_large_image', title: tool.name, description: tool.description, images: ['/og-image.png'] },
   };
 }
 

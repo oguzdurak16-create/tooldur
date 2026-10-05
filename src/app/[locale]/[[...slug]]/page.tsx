@@ -73,6 +73,30 @@ function isGeneratedLocale(locale: string): locale is PublicLocale {
   return (PUBLIC_LOCALES as readonly string[]).includes(locale);
 }
 
+const OG_LOCALE: Record<Locale, string> = {
+  tr: 'tr_TR',
+  en: 'en_US',
+  es: 'es_ES',
+  zh: 'zh_CN',
+  hi: 'hi_IN',
+  ar: 'ar_AR',
+};
+
+function socialMetadata(locale: Locale, title: string, description: string, url: string): Pick<Metadata, 'openGraph' | 'twitter'> {
+  return {
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'website',
+      locale: OG_LOCALE[locale],
+      siteName: 'Tooldur',
+      images: [{ url: '/og-image.png', width: 1200, height: 630, alt: `${title} | Tooldur` }],
+    },
+    twitter: { card: 'summary_large_image', title, description, images: ['/og-image.png'] },
+  };
+}
+
 export function generateStaticParams() {
   return [];
 }
@@ -102,12 +126,7 @@ export async function generateMetadata({ params }: { params: Promise<PageParams>
         canonical: absoluteLocalizedUrl(locale, route, tool.slug),
         languages: languageAlternates(route, tool.slug),
       },
-      openGraph: {
-        title: tool.name,
-        description: tool.description,
-        url: absoluteLocalizedUrl(locale, route, tool.slug),
-        type: 'website',
-      },
+      ...socialMetadata(locale, tool.name, tool.description, absoluteLocalizedUrl(locale, route, tool.slug)),
     };
   }
 
@@ -124,6 +143,7 @@ export async function generateMetadata({ params }: { params: Promise<PageParams>
         canonical: absoluteLocalizedUrl(locale, route, category.slug),
         languages: languageAlternates(route, category.slug),
       },
+      ...socialMetadata(locale, title, description, absoluteLocalizedUrl(locale, route, category.slug)),
     };
   }
 
@@ -138,6 +158,7 @@ export async function generateMetadata({ params }: { params: Promise<PageParams>
         canonical: absoluteLocalizedUrl(locale, route, post.slug),
         languages: languageAlternates(route, post.slug),
       },
+      ...socialMetadata(locale, post.title, `${copy.blogIntro} ${post.description}`, absoluteLocalizedUrl(locale, route, post.slug)),
     };
   }
 
@@ -151,12 +172,7 @@ export async function generateMetadata({ params }: { params: Promise<PageParams>
       canonical: absoluteLocalizedUrl(locale, route),
       languages: languageAlternates(route),
     },
-    openGraph: {
-      title: page.title,
-      description: page.description,
-      url: absoluteLocalizedUrl(locale, route),
-      type: 'website',
-    },
+    ...socialMetadata(locale, page.title, page.description, absoluteLocalizedUrl(locale, route)),
   };
 }
 

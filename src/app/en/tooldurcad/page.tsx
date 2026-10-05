@@ -7,7 +7,21 @@ export const metadata: Metadata = {
   title: 'TooldurCAD Download | English',
   description: 'Download TooldurCAD v1.0.3 SolidWorks helper and Universal Lite setup files. Independent engineering helper for machine designers.',
   alternates: { canonical: 'https://www.tooldur.com/en/tooldurcad' },
-  openGraph: { images: [{ url: '/visuals/topics/tool-software-og.webp', width: 1200, height: 630, alt: 'TooldurCAD engineering workspace' }] },
+  openGraph: {
+    title: 'TooldurCAD Download | English',
+    description: 'Download TooldurCAD v1.0.3 SolidWorks helper and Universal Lite setup files. Independent engineering helper for machine designers.',
+    url: 'https://www.tooldur.com/en/tooldurcad',
+    type: 'website',
+    locale: 'en_US',
+    siteName: 'Tooldur',
+    images: [{ url: '/visuals/topics/tool-software-og.webp', width: 1200, height: 630, alt: 'TooldurCAD engineering workspace' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'TooldurCAD Download | English',
+    description: 'SolidWorks helpers and Universal Lite setup files for machine design workflows.',
+    images: ['/visuals/topics/tool-software-og.webp'],
+  },
 };
 
 export default function EnglishTooldurCadPage() {

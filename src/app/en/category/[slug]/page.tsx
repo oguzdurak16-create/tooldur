@@ -17,7 +17,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const original = categories.find((c) => c.slug === slug);
   if (!original) return { robots: { index: false, follow: false } };
   const category = getLocalizedCategory(original, 'en');
-  return { title: category.name, description: category.description, robots: isIndexableCategory(original) ? { index: true, follow: true } : { index: false, follow: true }, alternates: { canonical: `/en/category/${category.slug}`, languages: languageAlternates('category', category.slug) } };
+  const canonical = `/en/category/${category.slug}`;
+  const robots = isIndexableCategory(original) ? { index: true, follow: true } : { index: false, follow: true };
+  return {
+    title: category.name,
+    description: category.description,
+    robots,
+    alternates: { canonical, languages: languageAlternates('category', category.slug) },
+    openGraph: {
+      title: category.name,
+      description: category.description,
+      url: canonical,
+      type: 'website',
+      locale: 'en_US',
+      siteName: 'Tooldur',
+      images: [{ url: '/og-image.png', width: 1200, height: 630, alt: `${category.name} engineering tools` }],
+    },
+    twitter: { card: 'summary_large_image', title: category.name, description: category.description, images: ['/og-image.png'] },
+  };
 }
 
 export default async function EnglishCategoryRoute({ params }: Props) {

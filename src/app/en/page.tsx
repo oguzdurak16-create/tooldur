@@ -17,6 +17,15 @@ export const metadata: Metadata = {
     description: page.description,
     url: absoluteLocalizedUrl('en', 'home'),
     type: 'website',
+    locale: 'en_US',
+    siteName: 'Tooldur',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Tooldur English engineering calculators' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${page.title} | ${getCopy('en').seoSuffix}`,
+    description: page.description,
+    images: ['/og-image.png'],
   },
 };
 
