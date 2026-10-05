@@ -45,8 +45,8 @@ const meta: Record<string, PriorityToolMeta> = {
     keywords: ['kama kanalı ölçüsü', 'mil çapına göre kama', 'DIN 6885', 'kama ölçü tablosu', 'kama kanalı hesaplama'],
   },
   'kilavuz-matkap-hesaplama': {
-    title: 'Metrik Diş Tablosu ve Kılavuz Matkap – M2–M42 Hatve ve Çaplar',
-    description: 'M2–M42 metrik diş hatvelerini ve kılavuz matkap çaplarını görüntüleyin. M6, M8, M10, M12, M16, M20 ve M30 için kaba/ince hatve, ön delik ve teorik diş ölçülerini bulun.',
+    title: 'Metrik Hatve Tablosu ve Kılavuz Matkap – M2–M42 Diş Ölçüleri',
+    description: 'Hatve tablosu ve kılavuz matkap çapları: M2–M42 metrik dişlerde kaba/ince hatveyi, ön delik çapını ve teorik diş ölçülerini; M6, M8, M10, M12, M16, M20 ve M30 dahil hızlıca bulun.',
     keywords: ['kılavuz matkap hesaplama', 'kılavuz matkap çapı', 'metrik diş tablosu', 'metrik kılavuz tablosu', 'kılavuz matkap çapları', 'diş hatveleri', 'M6 matkap çapı', 'M8 diş adımı', 'M8 matkap çapı', 'M10 matkap çapı', 'M12 matkap çapı', 'M16 kılavuz matkap çapı', 'M16 matkap çapı', 'M20 matkap çapı', 'M30 hatve', 'M36 kılavuz matkap çapı', 'metrik diş dibi hesaplama'],
   },
   'konik-hesaplama': {

@@ -15,7 +15,7 @@ const SITE_RELEASE_DATE = new Date('2026-09-14T00:00:00+03:00');
 const CONTENT_RELEASE_DATE = new Date('2026-09-14T00:00:00+03:00');
 const HOME_RELEASE_DATE = new Date('2026-09-29T00:00:00+03:00');
 const TOOL_RELEASE_DATES: Record<string, Date> = {
-  'kilavuz-matkap-hesaplama': new Date('2026-09-29T00:00:00+03:00'),
+  'kilavuz-matkap-hesaplama': new Date('2026-10-05T00:00:00+03:00'),
   'konik-hesaplama': new Date('2026-09-29T00:00:00+03:00'),
 };
 const POLICY_RELEASE_DATE = new Date('2026-05-21T00:00:00+03:00');
