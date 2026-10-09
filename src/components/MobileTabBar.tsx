@@ -42,7 +42,7 @@ export default function MobileTabBar() {
 
   useEffect(() => {
     setMounted(true);
-    document.documentElement.dataset.theme = 'dark';
+    document.documentElement.dataset.theme = 'light';
   }, []);
 
   useEffect(() => {

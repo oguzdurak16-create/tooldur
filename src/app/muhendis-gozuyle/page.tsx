@@ -56,7 +56,7 @@ export default function MgPage() {
               <a href="#konular" className={styles.primaryButton}>Konuları incele <ArrowRight size={17} /></a>
               <Link href="/araclar" className={styles.secondaryButton}><Wrench size={17} /> Hesaplama araçları</Link>
             </div>
-            <div className={styles.sourceNote}>Buradaki yazılar MG'de ele alınan konuların Tooldur için genişletilmiş uyarlamalarıdır; sosyal medya paylaşımlarının birebir arşivi değildir. Görseller temsili teknik çizimlerdir.</div>
+            <div className={styles.sourceNote}>Buradaki teknik yazılar MG paylaşımlarından genişletilmiştir. Görseller, Mühendis Gözüyle sayfasında yayımlanan özgün gönderi görselleridir.</div>
           </div>
           <Link className={styles.featured} href={'/muhendis-gozuyle/' + featured.slug} aria-label={featured.title + ' yazısına git'}>
             <Image src={featured.image} alt={featured.imageAlt} fill sizes="(max-width: 900px) 100vw, 400px" priority unoptimized />

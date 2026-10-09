@@ -8,6 +8,7 @@ export type MgStory = {
   hook: string;
   summary: string;
   image: string;
+  sourcePostUrl: string;
   imageAlt: string;
   readTime: string;
   lead: string;
@@ -25,8 +26,9 @@ export const mgStories: MgStory[] = [
     "category": "Ölçme ve Tolerans",
     "hook": "Oynayan kanca üretim hatası değil, ölçüm düzeltmesidir.",
     "summary": "Şerit metrenin ucundaki küçük boşluk, içten ve dıştan ölçüm arasında kanca kalınlığını telafi eder.",
-    "image": "/mg/serit-metrenin-kancasi-neden-oynar.svg",
-    "imageAlt": "Hareketli şerit metre kancasının içten ve dıştan ölçüm konumları; temsili mühendislik çizimi",
+    "image": "/mg/serit-metrenin-kancasi-neden-oynar.webp",
+    "sourcePostUrl": "https://www.facebook.com/122114184633409341/posts/122110539783409341",
+    "imageAlt": "Mühendis Gözüyle Facebook sayfasında yayımlanan özgün gönderi görseli",
     "readTime": "4 dk",
     "lead": "Kancanın hafifçe ileri geri hareket etmesi çoğu şerit metrede bilinçli bir tasarımdır. Uçta oluşan bu hareket, iki farklı ölçüm temasında sıfır noktasını düzeltmeye yarar.",
     "sections": [
@@ -62,8 +64,9 @@ export const mgStories: MgStory[] = [
     "category": "Basınçlı Sistemler",
     "hook": "Düz kapak kolay görünür; basınç altında daha zorlanabilir.",
     "summary": "Bombeli kapak, iç basıncın oluşturduğu yükleri geometri üzerinden daha elverişli dağıtır.",
-    "image": "/mg/basinc-tanklarinin-uclari-neden-bombeli.svg",
-    "imageAlt": "Bombeli kapaklı basınçlı kap ve yük yönleri; temsili teknik çizim",
+    "image": "/mg/basinc-tanklarinin-uclari-neden-bombeli.webp",
+    "sourcePostUrl": "https://www.facebook.com/122114184633409341/posts/122111282397409341",
+    "imageAlt": "Mühendis Gözüyle Facebook sayfasında yayımlanan özgün gönderi görseli",
     "readTime": "5 dk",
     "lead": "Basınçlı kaplarda uçların düz yerine bombeli olması yalnızca estetik seçim değildir. Basınç yükünün kabuk boyunca nasıl taşındığı, kapağın eğriliği ve geçiş geometrisiyle doğrudan ilişkilidir.",
     "sections": [
@@ -103,8 +106,9 @@ export const mgStories: MgStory[] = [
     "category": "Makine Elemanları",
     "hook": "Tek kalın çubuk güçlü olabilir; fakat makaranın etrafında kolay bükülmez.",
     "summary": "Çok telli halat tasarımı taşıma kapasitesiyle birlikte esneklik ve eğilme davranışını yönetir.",
-    "image": "/mg/celik-halat-neden-ince-tellerden-olusur.svg",
-    "imageAlt": "İnce tellerden meydana gelen çok demetli çelik halat kesiti; temsili çizim",
+    "image": "/mg/celik-halat-neden-ince-tellerden-olusur.webp",
+    "sourcePostUrl": "https://www.facebook.com/122114184633409341/posts/122111081469409341",
+    "imageAlt": "Mühendis Gözüyle Facebook sayfasında yayımlanan özgün gönderi görseli",
     "readTime": "5 dk",
     "lead": "Vinçte, asansörde veya çekme sisteminde görülen çelik halatlar tek bir kalın çelik telden oluşmaz. İnce tellerin demetler hâlinde örülmesi bilinçli bir mekanik çözümdür.",
     "sections": [
@@ -135,8 +139,9 @@ export const mgStories: MgStory[] = [
     "category": "Yapısal Mekanik",
     "hook": "Aynı malzemeyi başka yere koyunca eğilmeye direnç değişir.",
     "summary": "Başlıklar malzemeyi eğilme nötr ekseninden uzağa taşır; gövde başlıkları birbirine bağlar.",
-    "image": "/mg/i-profil-neden-i-seklindedir.svg",
-    "imageAlt": "I kesitinin başlık ve gövdesinde eğilme-gerilme davranışını gösteren temsili çizim",
+    "image": "/mg/i-profil-neden-i-seklindedir.webp",
+    "sourcePostUrl": "https://www.facebook.com/122114184633409341/posts/122110631469409341",
+    "imageAlt": "Mühendis Gözüyle Facebook sayfasında yayımlanan özgün gönderi görseli",
     "readTime": "5 dk",
     "lead": "Bir I profilin geometrisi tesadüf değildir. Taşıyıcı kesitin kütlesini, belirli bir doğrultudaki eğilme rijitliğini artıracak biçimde dağıtmaya yardımcı olur.",
     "sections": [
@@ -176,8 +181,9 @@ export const mgStories: MgStory[] = [
     "category": "Bağlantı Elemanları",
     "hook": "Anahtarın kafasındaki küçük açı dar alanda işe yarar.",
     "summary": "Açık ağız ile sap arasındaki yaygın 15° açı, anahtarı ters çevirerek sınırlı hareket alanında farklı kavrama konumlarına ulaşmayı kolaylaştırır.",
-    "image": "/mg/acik-agiz-anahtar-neden-15-derece.svg",
-    "imageAlt": "Altıgen somuna yerleşen 15 derece eğik açık ağız anahtar; temsili çizim",
+    "image": "/mg/acik-agiz-anahtar-neden-15-derece.webp",
+    "sourcePostUrl": "https://www.facebook.com/122114184633409341/posts/122110517211409341",
+    "imageAlt": "Mühendis Gözüyle Facebook sayfasında yayımlanan özgün gönderi görseli",
     "readTime": "4 dk",
     "lead": "Birçok açık ağız anahtarın çenesi sap eksenine göre yaklaşık 15° eğimlidir. Bu küçük detay, anahtarı bütünüyle döndüremediğiniz yerlerde işe yarar.",
     "sections": [
@@ -213,8 +219,9 @@ export const mgStories: MgStory[] = [
     "category": "Üretim Yöntemleri",
     "hook": "Bu izler rastgele çizik değil, kontrollü bir yüzey dokusudur.",
     "summary": "Honlama işleminin bıraktığı çapraz izler, yüzey geometrisi ve yağ tutma davranışı üzerinde etkilidir.",
-    "image": "/mg/honlama-yuzeyindeki-capraz-izler.svg",
-    "imageAlt": "Honlanmış silindirik yüzeyde çapraz tarama dokusu; temsili teknik çizim",
+    "image": "/mg/honlama-yuzeyindeki-capraz-izler.webp",
+    "sourcePostUrl": "https://www.facebook.com/122114184633409341/posts/122111302455409341",
+    "imageAlt": "Mühendis Gözüyle Facebook sayfasında yayımlanan özgün gönderi görseli",
     "readTime": "5 dk",
     "lead": "Motor silindiri ve bazı hidrolik bileşenlerin iç yüzeylerinde görülen çapraz honlama izleri, son yüzey işleme operasyonunun izleridir.",
     "sections": [
@@ -250,8 +257,9 @@ export const mgStories: MgStory[] = [
     "category": "Korozyon ve Malzeme",
     "hook": "Bazı metal parçalar bilerek önce aşınsın diye takılır.",
     "summary": "Uygun elektrokimyasal koşullarda daha aktif bir metal, korunan yüzey yerine korozyona uğramaya yönlendirilir.",
-    "image": "/mg/gemilerde-kurban-anot-ne-ise-yarar.svg",
-    "imageAlt": "Tekne gövdesine bağlı kurban anot ve elektrokimyasal koruma; temsili çizim",
+    "image": "/mg/gemilerde-kurban-anot-ne-ise-yarar.webp",
+    "sourcePostUrl": "https://www.facebook.com/122114184633409341/posts/122111261829409341",
+    "imageAlt": "Mühendis Gözüyle Facebook sayfasında yayımlanan özgün gönderi görseli",
     "readTime": "5 dk",
     "lead": "Tekne gövdeleri, pervaneler ve deniz suyuyla temas eden sistemlerde bazı metal parçalar görünüşte 'gereksiz' bir eklenti gibi durur. Oysa kurban anotlar, katodik korumanın temel unsurlarındandır.",
     "sections": [
@@ -282,8 +290,9 @@ export const mgStories: MgStory[] = [
     "category": "Rulmanlar",
     "hook": "Kafes, rulmanın ana yük taşıyan parçası değildir.",
     "summary": "Kafes bilyaların birbirinden ayrılmasına, çevresel aralıklarının korunmasına ve bazı çalışma koşullarında yönlendirilmelerine yardımcı olur.",
-    "image": "/mg/rulman-kafesi-ne-ise-yarar.svg",
-    "imageAlt": "Bilyalı rulmanda kafesin bilyaları ayırdığı temsili kesit",
+    "image": "/mg/rulman-kafesi-ne-ise-yarar.webp",
+    "sourcePostUrl": "https://www.facebook.com/122114184633409341/posts/122110644825409341",
+    "imageAlt": "Mühendis Gözüyle Facebook sayfasında yayımlanan özgün gönderi görseli",
     "readTime": "5 dk",
     "lead": "Bilyalı rulmanı dağıttığınızda göze çarpan ince halka ya da kafes, bilyaları yerinde tutan bir yardımcı elemandır. Rulmanın yük yolu ise esas olarak iç bilezik, yuvarlanma elemanları ve dış bilezik üzerinden oluşur.",
     "sections": [

@@ -4,7 +4,7 @@
   z-index: 1100;
   padding: 10px 0;
   border-bottom: 1px solid var(--border);
-  background: rgba(7, 11, 18, .82);
+  background: rgba(255, 255, 255, .96);
   backdrop-filter: blur(24px) saturate(145%);
 }
 
@@ -174,7 +174,7 @@
   padding: 8px;
   border: 1px solid var(--border-mid);
   border-radius: 15px;
-  background: rgba(12,18,29,.98);
+  background: #fff;
   box-shadow: var(--shadow-lg);
 }
 .langOption {
@@ -287,3 +287,9 @@
   .search { width: 42px; min-width: 42px; max-width: 42px; padding: 0; display: grid; place-items: center; }
   .search span,.search kbd { display: none; }
 }
+
+/* Light navigation */
+.search,.action,.iconButton { background: #fff; }
+.navLink.active { background: #fff6e8; }
+.brandTag { color: var(--ink-4); }
+.actionPrimary { background: #f3b443; color: #152231; }

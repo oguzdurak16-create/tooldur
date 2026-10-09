@@ -9,8 +9,8 @@ export const viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#070b12' },
-    { media: '(prefers-color-scheme: dark)', color: '#070b12' },
+    { media: '(prefers-color-scheme: light)', color: '#f7f9fc' },
+    { media: '(prefers-color-scheme: dark)', color: '#f7f9fc' },
   ],
 };
 
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: 'Tooldur',
-    statusBarStyle: 'black-translucent',
+    statusBarStyle: 'default',
   },
   formatDetection: { email: false, address: false, telephone: false },
   robots: {
@@ -128,7 +128,7 @@ const documentLanguageBootstrap = `
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="tr" data-theme="dark" suppressHydrationWarning>
+    <html lang="tr" data-theme="light" suppressHydrationWarning>
       <head>
         <script id="tooldur-document-language" dangerouslySetInnerHTML={{ __html: documentLanguageBootstrap }} />
         <script id="tooldur-consent-default" src="/consent-default.js" />

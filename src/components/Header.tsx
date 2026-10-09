@@ -32,8 +32,8 @@ export default function Header() {
   ];
 
   useEffect(() => {
-    document.documentElement.dataset.theme = 'dark';
-    localStorage.setItem('td-theme', 'dark');
+    document.documentElement.dataset.theme = 'light';
+    localStorage.setItem('td-theme', 'light');
   }, []);
 
   useEffect(() => {

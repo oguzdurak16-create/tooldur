@@ -2,9 +2,7 @@
   position: relative;
   margin-top: auto;
   border-top: 1px solid var(--border);
-  background:
-    radial-gradient(circle at 14% 0, rgba(255,177,27,.07), transparent 26%),
-    linear-gradient(180deg, rgba(10,16,26,.96), #070b12);
+  background: #ffffff;
 }
 
 .main {
@@ -50,7 +48,7 @@
   padding: 0 11px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(255,255,255,.025);
+  background: #fff;
   color: var(--ink-3);
   text-decoration: none;
   font: 700 10px/1 var(--font-mono);

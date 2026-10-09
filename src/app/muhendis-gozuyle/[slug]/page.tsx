@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ArrowRight, BookOpen, Clock3, Wrench } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Clock3, ExternalLink, Wrench } from 'lucide-react';
 import { getMgStory, MG_SITE_PUBLISHED_AT, mgStories } from '@/data/mgStories';
 import styles from '../mg.module.css';
 
@@ -73,7 +73,7 @@ export default async function MgStoryPage({ params }: Props) {
             <p className={styles.articleHook}>{story.hook}</p>
             <figure className={styles.articleVisual}>
               <Image src={story.image} alt={story.imageAlt} fill sizes="(max-width: 850px) 100vw, 560px" priority unoptimized />
-              <figcaption>Görsel, mekanizmayı anlatmak için hazırlanmış temsili teknik çizimdir; orijinal Facebook gönderisi değildir.</figcaption>
+              <figcaption>Mühendis Gözüyle Facebook sayfasında yayımlanmış orijinal gönderi görseli.</figcaption>
             </figure>
             <p className={styles.articleLead}>{story.lead}</p>
             {story.sections.map((section) => (
@@ -87,7 +87,8 @@ export default async function MgStoryPage({ params }: Props) {
               <ul>{story.takeaways.map((point) => <li key={point}>{point}</li>)}</ul>
             </section>
             <div className={styles.caution}><strong>Mühendislik notu:</strong> {story.caution}</div>
-            <p className={styles.adaptationNote}>Bu anlatım, Mühendis Gözüyle kanalında ele alınan konu temel alınarak Tooldur için yeniden yazılmıştır. Sosyal medya gönderisinin birebir metni değildir.</p>
+            <p className={styles.adaptationNote}>Bu anlatım, Mühendis Gözüyle kanalında ele alınan konu temel alınarak Tooldur için genişletilmiştir. Görsel özgün gönderiden alınmıştır.</p>
+            <a href={story.sourcePostUrl} target="_blank" rel="noopener noreferrer" className={styles.originalLink}>Orijinal Facebook gönderisini görüntüle <ExternalLink size={16} /></a>
           </article>
           <aside className={styles.sidebar}>
             <div className={styles.sidebarPanel}>
