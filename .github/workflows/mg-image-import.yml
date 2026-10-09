@@ -1,0 +1,38 @@
+name: One-time MG published image import
+
+on:
+  push:
+    branches: [mg-image-import-20261009]
+    paths:
+      - .github/workflows/mg-image-import.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mg-published-image-import
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install image dependencies
+        run: python -m pip install --disable-pip-version-check 'Pillow==11.3.0' 'requests==2.32.4'
+      - name: Preserve original MG post images as WebP
+        run: python scripts/import_mg_facebook_images.py
+      - name: Commit original images to the staging branch only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/mg/*.webp scripts/mg-original-post-image-manifest.json
+          git diff --cached --quiet && { echo "Nothing to import"; exit 0; }
+          git commit -m "[skip ci] assets: preserve published MG Facebook post images"
+          git push origin HEAD:mg-image-import-20261009
