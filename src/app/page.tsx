@@ -6,6 +6,7 @@ import TooldurSearchBox from '@/components/TooldurSearchBox';
 import ToolCard from '@/components/ToolCard';
 import CategoryCard from '@/components/CategoryCard';
 import { categories, tools, type Tool } from '@/data/tools';
+import { mgStories } from '@/data/mgStories';
 import { getIndexableCategories, getIndexableTools } from '@/lib/seoFocus';
 import styles from './home.module.css';
 
@@ -98,6 +99,21 @@ export default function Home() {
           <Link href="/araclar" className={styles.textLink}>Tümünü gör <ArrowRight size={15} /></Link>
         </div>
         <div className={styles.toolsGrid}>{featuredTools.map((tool) => <ToolCard tool={tool} key={tool.slug} />)}</div>
+      </section>
+
+      <section className={`td-container ${styles.section}`} aria-labelledby="mg-home-title">
+        <div className={styles.sectionHead}>
+          <div><span className={styles.sectionLabel}>MÜHENDİS GÖZÜYLE</span><h2 id="mg-home-title">Bir detayın arkasındaki mühendisliği keşfet</h2><p>Şerit metre, basınç tankı ve çelik halat gibi günlük mekanizmaların teknik açıklamaları.</p></div>
+          <Link href="/muhendis-gozuyle" className={styles.textLink}>Tüm anlatımları aç <ArrowRight size={15} /></Link>
+        </div>
+        <div className={styles.mgGrid}>
+          {mgStories.slice(0, 3).map((story) => (
+            <Link key={story.slug} href={'/muhendis-gozuyle/' + story.slug} className={styles.mgCard}>
+              <div className={styles.mgThumb}><Image src={story.image} alt={story.imageAlt} fill sizes="(max-width: 900px) 100vw, 33vw" unoptimized /></div>
+              <div className={styles.mgCardContent}><span>{story.category}</span><h3>{story.title}</h3><p>{story.summary}</p><strong>Teknik açıklamayı oku <ArrowRight size={15} /></strong></div>
+            </Link>
+          ))}
+        </div>
       </section>
 
       <section className={`td-container ${styles.section}`}>

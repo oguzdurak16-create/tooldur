@@ -215,6 +215,7 @@ export default function BlogPage() {
               <Link href={`/blog/${featured.slug}`} className="td-blog-btn">
                 Öne çıkan yazıyı oku <ArrowRight size={17} />
               </Link>
+              <Link href="/muhendis-gozuyle" className="td-blog-btn secondary">Mühendis Gözüyle arşivi <ArrowRight size={17} /></Link>
               <Link href="/araclar" className="td-blog-btn secondary">
                 Hesaplama araçlarına git <Wrench size={17} />
               </Link>

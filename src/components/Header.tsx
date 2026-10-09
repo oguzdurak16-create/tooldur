@@ -28,6 +28,7 @@ export default function Header() {
     { href: toolsHref, label: nav.tools },
     { href: cadHref, label: nav.cad },
     { href: blogHref, label: nav.blog },
+    ...(locale === 'tr' ? [{ href: '/muhendis-gozuyle', label: 'Mühendis Gözüyle' }] : []),
   ];
 
   useEffect(() => {

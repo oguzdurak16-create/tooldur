@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="750" viewBox="0 0 600 750" role="img" aria-label="RULMAN KAFESİ - NEDEN VAR?">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#152338"/><stop offset="1" stop-color="#050b13"/></linearGradient><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e2edf6"/><stop offset=".45" stop-color="#5e7488"/><stop offset="1" stop-color="#ced8df"/></linearGradient><radialGradient id="glow"><stop stop-color="#d39326" stop-opacity=".25"/><stop offset="1" stop-color="#d39326" stop-opacity="0"/></radialGradient></defs>
+<rect width="600" height="750" fill="url(#bg)"/>
+<g opacity=".2" stroke="#5f778d" stroke-width=".7"><path d="M0 180H600"/><path d="M0 220H600"/><path d="M0 260H600"/><path d="M0 300H600"/><path d="M0 340H600"/><path d="M0 380H600"/><path d="M0 420H600"/><path d="M0 460H600"/><path d="M0 500H600"/><path d="M0 540H600"/><path d="M0 580H600"/><path d="M0 620H600"/><path d="M0 660H600"/><path d="M0 180V700"/><path d="M45 180V700"/><path d="M90 180V700"/><path d="M135 180V700"/><path d="M180 180V700"/><path d="M225 180V700"/><path d="M270 180V700"/><path d="M315 180V700"/><path d="M360 180V700"/><path d="M405 180V700"/><path d="M450 180V700"/><path d="M495 180V700"/><path d="M540 180V700"/><path d="M585 180V700"/></g>
+<rect width="600" height="178" fill="#020507"/>
+<rect y="174" width="600" height="4" fill="#fbbf24"/>
+<text x="35" y="48" font-family="Arial, Helvetica, sans-serif" font-size="18" letter-spacing="5" font-weight="800" fill="#fbbf24">MÜHENDİS GÖZÜYLE</text>
+<text x="35" y="105" font-family="Arial, Helvetica, sans-serif" font-size="37" font-weight="900" fill="#fff">RULMAN KAFESİ</text>
+<text x="35" y="151" font-family="Arial, Helvetica, sans-serif" font-size="37" font-weight="900" fill="#fbbf24">NEDEN VAR?</text>
+<ellipse cx="300" cy="445" rx="270" ry="280" fill="url(#glow)"/>
+<circle cx="300" cy="420" r="184" fill="#8ca2b3" stroke="#f3f8ff" stroke-width="8"/><circle cx="300" cy="420" r="136" fill="#0e1a29" stroke="#e5ecf4" stroke-width="7"/><circle cx="300" cy="420" r="72" fill="#8ca2b3" stroke="#eaf0f7" stroke-width="7"/>
+<circle cx="300" cy="420" r="111" fill="none" stroke="#fbbf24" stroke-width="16" stroke-dasharray="43 44"/>
+<circle cx="408" cy="420" r="26" fill="url(#metal)" stroke="#fff" stroke-width="4"/><circle cx="376.3675323681471" cy="496.3675323681471" r="26" fill="url(#metal)" stroke="#fff" stroke-width="4"/><circle cx="300" cy="528" r="26" fill="url(#metal)" stroke="#fff" stroke-width="4"/><circle cx="223.63246763185288" cy="496.3675323681471" r="26" fill="url(#metal)" stroke="#fff" stroke-width="4"/><circle cx="192" cy="420" r="26" fill="url(#metal)" stroke="#fff" stroke-width="4"/><circle cx="223.63246763185285" cy="343.6324676318529" r="26" fill="url(#metal)" stroke="#fff" stroke-width="4"/><circle cx="300" cy="312" r="26" fill="url(#metal)" stroke="#fff" stroke-width="4"/><circle cx="376.3675323681471" cy="343.6324676318528" r="26" fill="url(#metal)" stroke="#fff" stroke-width="4"/>
+<path d="M407 491L474 546" stroke="#ffc23d" stroke-width="5"/><text x="429" y="597" fill="#ffe28d" font-size="26" text-anchor="middle">Kafes</text>
+<rect x="22" y="695" width="556" height="34" rx="10" fill="#030910" stroke="#536477" stroke-opacity=".45"/>
+<text x="38" y="716" font-family="Arial, Helvetica, sans-serif" font-size="13" letter-spacing="2" fill="#d8e1ea">TOOLDUR • TEMSİLİ TEKNİK ÇİZİM</text>
+</svg>

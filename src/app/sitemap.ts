@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { tools, categories } from '@/data/tools';
 import { blogPosts } from '@/data/blogPosts';
+import { mgStories, MG_SITE_PUBLISHED_AT } from '@/data/mgStories';
 import { getIndexableCategories, getIndexableTools } from '@/lib/seoFocus';
 import { BASE_URL, getLocalizedPath, type Locale } from '@/lib/siteLanguage';
 
@@ -105,11 +106,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  const mgPages: MetadataRoute.Sitemap = [
+    { url: `${BASE}/muhendis-gozuyle`, lastModified: new Date(MG_SITE_PUBLISHED_AT), changeFrequency: 'weekly', priority: 0.83 },
+    ...mgStories.map((story) => ({
+      url: `${BASE}/muhendis-gozuyle/${story.slug}`,
+      lastModified: new Date(MG_SITE_PUBLISHED_AT),
+      changeFrequency: 'monthly' as const,
+      priority: 0.76,
+    })),
+  ];
+
   return [
     ...localizedStatic,
     ...trOnlyStatic,
     ...categoryPages,
     ...toolPages,
     ...blogPages,
+    ...mgPages,
   ];
 }

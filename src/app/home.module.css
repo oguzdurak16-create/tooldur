@@ -297,3 +297,15 @@
   .finalCta { align-items: stretch; flex-direction: column; margin-bottom: 36px; padding: 22px; }
   .finalCta .button { width: 100%; }
 }
+
+/* Mühendis Gözüyle: related editorial topics, separate from calculation tools */
+.mgGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.mgCard{display:grid;grid-template-columns:110px minmax(0,1fr);align-items:stretch;overflow:hidden;gap:0;min-height:178px;border:1px solid var(--border-mid);border-radius:17px;background:rgba(255,255,255,.025);color:var(--ink);text-decoration:none;transition:transform .2s,border-color .2s}
+.mgCard:hover{border-color:rgba(255,177,27,.4);transform:translateY(-2px)}
+.mgThumb{position:relative;min-height:178px;background:#09121d}.mgThumb img{object-fit:cover}
+.mgCardContent{display:flex;flex-direction:column;padding:17px}.mgCardContent>span{color:var(--accent);font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.mgCardContent h3{font-size:17px;letter-spacing:-.025em;line-height:1.3;margin:8px 0}
+.mgCardContent p{font-size:12px;color:var(--ink-3);line-height:1.65;margin:0 0 14px}
+.mgCardContent strong{margin-top:auto;display:inline-flex;align-items:center;gap:6px;color:var(--accent);font-size:11px}
+@media(max-width:1080px){.mgGrid{grid-template-columns:1fr}}
+@media(max-width:520px){.mgCard{grid-template-columns:110px minmax(0,1fr)}.mgCardContent{padding:13px}.mgCardContent h3{font-size:15px}.mgCardContent p{font-size:11px}}

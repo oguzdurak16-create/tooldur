@@ -110,6 +110,7 @@ export default function MobileTabBar() {
                 {discountAccess && <Link href="/indirim" className={`${styles.link} ${isActive('/indirim') ? styles.active : ''}`}>İndirim Takip<Tag size={15} /></Link>}
                 <Link href={cadHref} className={`${styles.link} ${isActive(cadHref) ? styles.active : ''}`}>{nav.downloadCad}<ArrowRight size={15} /></Link>
                 <Link href={blogHref} className={`${styles.link} ${isActive(blogHref) ? styles.active : ''}`}>{nav.blog}<BookOpen size={15} /></Link>
+                {locale === 'tr' && <Link href="/muhendis-gozuyle" className={`${styles.link} ${isActive('/muhendis-gozuyle') ? styles.active : ''}`}>Mühendis Gözüyle<BookOpen size={15} /></Link>}
                 <Link href={forumHref} className={`${styles.link} ${isActive(forumHref) ? styles.active : ''}`}>{nav.forum}<MessageSquare size={15} /></Link>
                 <Link href={supportHref} className={`${styles.link} ${isActive(supportHref) ? styles.active : ''}`}>{nav.support}<HeartHandshake size={15} /></Link>
               </div>

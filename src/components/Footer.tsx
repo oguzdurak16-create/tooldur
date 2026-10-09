@@ -20,6 +20,7 @@ export default function Footer() {
     { label: footer.about, href: getLocalizedPath(locale, 'about') },
     { label: footer.contact, href: getLocalizedPath(locale, 'contact') },
     { label: 'Blog', href: getLocalizedPath(locale, 'blog') },
+    ...(locale === 'tr' ? [{ label: 'Mühendis Gözüyle', href: '/muhendis-gozuyle' }] : []),
     { label: footer.technical, href: getLocalizedPath(locale, 'technical-call-library') },
     { label: footer.releaseNotes, href: getLocalizedPath(locale, 'release-notes') },
     { label: footer.roadmap, href: getLocalizedPath(locale, 'roadmap') },
