@@ -544,17 +544,34 @@ export async function ekSilVeLogla(params: {
 }
 
 /* ─── Kullanıcı Arama ──────────────────────────────────── */
-export async function kullanicilariAra(query: string, mevcutUyeUidler: string[]): Promise<UyeRef[]> {
-  if (!query.trim() || query.length < 2) return [];
+export async function kullanicilariAra(query: string, mevcutUyeUidler: string[], projeId: string): Promise<UyeRef[]> {
+  const term = query.trim();
+  if (!projeId || term.length < 2) return [];
 
-  const { data: profil, error } = await supabase
-    .from('pm_kullanici_profiller')
-    .select('uid, display_name, email, photo_url')
-    .or(`display_name.ilike.%${query}%,email.ilike.%${query}%`)
-    .limit(10);
-  if (error) throw error;
+  // Secure project-owner-only directory lookup. The database routine checks
+  // project ownership and limits the returned directory rows.
+  const { data: matches, error: rpcError } = await supabase.rpc('pm_directory_search', {
+    p_proje_id: projeId,
+    p_query: term,
+  });
 
-  return (profil ?? [])
+  let profil: any[] = matches ?? [];
+  if (rpcError) {
+    // Temporary compatibility path during the two-step release. Remove after
+    // the database migration is installed and confirmed in production.
+    if (!['PGRST202', '42883'].includes(String(rpcError.code ?? ''))) throw rpcError;
+
+    const { data: legacyMatches, error: legacyError } = await supabase
+      .from('pm_kullanici_profiller')
+      .select('uid, display_name, email, photo_url')
+      .or(`display_name.ilike.%${term}%,email.ilike.%${term}%`)
+      .limit(10);
+
+    if (legacyError) throw legacyError;
+    profil = legacyMatches ?? [];
+  }
+
+  return profil
     .filter((u: any) => !mevcutUyeUidler.includes(u.uid))
     .map((u: any) => ({
       uid: u.uid,
