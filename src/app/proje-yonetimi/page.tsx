@@ -536,7 +536,7 @@ function TeamModal({
     const timer = window.setTimeout(async () => {
       setSearching(true);
       try {
-        const found = await kullanicilariAra(clean, memberIds);
+        const found = await kullanicilariAra(clean, memberIds, project.id);
         if (active) setResults(found);
       } catch {
         if (active) setResults([]);
@@ -548,7 +548,7 @@ function TeamModal({
       active = false;
       window.clearTimeout(timer);
     };
-  }, [memberIds, query]);
+  }, [memberIds, project.id, query]);
 
   const send = async (email: string) => {
     const clean = email.trim().toLowerCase();
