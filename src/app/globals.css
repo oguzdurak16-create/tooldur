@@ -2750,3 +2750,8 @@ html[data-theme="dark"] :is(.calc-title,.calc-muted) { color:var(--ink-2) !impor
 /* Category hues stay readable on each theme’s card surface. */
 html[data-theme="dark"] .tool-card-modern { --tool-foreground: var(--tool-accent); }
 html[data-theme="dark"] .category-card-modern { --category-foreground: var(--category-accent); }
+
+/* Technical thumbnails use the current surface; avoid a dark overlay on drawings. */
+.tool-card-visual { background: var(--bg-muted) !important; }
+.tool-card-visual::after { display: none; }
+.tool-card-visual img { object-fit: contain; padding: 6px; }

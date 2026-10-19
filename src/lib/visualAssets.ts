@@ -68,7 +68,7 @@ export function getCategoryVisual(categoryId?: string): SiteVisual {
 export function getToolVisual(categoryId?: string, slug = ''): SiteVisual {
   const tool = slug ? getToolBySlug(slug) : undefined;
   if (tool) {
-    const path = `/api/tool-visual/${encodeURIComponent(tool.slug)}.svg`;
+    const path = `/api/tool-visual/${encodeURIComponent(tool.slug)}.svg?v=2`;
     return {
       src: path,
       og: path,
