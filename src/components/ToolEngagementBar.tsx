@@ -65,7 +65,7 @@ export default function ToolEngagementBar({ slug, name, locale = 'tr' }: Props) 
         .td-tool-engagement{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:17px;position:relative}
         .td-tool-engagement button,.td-tool-engagement a{min-height:38px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 12px;border:1px solid var(--border-mid);border-radius:11px;background:var(--bg-card);color:var(--ink-2);font-size:12px;font-weight:800;text-decoration:none;cursor:pointer}
         .td-tool-engagement button:hover,.td-tool-engagement button.active{border-color:rgba(255,177,27,.38);color:var(--amber);background:rgba(255,177,27,.07)}
-        .td-tool-engagement .td-tool-engagement-primary{border-color:transparent;background:var(--amber);color:#07111f}
+        .td-tool-engagement .td-tool-engagement-primary{border-color:transparent;background:var(--action-bg);color:var(--action-ink)}
         .td-tool-engagement-status{display:inline-flex;align-items:center;gap:5px;color:var(--green);font-size:11.5px;font-weight:800}
         @media(max-width:560px){.td-tool-engagement{display:grid;grid-template-columns:1fr 1fr}.td-tool-engagement a,.td-tool-engagement button{width:100%;padding:0 8px}.td-tool-engagement-status{grid-column:1/-1}.td-tool-engagement button span{display:none}}
       `}</style>
