@@ -2,7 +2,7 @@
   position: relative;
   margin-top: auto;
   border-top: 1px solid var(--border);
-  background: #ffffff;
+  background: var(--bg-card);
 }
 
 .main {
@@ -48,7 +48,7 @@
   padding: 0 11px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: #fff;
+  background: var(--bg-card);
   color: var(--ink-3);
   text-decoration: none;
   font: 700 10px/1 var(--font-mono);

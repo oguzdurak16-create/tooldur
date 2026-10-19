@@ -4,7 +4,7 @@
   z-index: 1100;
   padding: 10px 0;
   border-bottom: 1px solid var(--border);
-  background: rgba(255, 255, 255, .96);
+  background: var(--bg-card);
   backdrop-filter: blur(24px) saturate(145%);
 }
 
@@ -174,7 +174,7 @@
   padding: 8px;
   border: 1px solid var(--border-mid);
   border-radius: 15px;
-  background: #fff;
+  background: var(--bg-card);
   box-shadow: var(--shadow-lg);
 }
 .langOption {
@@ -289,7 +289,7 @@
 }
 
 /* Light navigation */
-.search,.action,.iconButton { background: #fff; }
-.navLink.active { background: #fff6e8; }
+.search,.action,.iconButton { background: var(--bg-card); }
+.navLink.active { background: var(--accent-soft); }
 .brandTag { color: var(--ink-4); }
 .actionPrimary { background: #f3b443; color: #152231; }

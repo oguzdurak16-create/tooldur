@@ -2600,7 +2600,7 @@ body::before, .td-app-shell::before { display: none !important; }
 .support-btn-secondary, .i18n-btn.secondary,
 .pmx-btn-secondary, .pm-btn-muted {
   color: var(--ink-2) !important;
-  background: #fff !important;
+  background: var(--bg-card) !important;
   border: 1px solid var(--border-mid) !important;
   box-shadow: none !important;
 }
@@ -2628,14 +2628,14 @@ body .i18n-tool,
 body .td-post-main,
 body .td-post-side,
 body .td-post-faq {
-  background: #fff !important;
+  background: var(--bg-card) !important;
   background-image: none !important;
   border: 1px solid var(--border) !important;
   box-shadow: var(--shadow-sm) !important;
 }
 body .td-blog-hero-card::before { background: none !important; }
 body .td-blog-card:hover, body .td-blog-mini:hover {
-  background: #fff !important;
+  background: var(--bg-card) !important;
   border-color: var(--border-bright) !important;
   box-shadow: var(--shadow) !important;
 }
@@ -2666,7 +2666,7 @@ body .td-blog-badge, body .td-post-badge {
 main .rounded-xl.bg-white,
 main .rounded-2xl.bg-white,
 main .rounded-3xl.bg-white {
-  background: #fff !important;
+  background: var(--bg-card) !important;
   background-image: none !important;
   border: 1px solid var(--border-mid) !important;
   box-shadow: var(--shadow-sm) !important;
@@ -2677,7 +2677,7 @@ main .rounded-3xl.bg-white {
 .calculator-card input,
 .calculator-card select,
 .calculator-card textarea {
-  background: #fff !important;
+  background: var(--bg-card) !important;
   color: var(--ink) !important;
 }
 
@@ -2691,14 +2691,14 @@ main .rounded-3xl.bg-white {
 .notes-list-panel,.notes-editor-panel,
 .forum-grid > *, .forum-sidebar > *,
 [class*="forum-card"],[class*="topic-card"] {
-  background: #fff !important;
+  background: var(--bg-card) !important;
   background-image: none !important;
   color: var(--ink) !important;
   border: 1px solid var(--border-mid) !important;
   box-shadow: var(--shadow-sm) !important;
 }
 .pm-sidebar,.pmx-sidebar,.pmx-topbar,.pm-legacy-topbar {
-  background: rgba(255,255,255,.97) !important;
+  background: var(--bg-card) !important;
   color: var(--ink) !important;
   border-color: var(--border) !important;
   box-shadow: var(--shadow-sm) !important;
@@ -2712,7 +2712,7 @@ main .rounded-3xl.bg-white {
 
 /* Form affordances and content spacing */
 input, textarea, select {
-  background: #fff !important;
+  background: var(--bg-card) !important;
   border-color: var(--border-mid) !important;
   color: var(--ink) !important;
 }
@@ -2721,3 +2721,24 @@ input:focus, textarea:focus, select:focus {
 }
 .td-card, .card, .td-blog-card, .td-blog-hero-card { border-radius: 16px !important; }
 body .td-blog-page, body .td-post-page { background-image: none !important; }
+
+/* Theme contract: data-theme is canonical; .dark mirrors it for Tailwind and legacy calculators. */
+html[data-theme="dark"] {
+ color-scheme:dark;
+ --bg:#101823; --bg-warm:#131e2b; --bg-card:#192534; --bg-muted:#202e3f;
+ --bg-input:#152130; --bg-elevated:#223247; --bg-surface:#121d2b;
+ --border:#304156; --border-mid:#3c5068; --border-dark:#506681; --border-bright:#7187a0; --border-dim:#28384b;
+ --ink:#edf3fa; --ink-2:#d0dce9; --ink-3:#b1c1d3; --ink-4:#95a9c0;
+ --accent:#f3b443; --accent-strong:#ffd17b; --accent-soft:#30281c; --accent-mid:#45351e;
+ --accent-2:#f8c66e; --accent-2-soft:#30281c;
+ --blue:#8bc6f2; --blue-soft:#172f46; --green:#76d9b0; --success:#76d9b0; --green-light:#163b31;
+ --red:#ffa0ad; --red-light:#42232c;
+ --shadow-sm:0 2px 9px #0002; --shadow:0 7px 26px #0004; --shadow-lg:0 16px 48px #0005;
+}
+html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea {
+ background:var(--bg-input) !important; color:var(--ink) !important;
+}
+html[data-theme="dark"] :is(.calc-panel,.calc-soft,.calc-result,.calc-box,.tol-card) {
+ background:var(--bg-card) !important; color:var(--ink) !important; border-color:var(--border-mid) !important;
+}
+html[data-theme="dark"] :is(.calc-title,.calc-muted) { color:var(--ink-2) !important; }

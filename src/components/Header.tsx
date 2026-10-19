@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { ChevronDown, Globe, LayoutDashboard, LogIn, Search, WalletCards } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import ThemeToggle from '@/components/ThemeToggle';
 import GlobalToolSearch from '@/components/GlobalToolSearch';
 import { ALL_LOCALES, LANGUAGE_META, UI_TEXT, getLocaleFromPathname, getLocalizedPath, localizeCurrentPath, type Locale } from '@/lib/siteLanguage';
 import styles from './Header.module.css';
@@ -31,10 +32,6 @@ export default function Header() {
     ...(locale === 'tr' ? [{ href: '/muhendis-gozuyle', label: 'Mühendis Gözüyle' }] : []),
   ];
 
-  useEffect(() => {
-    document.documentElement.dataset.theme = 'light';
-    localStorage.setItem('td-theme', 'light');
-  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -79,6 +76,7 @@ export default function Header() {
           </div>
 
           <div className={styles.actions}>
+            <ThemeToggle />
             {authReady && user ? (
               <>
                 <Link href="/dashboard/butce" className={`${styles.action} ${styles.desktopAction}`} title="Harcama ve bütçe takibi"><WalletCards size={15} /> Bütçe</Link>

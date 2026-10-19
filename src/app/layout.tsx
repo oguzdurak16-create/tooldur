@@ -130,6 +130,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="tr" data-theme="light" suppressHydrationWarning>
       <head>
+        <script id="tooldur-theme" dangerouslySetInnerHTML={{ __html: `(function(){var theme='light';try{var saved=localStorage.getItem('td-theme');theme=saved==='dark'||saved==='light'?saved:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');}catch(e){}var root=document.documentElement;root.dataset.theme=theme;root.classList.toggle('dark',theme==='dark');root.classList.toggle('light',theme==='light');root.style.colorScheme=theme;})();` }} />
         <script id="tooldur-document-language" dangerouslySetInnerHTML={{ __html: documentLanguageBootstrap }} />
         <script id="tooldur-consent-default" src="/consent-default.js" />
         <script
