@@ -74,7 +74,7 @@ export default function IletisimPage() {
           <p style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.8, margin: '0 0 16px' }}>
             Tooldur sürekli gelişen bir platform olarak kullanıcı geri bildirimlerine büyük değer vermektedir. Yeni araç önerileri, hata bildirimleri ve özellik istekleriniz doğrudan geliştirme sürecimizi şekillendirir.
           </p>
-          <a href="mailto:tooldur@gmail.com" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 22px', background: 'var(--amber)', color: '#0a0a0f', fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, borderRadius: 8, textDecoration: 'none' }}>
+          <a href="mailto:tooldur@gmail.com" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 22px', background: 'var(--action-bg)', color: '#0a0a0f', fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, borderRadius: 8, textDecoration: 'none' }}>
             E-posta Gönder <ArrowRight size={13} />
           </a>
         </div>

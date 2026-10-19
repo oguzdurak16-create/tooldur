@@ -85,7 +85,7 @@ export default async function CategoryPage({ params }: Props) {
   const IconComponent = getIcon(category.icon, Folder);
   const colors = colorMap[category.color] || colorMap.blue;
   const visual = getCategoryVisual(category.id);
-  const pageStyle = { '--category-accent': colors.accent } as CSSProperties;
+  const pageStyle = { '--category-hue': colors.accent } as CSSProperties;
 
   return (
     <main className={styles.page} style={pageStyle}>

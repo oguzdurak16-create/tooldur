@@ -160,7 +160,7 @@ export default async function ToolPage({ params }: Props) {
     ],
   };
 
-  const pageStyle = { '--tool-color': colors.accent } as CSSProperties;
+  const pageStyle = { '--tool-hue': colors.accent } as CSSProperties;
 
   return (
     <main className={styles.page} style={pageStyle}>

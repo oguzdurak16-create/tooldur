@@ -90,7 +90,7 @@
     overflow-x: hidden !important;
     overscroll-behavior: contain !important;
     -webkit-overflow-scrolling: touch !important;
-    background: #0b111a !important;
+    background: var(--bg-card) !important;
   }
 
   .bt .modalHead {
@@ -99,7 +99,7 @@
     z-index: 20 !important;
     margin: 0 !important;
     padding: calc(10px + env(safe-area-inset-top)) 12px 10px !important;
-    background: rgba(11,17,26,.97) !important;
+    background: var(--bg-card) !important;
     backdrop-filter: blur(12px) !important;
     border-bottom: 1px solid var(--border) !important;
   }
@@ -140,7 +140,7 @@
     margin: 0 !important;
     padding: 10px 12px calc(10px + env(safe-area-inset-bottom)) !important;
     border-top: 1px solid var(--border) !important;
-    background: rgba(11,17,26,.97) !important;
+    background: var(--bg-card) !important;
     backdrop-filter: blur(14px) !important;
     box-shadow: 0 -14px 30px rgba(0,0,0,.35) !important;
   }

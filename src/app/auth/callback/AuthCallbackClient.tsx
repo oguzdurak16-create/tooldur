@@ -57,7 +57,7 @@ export default function AuthCallbackClient() {
 
   return (
     <main style={{ minHeight: '70vh', display: 'grid', placeItems: 'center', padding: 24 }}>
-      <div style={{ maxWidth: 420, border: '1px solid rgba(255,255,255,.1)', borderRadius: 18, padding: 28, background: 'rgba(17,24,39,.72)', color: '#e5e7eb', textAlign: 'center' }}>
+      <div style={{ maxWidth: 420, border: '1px solid rgba(255,255,255,.1)', borderRadius: 18, padding: 28, background: 'var(--bg-card)', color: 'var(--ink)', textAlign: 'center' }}>
         <h1 style={{ fontSize: 20, marginBottom: 10 }}>Tooldur</h1>
         <p style={{ color: '#9ca3af' }}>{message}</p>
       </div>

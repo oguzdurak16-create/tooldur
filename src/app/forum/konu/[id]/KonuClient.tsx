@@ -343,7 +343,7 @@ export default function KonuClient({ id }: { id: string }) {
           ) : (
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: '24px', textAlign: 'center' }}>
               <p style={{ fontSize: 14, color: 'var(--ink-3)', marginBottom: 14 }}>Yorum yapmak için giriş yapmanız gerekiyor.</p>
-              <Link href="/giris" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '10px 22px', background: 'var(--amber)', color: '#0a0a0f', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>
+              <Link href="/giris" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '10px 22px', background: 'var(--action-bg)', color: '#0a0a0f', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>
                 Giriş Yap
               </Link>
             </div>

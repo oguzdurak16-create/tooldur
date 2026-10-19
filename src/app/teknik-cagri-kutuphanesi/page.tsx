@@ -25,7 +25,7 @@ export default function TeknikCagriKutuphanePage() {
   return (
     <main style={{ background: 'var(--bg)', minHeight: '100vh', padding: '34px 0 80px' }}>
       <div className="td-container">
-        <section style={{ border: '1px solid var(--border)', borderRadius: 26, padding: '28px', background: 'linear-gradient(135deg,rgba(17,24,39,.94),rgba(15,23,42,.74))', marginBottom: 22 }}>
+        <section style={{ border: '1px solid var(--border)', borderRadius: 26, padding: '28px', background: 'var(--bg-card)', marginBottom: 22 }}>
           <div style={{ display: 'inline-flex', gap: 8, alignItems: 'center', color: 'var(--amber)', background: 'rgba(255,177,27,.08)', border: '1px solid rgba(255,177,27,.20)', borderRadius: 999, padding: '7px 11px', fontSize: 12, fontWeight: 900, marginBottom: 16 }}>
             <ClipboardList size={15} /> Teknik çizim kütüphanesi
           </div>
@@ -45,7 +45,7 @@ export default function TeknikCagriKutuphanePage() {
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--amber)', fontSize: 11, fontWeight: 900, marginBottom: 10 }}><CheckCircle2 size={14} />{item.tag}</span>
               <h2 style={{ color: 'var(--ink)', fontSize: 18, margin: '0 0 9px', fontWeight: 900 }}>{item.title}</h2>
               <p style={{ color: 'var(--ink-4)', lineHeight: 1.65, margin: 0, fontSize: 14 }}>{item.text}</p>
-              <textarea readOnly value={item.text} style={{ width: '100%', marginTop: 12, minHeight: 86, resize: 'vertical', borderRadius: 12, border: '1px solid var(--border)', background: 'rgba(8,13,24,.52)', color: 'var(--ink-2)', padding: 12, fontSize: 12, lineHeight: 1.45 }} />
+              <textarea readOnly value={item.text} style={{ width: '100%', marginTop: 12, minHeight: 86, resize: 'vertical', borderRadius: 12, border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--ink-2)', padding: 12, fontSize: 12, lineHeight: 1.45 }} />
             </article>
           ))}
         </section>

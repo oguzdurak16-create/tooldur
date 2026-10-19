@@ -136,7 +136,7 @@ export default function LocalizedToolPage({ slug, locale }: Props) {
     image: `https://www.tooldur.com${visual.og}`,
   };
 
-  const pageStyle = { '--tool-color': colors.accent } as CSSProperties;
+  const pageStyle = { '--tool-hue': colors.accent } as CSSProperties;
   const homeHref = locale === 'tr' ? '/' : `/${locale}`;
   const categoryHref = category ? (locale === 'tr' ? `/kategori/${category.slug}` : `/${locale}/category/${category.slug}`) : '';
 

@@ -790,7 +790,7 @@ export default function AdminPanel() {
               style={{
                 width: 32,
                 height: 32,
-                background: 'var(--amber)',
+                background: 'var(--action-bg)',
                 borderRadius: 8,
                 display: 'flex',
                 alignItems: 'center',

@@ -1,4 +1,4 @@
-.page { min-height: 100vh; }
+.page { --tool-color: color-mix(in srgb, var(--tool-hue, var(--accent)) var(--chroma-weight), #152231); min-height: 100vh; }
 .breadcrumbBar { border-bottom: 1px solid var(--border); background: var(--bg-card); }
 .breadcrumb { min-height: 46px; display: flex; align-items: center; gap: 7px; flex-wrap: wrap; color: var(--ink-4); font: 700 10.5px/1.4 var(--font-mono); }
 .breadcrumb a { color: var(--ink-4); text-decoration: none; }
@@ -12,8 +12,8 @@
 .hero h1 { max-width: 800px; margin: 15px 0 0; color: var(--ink); font-size: clamp(34px,5vw,62px); line-height: 1.02; letter-spacing: -.052em; font-weight: 900; }
 .description { max-width: 760px; margin: 15px 0 0; color: var(--ink-3); font-size: 14.5px; line-height: 1.75; }
 .visual { position: relative; min-height: 245px; overflow: hidden; border: 1px solid var(--border-mid); border-radius: 22px; background: var(--bg-card); box-shadow: var(--shadow); }
-.visual img { object-fit: cover; opacity: .84; }
-.visual::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent, rgba(16,30,45,.28)); pointer-events: none; }
+.visual img { object-fit: contain; }
+.visual::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 60%, var(--bg-card)); pointer-events: none; }
 .visualTop { position: absolute; z-index: 2; top: 13px; left: 13px; right: 13px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .visualTop span { min-height: 27px; display: inline-flex; align-items: center; padding: 0 9px; border: 1px solid var(--border-mid); border-radius: 999px; background: var(--bg-card); color: var(--ink-3); font: 750 8.5px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; backdrop-filter: blur(12px); }
 .caption { position: absolute; z-index: 2; left: 16px; right: 16px; bottom: 15px; color: var(--ink-2); font-size: 11px; line-height: 1.45; font-weight: 700; }

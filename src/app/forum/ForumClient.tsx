@@ -132,7 +132,7 @@ export default function ForumPage() {
               </div>
             </div>
             {user ? (
-              <Link href="/forum/yeni-konu" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', background: 'var(--amber)', color: '#0a0a0f', borderRadius: 9, fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600, textDecoration: 'none', boxShadow: '0 2px 12px rgba(245,158,11,0.3)', flexShrink: 0 }}>
+              <Link href="/forum/yeni-konu" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', background: 'var(--action-bg)', color: '#0a0a0f', borderRadius: 9, fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 600, textDecoration: 'none', boxShadow: '0 2px 12px rgba(245,158,11,0.3)', flexShrink: 0 }}>
                 <PenSquare size={15} /> Konu Aç
               </Link>
             ) : (
@@ -156,7 +156,7 @@ export default function ForumPage() {
                 onBlur={e => (e.currentTarget.style.borderColor = 'var(--border-mid)')}
               />
             </div>
-            <button onClick={aramaYap} style={{ padding: '10px 18px', background: 'var(--amber)', border: 'none', borderRadius: 8, color: '#0a0a0f', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
+            <button onClick={aramaYap} style={{ padding: '10px 18px', background: 'var(--action-bg)', border: 'none', borderRadius: 8, color: '#0a0a0f', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-sans)' }}>
               Ara
             </button>
             {arama && <button onClick={() => { setArama(''); setAramaGecici(''); }} style={{ padding: '10px 14px', background: 'var(--bg-muted)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--ink-3)', fontSize: 12, cursor: 'pointer' }}>Temizle</button>}
@@ -196,7 +196,7 @@ export default function ForumPage() {
                 <p style={{ fontSize: 14, color: 'var(--ink-3)', marginBottom: 16 }}>
                   {arama ? 'Arama sonucu bulunamadı.' : 'Henüz konu açılmamış.'}
                 </p>
-                {user && <Link href="/forum/yeni-konu" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', background: 'var(--amber)', color: '#0a0a0f', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600 }}><PenSquare size={14} /> İlk konuyu aç</Link>}
+                {user && <Link href="/forum/yeni-konu" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', background: 'var(--action-bg)', color: '#0a0a0f', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600 }}><PenSquare size={14} /> İlk konuyu aç</Link>}
               </div>
             ) : konular.map(k => <KonuKart key={k.id} konu={k} />)}
           </div>

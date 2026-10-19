@@ -529,7 +529,7 @@ export default function DashboardPage() {
           width:96px;
           height:54px;
           border-radius:18px;
-          background:linear-gradient(135deg, rgba(245,158,11,.16), rgba(15,23,42,.45));
+          background:linear-gradient(135deg, rgba(245,158,11,.16), var(--bg-card));
           border:1px solid rgba(245,158,11,.28);
         }
 
@@ -585,11 +585,11 @@ export default function DashboardPage() {
 
 
         .pm-dashboard-search-wrap{position:relative;margin-top:16px;max-width:590px;}
-        .pm-dashboard-search{height:48px;display:flex;align-items:center;gap:10px;padding:0 8px 0 14px;border-radius:15px;background:rgba(15,23,42,.72);border:1px solid rgba(148,163,184,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.03);}
+        .pm-dashboard-search{height:48px;display:flex;align-items:center;gap:10px;padding:0 8px 0 14px;border-radius:15px;background:var(--bg-card);border:1px solid rgba(148,163,184,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.03);}
         .pm-dashboard-search:focus-within{border-color:rgba(233,149,0,.42);box-shadow:0 0 0 4px rgba(233,149,0,.08);}
         .pm-dashboard-search input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--ink);font-size:13px;}
         .pm-dashboard-search button{height:34px;border:0;border-radius:10px;padding:0 12px;background:linear-gradient(180deg,#ffd47a,#ffb11b);color:#07111f;font-weight:900;cursor:pointer;}
-        .pm-dashboard-results{position:absolute;z-index:20;left:0;right:0;top:54px;padding:7px;border-radius:15px;background:rgba(8,15,26,.98);border:1px solid rgba(148,163,184,.18);box-shadow:0 22px 50px rgba(0,0,0,.35);display:grid;gap:4px;}
+        .pm-dashboard-results{position:absolute;z-index:20;left:0;right:0;top:54px;padding:7px;border-radius:15px;background:var(--bg-card);border:1px solid rgba(148,163,184,.18);box-shadow:0 22px 50px rgba(0,0,0,.35);display:grid;gap:4px;}
         .pm-dashboard-result{display:flex;align-items:center;gap:10px;padding:10px;border-radius:11px;text-decoration:none;color:var(--ink-2);}
         .pm-dashboard-result:hover{background:rgba(233,149,0,.08);color:var(--ink);}
         .pm-dashboard-result span{display:block;font-size:12px;font-weight:850;}
@@ -633,7 +633,7 @@ export default function DashboardPage() {
           height:58px;
           border-radius:10px;
           transform:rotate(8deg);
-          background:linear-gradient(180deg, rgba(100,116,139,.28), rgba(15,23,42,.70));
+          background:linear-gradient(180deg, rgba(100,116,139,.28), var(--bg-card));
           border:1px solid rgba(148,163,184,.24);
         }
 
@@ -645,7 +645,7 @@ export default function DashboardPage() {
           top:7px;
           height:14px;
           border-radius:4px;
-          background:rgba(15,23,42,.65);
+          background:var(--bg-card);
           color:rgba(226,232,240,.72);
           font-size:7px;
           display:grid;
@@ -671,7 +671,7 @@ export default function DashboardPage() {
           width:54px;
           height:42px;
           border-radius:8px;
-          background:rgba(15,23,42,.62);
+          background:var(--bg-card);
           border:1px solid rgba(148,163,184,.22);
         }
         .pm-empty-art-image{
@@ -802,7 +802,7 @@ export default function DashboardPage() {
           content:"";
           position:absolute;
           inset:0;
-          background:linear-gradient(180deg, transparent 30%, rgba(4,10,18,.78));
+          background:linear-gradient(180deg, transparent 30%, var(--bg-card));
         }
         .pm-module-visual span{
           position:absolute;
@@ -979,7 +979,7 @@ export default function DashboardPage() {
 
         .pm-empty-btn.ghost{
           color:var(--ink-3);
-          background:rgba(15,23,42,.54);
+          background:var(--bg-card);
         }
 
         .pm-badge{
@@ -1576,7 +1576,7 @@ export default function DashboardPage() {
                         <span
                           className="pm-badge"
                           style={{
-                            background: "var(--amber)",
+                            background: "var(--action-bg)",
                             color: "#0a0a0f",
                           }}
                         >

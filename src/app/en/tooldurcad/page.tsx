@@ -39,7 +39,7 @@ export default function EnglishTooldurCadPage() {
           <strong>TooldurCAD SolidWorks Setup</strong>
           <span style={{ color: 'var(--ink-4)' }}>TooldurCAD-SolidWorks-Setup-v1.0.3.exe</span>
         </Link>
-        <Link href="/kurulum-indir" style={{ textDecoration: 'none', border: '1px solid var(--border)', background: 'rgba(12,18,31,.72)', borderRadius: 22, padding: 22, display: 'grid', gap: 10, color: 'var(--ink)' }}>
+        <Link href="/kurulum-indir" style={{ textDecoration: 'none', border: '1px solid var(--border)', background: 'var(--bg-card)', borderRadius: 22, padding: 22, display: 'grid', gap: 10, color: 'var(--ink)' }}>
           <Download color="var(--amber)" />
           <strong>TooldurCAD Universal Lite</strong>
           <span style={{ color: 'var(--ink-4)' }}>TooldurCAD-Universal-Lite-Setup-v1.0.3.exe</span>

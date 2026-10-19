@@ -18,7 +18,7 @@ export default function YolHaritasiPage() {
   return (
     <main style={{ background: 'var(--bg)', minHeight: '100vh', padding: '38px 0 80px' }}>
       <div className="td-container">
-        <section style={{ border:'1px solid var(--border)', borderRadius:24, padding:24, background:'linear-gradient(135deg,rgba(17,24,39,.94),rgba(15,23,42,.72))' }}>
+        <section style={{ border:'1px solid var(--border)', borderRadius:24, padding:24, background: 'var(--bg-card)' }}>
           <span style={{ color:'var(--amber)', fontWeight:900, fontSize:12 }}>GELİŞTİRME PLANI</span>
           <h1 style={{ color: 'var(--ink)', fontSize: 'clamp(32px,4vw,54px)', letterSpacing: '-.05em', margin: '8px 0' }}>Tooldur Yol Haritası</h1>
           <p style={{ color: 'var(--ink-4)', maxWidth: 760, lineHeight: 1.7 }}>Hedef; hesaplama araçlarını, teknik çizim çağrılarını, TooldurCAD’i ve proje yönetimini tek mühendislik çalışma alanında toplamak.</p>

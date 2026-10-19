@@ -15,7 +15,7 @@
     content: '';
     position: absolute;
     inset: -34px 0 0;
-    background: linear-gradient(180deg, transparent, rgba(248,250,252,.95) 60%);
+    background: linear-gradient(180deg, transparent, var(--bg) 60%);
     pointer-events: none;
   }
   .inner {
@@ -95,7 +95,7 @@
     font-size: 14px;
     font-weight: 900;
   }
-  .block { margin-top: 12px; padding: 13px; border: 1px solid var(--border); border-radius: 18px; background: #f8fafc; }
+  .block { margin-top: 12px; padding: 13px; border: 1px solid var(--border); border-radius: 18px; background: var(--bg-muted); }
   .blockTitle { margin-bottom: 9px; color: var(--ink-4); font: 800 9.5px/1 var(--font-mono); letter-spacing: .16em; text-transform: uppercase; }
   .grid { display: grid; gap: 7px; }
   .link,

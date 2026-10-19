@@ -185,7 +185,7 @@ export default function DownloadSetupClient() {
             </div>
           </div>
 
-          <div style={{ border: '1px solid rgba(255,255,255,.08)', borderRadius: 24, padding: 10, background: 'linear-gradient(180deg, rgba(17,24,39,.92), rgba(10,15,25,.96))', boxShadow: '0 24px 70px rgba(0,0,0,.3)' }}>
+          <div style={{ border: '1px solid rgba(255,255,255,.08)', borderRadius: 24, padding: 10, background: 'var(--bg-card)', boxShadow: '0 24px 70px rgba(0,0,0,.3)' }}>
             <Image
               src="/visuals/topics/tool-software.webp"
               alt="CAD ekranı, kumpas, dişli ve rulman bulunan TooldurCAD mühendislik çalışma alanı"
@@ -208,7 +208,7 @@ export default function DownloadSetupClient() {
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: 10 }}>
             {FEATURE_LIST.map((item) => (
-              <div key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, padding: 12, borderRadius: 16, background: 'rgba(15,23,42,.62)', border: '1px solid rgba(255,255,255,.07)', color: 'var(--ink-2)', lineHeight: 1.55, fontSize: 14 }}>
+              <div key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, padding: 12, borderRadius: 16, background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,.07)', color: 'var(--ink-2)', lineHeight: 1.55, fontSize: 14 }}>
                 <CheckCircle2 size={17} color="#35f0b6" style={{ flex: '0 0 auto', marginTop: 2 }} />
                 <span>{item}</span>
               </div>
@@ -227,7 +227,7 @@ export default function DownloadSetupClient() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16 }}>
             {SCREENSHOTS.map((shot) => (
-              <article key={shot.src} style={{ border: '1px solid rgba(255,255,255,.08)', borderRadius: 22, padding: 10, background: 'linear-gradient(180deg, rgba(17,24,39,.86), rgba(10,15,25,.94))', boxShadow: '0 20px 46px rgba(0,0,0,.18)' }}>
+              <article key={shot.src} style={{ border: '1px solid rgba(255,255,255,.08)', borderRadius: 22, padding: 10, background: 'linear-gradient(180deg, var(--bg-card), var(--bg-card))', boxShadow: '0 20px 46px rgba(0,0,0,.18)' }}>
                 <a href={shot.src} target="_blank" rel="noreferrer" style={{ display: 'block', textDecoration: 'none' }}>
                   <Image
                     src={shot.src}
@@ -235,7 +235,7 @@ export default function DownloadSetupClient() {
                     width={shot.width}
                     height={shot.height}
                     sizes="(max-width: 768px) 100vw, 33vw"
-                    style={{ width: '100%', height: 260, objectFit: 'contain', display: 'block', borderRadius: 15, background: '#050b14', border: '1px solid rgba(255,255,255,.08)' }}
+                    style={{ width: '100%', height: 260, objectFit: 'contain', display: 'block', borderRadius: 15, background: 'var(--bg-muted)', border: '1px solid rgba(255,255,255,.08)' }}
                   />
                 </a>
                 <div style={{ padding: '13px 4px 4px' }}>
@@ -260,7 +260,7 @@ export default function DownloadSetupClient() {
 
           <div className="tdcad-download-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 18, alignItems: 'stretch' }}>
             {FILES.map((file) => (
-              <article key={file.key} className="tdcad-download-card" style={{ border: '1px solid rgba(255,255,255,.08)', background: 'linear-gradient(180deg, rgba(17,24,39,.86), rgba(10,15,25,.94))', borderRadius: 24, padding: 22, boxShadow: '0 24px 54px rgba(0,0,0,.24)', minHeight: 285, display: 'flex', flexDirection: 'column' }}>
+              <article key={file.key} className="tdcad-download-card" style={{ border: '1px solid rgba(255,255,255,.08)', background: 'linear-gradient(180deg, var(--bg-card), var(--bg-card))', borderRadius: 24, padding: 22, boxShadow: '0 24px 54px rgba(0,0,0,.24)', minHeight: 285, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ width: 46, height: 46, borderRadius: 16, display: 'grid', placeItems: 'center', background: 'rgba(255,177,27,.12)', color: 'var(--amber)', marginBottom: 16 }}>
                   {user ? <ShieldCheck size={22} /> : <Lock size={22} />}
                 </div>

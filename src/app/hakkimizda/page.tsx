@@ -111,7 +111,7 @@ export default function AboutPage() {
         <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: 16, padding: '36px', textAlign: 'center' }}>
           <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 700, color: 'var(--ink)', marginBottom: 12 }}>Araçları Kullanmaya Başlayın</div>
           <p style={{ fontSize: 14, color: 'var(--ink-4)', marginBottom: 24 }}>Ücretsiz hesaplama araçları, kayıt gerektirmez</p>
-          <Link href="/araclar" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 28px', background: 'var(--amber)', color: '#0a0a0f', fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, borderRadius: 10, textDecoration: 'none', boxShadow: '0 4px 20px rgba(245,158,11,0.3)' }}>
+          <Link href="/araclar" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 28px', background: 'var(--action-bg)', color: '#0a0a0f', fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, borderRadius: 10, textDecoration: 'none', boxShadow: '0 4px 20px rgba(245,158,11,0.3)' }}>
             Tüm Araçları Gör <ArrowRight size={14} />
           </Link>
         </div>

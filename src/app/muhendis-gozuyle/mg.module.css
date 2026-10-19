@@ -18,15 +18,15 @@
 .featuredLabel{position:absolute;bottom:0;left:0;right:0;padding:20px;background:linear-gradient(transparent,rgba(0,0,0,.85));display:flex;justify-content:space-between;align-items:center;color:white;font-size:12px;font-weight:900;letter-spacing:.1em}
 .archive{scroll-margin-top:90px;padding-top:16px}.sectionHeading{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:24px}.sectionHeading h2{font-size:clamp(25px,3.3vw,42px);line-height:1.14;letter-spacing:-.04em;margin:9px 0 0}
 .count{color:var(--ink-4);font-weight:750;font-size:13px}
-.filters{display:grid;gap:18px;margin-bottom:12px}.searchBox{display:flex;align-items:center;gap:10px;max-width:600px;min-height:52px;background:#fff;border:1px solid var(--border-mid);border-radius:14px;padding:0 14px;color:var(--ink-3)}
+.filters{display:grid;gap:18px;margin-bottom:12px}.searchBox{display:flex;align-items:center;gap:10px;max-width:600px;min-height:52px;background:var(--bg-card);border:1px solid var(--border-mid);border-radius:14px;padding:0 14px;color:var(--ink-3)}
 .searchBox input{width:100%;min-width:0;border:0;outline:none;color:var(--ink);font-size:15px;background:transparent}
 .searchBox input::placeholder{color:var(--ink-4)}
 .categories{display:flex;gap:8px;flex-wrap:wrap}.categoryButton,.categoryActive{border:1px solid var(--border-mid);min-height:36px;border-radius:99px;padding:0 13px;font-weight:800;font-size:12px;cursor:pointer}
-.categoryButton{background:#fff;color:var(--ink-3)}.categoryButton:hover{color:var(--ink);border-color:var(--accent)}
+.categoryButton{background:var(--bg-card);color:var(--ink-3)}.categoryButton:hover{color:var(--ink);border-color:var(--accent)}
 .categoryActive{background:#f3b443;border-color:#e5a534;color:#152231}
 .resultCount{font-size:12px;color:var(--ink-4);margin:18px 0}
 .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
-.card{display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--border);border-radius:20px;background:#fff}
+.card{display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--border);border-radius:20px;background:var(--bg-card)}
 .cardVisual{display:block;position:relative;aspect-ratio:4/5;background:#0a1524;overflow:hidden}
 .cardContent{display:flex;flex-direction:column;flex:1;padding:18px}
 .cardMeta{display:flex;justify-content:space-between;align-items:center;gap:6px;color:var(--accent);font-size:10px;font-weight:850;letter-spacing:.02em}
@@ -51,7 +51,7 @@
 .takeawayBox h2{font-size:23px;margin:0 0 16px}.takeawayBox ul{padding-left:20px;display:grid;gap:10px;color:var(--ink-2);line-height:1.65;margin:0}
 .caution{margin-top:22px;padding:17px 20px;border-left:3px solid var(--accent);background:rgba(255,255,255,.035);color:var(--ink-3);line-height:1.7;font-size:14px}
 .caution strong{color:var(--ink)}.adaptationNote{margin-top:30px;font-size:12px;color:var(--ink-4);line-height:1.75}
-.sidebar{display:grid;gap:18px;position:sticky;top:90px}.sidebarPanel{border:1px solid var(--border);border-radius:20px;padding:20px;background:#fff}
+.sidebar{display:grid;gap:18px;position:sticky;top:90px}.sidebarPanel{border:1px solid var(--border);border-radius:20px;padding:20px;background:var(--bg-card)}
 .sidebarPanel h2{margin:0 0 12px;font-size:18px;display:flex;gap:8px;align-items:center}.sidebarPanel p{color:var(--ink-4);font-size:13px;line-height:1.65;margin:0 0 15px}
 .toolLink,.otherLink{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid var(--border-mid);border-radius:12px;text-decoration:none;padding:14px;margin-top:10px;font-size:13px;font-weight:850;color:var(--ink);line-height:1.4}
 .toolLink{background:#f3b443;color:#152231;border-color:#e5a534}
@@ -63,7 +63,7 @@
 
 /* Original MG media on a neutral light page */
 .card,.sidebarPanel,.searchBox { box-shadow:var(--shadow-sm); }
-.card { background:#fff; }
-.featured,.cardVisual,.articleVisual { background:#edf1f5; }
+.card { background:var(--bg-card); }
+.featured,.cardVisual,.articleVisual { background:var(--bg-muted); }
 .originalLink { display:inline-flex;align-items:center;gap:8px;margin-top:18px;color:var(--accent);font-size:14px;font-weight:850;text-decoration:none; }
 .originalLink:hover { text-decoration:underline; }

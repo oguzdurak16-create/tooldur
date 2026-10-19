@@ -77,7 +77,7 @@ export default function KategoriPage() {
                 </div>
               </div>
               {user && (
-                <Link href={`/forum/yeni-konu?kategori=${kategori.id}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 18px', background: 'var(--amber)', color: '#0a0a0f', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600, boxShadow: '0 2px 10px rgba(245,158,11,0.25)' }}>
+                <Link href={`/forum/yeni-konu?kategori=${kategori.id}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 18px', background: 'var(--action-bg)', color: '#0a0a0f', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600, boxShadow: '0 2px 10px rgba(245,158,11,0.25)' }}>
                   <PenSquare size={14} /> Konu Aç
                 </Link>
               )}
@@ -108,7 +108,7 @@ export default function KategoriPage() {
             <div style={{ padding: '48px 24px', textAlign: 'center' }}>
               <p style={{ fontSize: 32, marginBottom: 8 }}>{kategori?.ikon ?? '💬'}</p>
               <p style={{ fontSize: 14, color: 'var(--ink-3)', marginBottom: 16 }}>Bu kategoride henüz konu yok.</p>
-              {user && <Link href={`/forum/yeni-konu?kategori=${kategori?.id}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', background: 'var(--amber)', color: '#0a0a0f', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600 }}><PenSquare size={14} /> İlk konuyu aç</Link>}
+              {user && <Link href={`/forum/yeni-konu?kategori=${kategori?.id}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', background: 'var(--action-bg)', color: '#0a0a0f', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600 }}><PenSquare size={14} /> İlk konuyu aç</Link>}
             </div>
           ) : konular.map((k, i) => (
             <Link key={k.id} href={`/forum/konu/${k.id}`} style={{ textDecoration: 'none', display: 'block' }}>

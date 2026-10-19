@@ -2533,7 +2533,7 @@ main .rounded-3xl.bg-white {
   --ink: #162437;
   --ink-2: #34465b;
   --ink-3: #53667a;
-  --ink-4: #65778b;
+  --ink-4: #5d6e82;
 
   --accent: #955c0d;
   --accent-strong: #764707;
@@ -2755,3 +2755,10 @@ html[data-theme="dark"] .category-card-modern { --category-foreground: var(--cat
 .tool-card-visual { background: var(--bg-muted) !important; }
 .tool-card-visual::after { display: none; }
 .tool-card-visual img { object-fit: contain; padding: 6px; }
+
+/* Shared theme roles for text accents and solid actions. */
+:root { --chroma-weight:45%; --action-bg:#f3b443; --action-ink:#152231; }
+html[data-theme="dark"] { --chroma-weight:100%; }
+::selection { background:var(--accent-mid); color:var(--ink); }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { border-color:var(--bg); background:var(--border-bright); }

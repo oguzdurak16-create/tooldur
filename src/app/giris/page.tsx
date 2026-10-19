@@ -134,7 +134,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: 28 }}>
           <Link href="/" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-            <div style={{ width: 36, height: 36, background: "var(--amber)", borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 16px rgba(255,177,27,0.28)" }}>
+            <div style={{ width: 36, height: 36, background: "var(--action-bg)", borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 16px rgba(255,177,27,0.28)" }}>
               <span style={{ fontFamily: "var(--font-mono)", fontSize: 17, fontWeight: 700, color: "#05070d" }}>T</span>
             </div>
             <span style={{ fontFamily: "var(--font-sans)", fontSize: 18, fontWeight: 700, color: "var(--ink)" }}>
@@ -284,7 +284,7 @@ export default function LoginPage() {
             <button type="submit" disabled={yukleniyor}
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
-                padding: "13px", background: "var(--amber)", color: "#05070d",
+                padding: "13px", background: "var(--action-bg)", color: "#05070d",
                 fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600,
                 borderRadius: 10, border: "none", cursor: yukleniyor ? "not-allowed" : "pointer",
                 opacity: yukleniyor ? 0.7 : 1, transition: "all .18s",
