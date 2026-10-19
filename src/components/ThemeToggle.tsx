@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import styles from './Header.module.css';
 
@@ -16,6 +16,19 @@ function snapshot() { return document.documentElement.dataset.theme === 'dark'; 
 
 export default function ThemeToggle() {
   const dark = useSyncExternalStore(subscribe, snapshot, () => false);
+  useEffect(() => {
+    // Reconcile after hydration: the server renders a neutral light fallback.
+    try {
+      const saved = localStorage.getItem('td-theme');
+      if (saved !== 'dark' && saved !== 'light') return;
+      const root = document.documentElement;
+      root.dataset.theme = saved;
+      root.classList.toggle('dark', saved === 'dark');
+      root.classList.toggle('light', saved === 'light');
+      root.style.colorScheme = saved;
+      window.dispatchEvent(new Event('tooldur:theme'));
+    } catch { /* Keep the current theme if storage is unavailable. */ }
+  }, []);
   const label = dark ? 'Açık temaya geç / Switch to light theme' : 'Koyu temaya geç / Switch to dark theme';
   function toggle() {
     const theme = dark ? 'light' : 'dark';
