@@ -26,7 +26,7 @@
     padding: 6px;
     border: 1px solid var(--border-mid);
     border-radius: 20px;
-    background: rgba(255,255,255,.97);
+    background: var(--bg-card);
     box-shadow: 0 6px 28px rgba(27,42,60,.12);
     backdrop-filter: blur(22px) saturate(145%);
     pointer-events: auto;
@@ -74,7 +74,7 @@
     border: 1px solid var(--border-mid);
     border-bottom: 0;
     border-radius: 26px 26px 0 0;
-    background: #fff;
+    background: var(--bg-card);
     box-shadow: 0 -8px 35px rgba(22,36,55,.13);
   }
   .handle { width: 46px; height: 4px; margin: 1px auto 15px; border-radius: 999px; background: var(--border-bright); }
@@ -108,7 +108,7 @@
     padding: 0 12px;
     border: 1px solid var(--border);
     border-radius: 12px;
-    background: #fff;
+    background: var(--bg-card);
     color: var(--ink-2);
     text-decoration: none;
     font: inherit;
