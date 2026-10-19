@@ -24,8 +24,8 @@
   grid-template-columns: minmax(0, 1.04fr) minmax(430px, .96fr);
   gap: clamp(36px, 6vw, 86px);
   align-items: center;
-  padding-top: clamp(54px, 7.5vw, 104px);
-  padding-bottom: clamp(42px, 6vw, 76px);
+  padding-top: clamp(28px, 4vw, 54px);
+  padding-bottom: clamp(24px, 3vw, 42px);
 }
 
 .heroCopy { min-width: 0; }
@@ -44,7 +44,7 @@
   max-width: 820px;
   margin: 19px 0 0;
   color: var(--ink);
-  font-size: clamp(44px, 5.6vw, 80px);
+  font-size: clamp(34px, 4.4vw, 62px);
   font-weight: 900;
   line-height: .98;
   letter-spacing: -.058em;
@@ -277,7 +277,7 @@
 
 @media (max-width: 640px) {
   .hero { padding-top: 32px; padding-bottom: 36px; }
-  .heroTitle { font-size: clamp(41px, 12vw, 58px); }
+  .heroTitle { font-size: clamp(32px, 9vw, 46px); }
   .heroLead { font-size: 14.5px; }
   .heroStats { grid-template-columns: 1fr; border-bottom: 0; }
   .heroStats div { padding: 12px 0; border-left: 0; border-bottom: 1px solid var(--border); }

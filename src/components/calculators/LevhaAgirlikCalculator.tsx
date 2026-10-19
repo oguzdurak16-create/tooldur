@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { generateDrawing } from '@/lib/drawingEngine';
 import TeknikCizimPanel from '@/components/TeknikCizimPanel';
@@ -30,6 +30,7 @@ type Sonuc = {
 };
 
 export default function LevhaAgirlikCalculator({ locale = 'tr' }: { locale?: Locale }) {
+  const materialId = useId();
   const isEnglish = locale === 'en';
   const numberLocale = isEnglish ? 'en-US' : 'tr-TR';
   const [formData, setFormData] = useState({
@@ -84,8 +85,8 @@ export default function LevhaAgirlikCalculator({ locale = 'tr' }: { locale?: Loc
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="md:col-span-2">
-            <label className="calc-title block mb-2">{isEnglish ? 'Material' : 'Malzeme Cinsi'}</label>
-            <select name="malzeme" value={formData.malzeme} onChange={handleChange} className="calc-panel w-full px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-slate-500/30">
+            <label htmlFor={materialId} className="calc-title block mb-2">{isEnglish ? 'Material' : 'Malzeme Cinsi'}</label>
+            <select id={materialId} name="malzeme" value={formData.malzeme} onChange={handleChange} className="calc-panel w-full px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-slate-500/30">
               {Object.entries(malzemeler).map(([key, val]) => (
                 <option key={key} value={key}>{isEnglish ? val.adEn : val.ad} (ρ = {val.yogunluk} g/cm³)</option>
               ))}
@@ -161,7 +162,8 @@ export default function LevhaAgirlikCalculator({ locale = 'tr' }: { locale?: Loc
 }
 
 function InputField({ label, name, value, onChange, placeholder }: { label: string; name: string; value: string; onChange: (e: ChangeEvent<HTMLInputElement>) => void; placeholder: string }) {
-  return <div><label className="calc-title block mb-2">{label}</label><input type="text" inputMode="decimal" name={name} value={value} onChange={onChange} placeholder={placeholder} className="calc-panel w-full px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-slate-500/30" /></div>;
+  const id = useId();
+  return <div><label htmlFor={id} className="calc-title block mb-2">{label}</label><input id={id} type="text" inputMode="decimal" name={name} value={value} onChange={onChange} placeholder={placeholder} className="calc-panel w-full px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-slate-500/30" /></div>;
 }
 
 function Metric({ label, value }: { label: string; value: string }) {

@@ -746,7 +746,7 @@ export function getRelatedBlogPosts(tool: Tool, blogPosts: BlogPost[], limit = 3
     .join(' ')
     .toLocaleLowerCase('tr-TR')
     .split(/[^a-zA-ZığüşöçİĞÜŞÖÇ0-9]+/)
-    .filter((term) => term.length > 2);
+    .filter((term) => term.length > 2 && !['hesaplama', 'hesaplayici', 'hesaplayıcı', 'hesap', 'online', 'araci', 'aracı', 'teknik', 'mühendislik', 'ücretsiz', 'nasil', 'nasıl', 'nedir'].includes(term));
 
   const scored = blogPosts.map((post) => {
     const haystack = [post.slug, post.title, post.description, post.category, ...(post.keywords || [])]
@@ -754,14 +754,14 @@ export function getRelatedBlogPosts(tool: Tool, blogPosts: BlogPost[], limit = 3
       .toLocaleLowerCase('tr-TR');
     let score = 0;
     for (const term of Array.from(new Set(terms))) {
-      if (haystack.includes(term)) score += 1;
+      if (haystack.split(/[^a-zA-ZığüşöçİĞÜŞÖÇ0-9]+/).includes(term)) score += 1;
     }
     if (post.relatedTools?.some((rt) => rt.href.includes(tool.slug))) score += 5;
     return { post, score };
   });
 
   return scored
-    .filter((item) => item.score > 0)
+    .filter((item) => item.score >= 2)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
     .map((item) => item.post);
