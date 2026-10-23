@@ -2762,3 +2762,20 @@ html[data-theme="dark"] { --chroma-weight:100%; }
 ::selection { background:var(--accent-mid); color:var(--ink); }
 ::-webkit-scrollbar-track { background:var(--bg); }
 ::-webkit-scrollbar-thumb { border-color:var(--bg); background:var(--border-bright); }
+
+/* Match compact-header navigation and reserve its complete touch area. */
+@media (max-width: 1100px) {
+  body, body:has(.pm-page), body:has(.pm-sidebar), body:has(.pmx-sidebar) {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom)) !important;
+  }
+  .cookie-consent { bottom: calc(100px + env(safe-area-inset-bottom)) !important; }
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea { font-size: 16px; }
+}
+:where(a, button, input, select, textarea, [tabindex="0"]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

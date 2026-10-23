@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronDown, Globe, LayoutDashboard, LogIn, Search, WalletCards } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -14,6 +14,8 @@ const LANGUAGES = ALL_LOCALES.map((locale) => ({ code: locale, label: LANGUAGE_M
 
 export default function Header() {
   const pathname = usePathname();
+  const languageRef = useRef<HTMLDivElement>(null);
+  const languageButtonRef = useRef<HTMLButtonElement>(null);
   const [langOpen, setLangOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [authReady, setAuthReady] = useState(false);
@@ -48,8 +50,23 @@ export default function Header() {
   }, []);
 
   useEffect(() => { setLangOpen(false); }, [pathname]);
+  useEffect(() => {
+    if (!langOpen) return;
+    const dismiss = (event: PointerEvent) => {
+      if (!languageRef.current?.contains(event.target as Node)) setLangOpen(false);
+    };
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { setLangOpen(false); languageButtonRef.current?.focus(); }
+    };
+    document.addEventListener('pointerdown', dismiss);
+    document.addEventListener('keydown', escape);
+    return () => {
+      document.removeEventListener('pointerdown', dismiss);
+      document.removeEventListener('keydown', escape);
+    };
+  }, [langOpen]);
 
-  const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
+  const isActive = (href: string) => href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
   const openSearch = () => {
     setLangOpen(false);
     window.dispatchEvent(new Event('tooldur:open-search'));
@@ -86,9 +103,9 @@ export default function Header() {
               <Link href="/giris" className={`${styles.action} ${styles.actionPrimary} ${styles.desktopAction}`}><LogIn size={15} /> {nav.login}</Link>
             )}
 
-            <div className={styles.lang}>
-              <button className={styles.iconButton} type="button" onClick={() => setLangOpen((value) => !value)} aria-expanded={langOpen} aria-label="Dil seç"><Globe size={16} /><ChevronDown size={13} /></button>
-              {langOpen && <div className={styles.langMenu}>{LANGUAGES.map((item) => <button className={styles.langOption} type="button" key={item.code} onClick={() => changeLanguage(item.code)}><span>{item.label}</span><strong>{item.short}</strong></button>)}</div>}
+            <div ref={languageRef} className={styles.lang}>
+              <button ref={languageButtonRef} className={styles.iconButton} type="button" onClick={() => setLangOpen((value) => !value)} aria-controls="header-languages" aria-expanded={langOpen} aria-label="Dil seç"><Globe size={16} /><ChevronDown size={13} /></button>
+              {langOpen && <div id="header-languages" className={styles.langMenu}>{LANGUAGES.map((item) => <button className={styles.langOption} type="button" key={item.code} onClick={() => changeLanguage(item.code)}><span>{item.label}</span><strong>{item.short}</strong></button>)}</div>}
             </div>
           </div>
         </div>

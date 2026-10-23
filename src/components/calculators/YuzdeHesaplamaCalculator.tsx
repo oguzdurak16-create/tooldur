@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { Calculator, Percent, Sparkles, Info } from 'lucide-react';
 import { parseLocalizedNumber, formatSmartNumber } from '@/lib/calculator-utils';
 
@@ -33,6 +33,8 @@ function temizSayisal(value: string) {
 }
 
 export default function YuzdeHesaplamaCalculator() {
+  const fieldId = useId();
+  const [error, setError] = useState('');
   const [hesaplamaTipi, setHesaplamaTipi] = useState<HesaplamaTipi>('yuzdeHesapla');
   const [formData, setFormData] = useState({
     sayi1: '',
@@ -47,6 +49,8 @@ export default function YuzdeHesaplamaCalculator() {
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSonuc(null);
+    setError('');
     setFormData({
       ...formData,
       [e.target.name]: temizSayisal(e.target.value),
@@ -54,10 +58,21 @@ export default function YuzdeHesaplamaCalculator() {
   };
 
   const hesapla = () => {
+    setSonuc(null);
+    setError('');
     const s1 = parseLocalizedNumber(formData.sayi1);
     const s2 = parseLocalizedNumber(formData.sayi2);
     const y = parseLocalizedNumber(formData.yuzde);
 
+    const values = { sayi1: s1, sayi2: s2, yuzde: y };
+    if (aktifTip?.inputs.some((key) => !formData[key].trim() || !Number.isFinite(values[key]))) {
+      setError('Lütfen gerekli alanlara geçerli sayılar girin.');
+      return;
+    }
+    if ((hesaplamaTipi === 'yuzdeBul' && s2 === 0) || (hesaplamaTipi === 'artisMiktari' && s1 === 0)) {
+      setError('Oran hesabında bölen değer sıfır olamaz.');
+      return;
+    }
     let sonucDeger = 0;
     let aciklama = '';
 
@@ -96,6 +111,10 @@ export default function YuzdeHesaplamaCalculator() {
         return;
     }
 
+    if (!Number.isFinite(sonucDeger)) {
+      setError('Sonuç hesaplama sınırını aşıyor. Daha küçük değerler girin.');
+      return;
+    }
     setSonuc({
       deger: sonucDeger.toLocaleString('tr-TR', { maximumFractionDigits: 4 }),
       aciklama,
@@ -110,10 +129,12 @@ export default function YuzdeHesaplamaCalculator() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             {hesaplamaTipleri.map((tip) => (
               <button
+                aria-pressed={hesaplamaTipi === tip.value}
                 key={tip.value}
                 onClick={() => {
                   setHesaplamaTipi(tip.value);
                   setSonuc(null);
+                  setError('');
                 }}
                 type="button"
                 className={`p-3 rounded-xl border-2 font-medium transition-all text-sm ${
@@ -131,12 +152,13 @@ export default function YuzdeHesaplamaCalculator() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {aktifTip?.inputs.includes('sayi1') && (
             <div>
-              <label className="calc-title block mb-2">
+              <label htmlFor={`${fieldId}-sayi1`} className="calc-title block mb-2">
                 {hesaplamaTipi === 'artisMiktari' ? 'Eski Değer' : 'Sayı'}
               </label>
               <input
                 type="text"
                 inputMode="decimal"
+                id={`${fieldId}-sayi1`}
                 name="sayi1"
                 value={formData.sayi1}
                 onChange={handleChange}
@@ -148,12 +170,13 @@ export default function YuzdeHesaplamaCalculator() {
 
           {aktifTip?.inputs.includes('sayi2') && (
             <div>
-              <label className="calc-title block mb-2">
+              <label htmlFor={`${fieldId}-sayi2`} className="calc-title block mb-2">
                 {hesaplamaTipi === 'artisMiktari' ? 'Yeni Değer' : 'Sayı 2'}
               </label>
               <input
                 type="text"
                 inputMode="decimal"
+                id={`${fieldId}-sayi2`}
                 name="sayi2"
                 value={formData.sayi2}
                 onChange={handleChange}
@@ -165,10 +188,11 @@ export default function YuzdeHesaplamaCalculator() {
 
           {aktifTip?.inputs.includes('yuzde') && (
             <div>
-              <label className="calc-title block mb-2">Yüzde (%)</label>
+              <label htmlFor={`${fieldId}-yuzde`} className="calc-title block mb-2">Yüzde (%)</label>
               <input
                 type="text"
                 inputMode="decimal"
+                id={`${fieldId}-yuzde`}
                 name="yuzde"
                 value={formData.yuzde}
                 onChange={handleChange}
@@ -199,6 +223,8 @@ export default function YuzdeHesaplamaCalculator() {
           </span>
         </button>
       </div>
+
+      {error && <p role="alert" className="calc-box" style={{ color: 'var(--red)' }}>{error}</p>}
 
       {sonuc && (
         <div className="calc-box">

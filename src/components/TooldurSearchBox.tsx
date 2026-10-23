@@ -2,31 +2,21 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Search, ArrowRight, X } from 'lucide-react';
 import { tools, categories } from '@/data/tools';
 import { recordZeroSearch } from '@/lib/searchInsights';
 import { discoveryQuickQueries, normalizeToolQuery, rankTools } from '@/lib/toolDiscovery';
 
 export default function TooldurSearchBox() {
+  const router = useRouter();
   const [query, setQuery] = useState('');
+  const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsId = useId();
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      const isTyping =
-        !!target &&
-        (target.tagName === 'INPUT' ||
-          target.tagName === 'TEXTAREA' ||
-          target.tagName === 'SELECT' ||
-          target.isContentEditable);
-
-      if (event.key === '/' && !isTyping) {
-        event.preventDefault();
-        inputRef.current?.focus();
-      }
-
       if (event.key === 'Escape' && document.activeElement === inputRef.current) {
         if (query) {
           setQuery('');
@@ -63,12 +53,27 @@ export default function TooldurSearchBox() {
         <input
           ref={inputRef}
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => { setQuery(event.target.value); setActiveIndex(-1); }}
+          onKeyDown={(event) => {
+            if (!normalizedQuery || !matches.length) return;
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+              event.preventDefault();
+              const next = event.key === 'ArrowDown'
+                ? Math.min(activeIndex + 1, matches.length - 1)
+                : Math.max(activeIndex - 1, 0);
+              setActiveIndex(next);
+              document.getElementById(`${resultsId}-${next}`)?.scrollIntoView({ block: 'nearest' });
+            } else if (event.key === 'Enter') {
+              event.preventDefault();
+              router.push(`/arac/${matches[Math.max(activeIndex, 0)].tool.slug}`);
+            }
+          }}
           placeholder="Ne hesaplamak istiyorsun? Örn: metrik diş, sac ağırlık, kablo kesiti..."
           aria-label="Araç ara"
           role="combobox"
           aria-autocomplete="list"
-          aria-controls={resultsId}
+          aria-controls={normalizedQuery ? resultsId : undefined}
+          aria-activedescendant={normalizedQuery && activeIndex >= 0 && matches[activeIndex] ? `${resultsId}-${activeIndex}` : undefined}
           aria-expanded={normalizedQuery.length > 0 && matches.length > 0}
           autoComplete="off"
         />
@@ -83,13 +88,15 @@ export default function TooldurSearchBox() {
       {normalizedQuery.length > 0 && (
         <div id={resultsId} className="td-searchbox-results" role="listbox" aria-label="Araç arama sonuçları" aria-live="polite">
           {matches.length > 0 ? (
-            matches.map(({ tool, category }) => (
+            matches.map(({ tool, category }, index) => (
               <Link
                 key={tool.id}
                 href={`/arac/${tool.slug}`}
-                className="td-searchbox-result"
+                id={`${resultsId}-${index}`}
+                className={`td-searchbox-result${activeIndex === index ? ' active' : ''}`}
+                onMouseEnter={() => setActiveIndex(index)}
                 role="option"
-                aria-selected="false"
+                aria-selected={activeIndex === index}
                 aria-label={`${tool.name} aracını aç`}
               >
                 <span>
@@ -107,7 +114,7 @@ export default function TooldurSearchBox() {
 
       <div className="td-searchbox-quick" aria-label="Hızlı aramalar">
         {discoveryQuickQueries.map((item) => (
-          <button key={item} type="button" onClick={() => setQuery(item)}>
+          <button key={item} type="button" onClick={() => { setQuery(item); setActiveIndex(-1); inputRef.current?.focus(); }}>
             {item}
           </button>
         ))}

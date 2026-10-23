@@ -270,7 +270,7 @@
   .desktopSecondary { display: none; }
 }
 
-@media (max-width: 920px) {
+@media (max-width: 1100px) {
   .header { padding: 7px 0; }
   .inner { width: min(100% - 22px, 1280px); min-height: 54px; grid-template-columns: auto 1fr auto; }
   .center { justify-content: flex-end; }
