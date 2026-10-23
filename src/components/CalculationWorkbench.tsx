@@ -95,6 +95,7 @@ function captureFields(root: HTMLElement): StoredField[] {
       key: getFieldKey(element, index),
       label: getFieldLabel(element, index),
       value: element.value,
+      displayValue: element instanceof HTMLSelectElement ? element.selectedOptions[0]?.textContent?.trim() : undefined,
       type: element instanceof HTMLInputElement ? element.type : element.tagName.toLowerCase(),
       checked,
     };
@@ -113,9 +114,6 @@ function captureResults(root: HTMLElement): string[] {
     '[class*="result-card"]',
     '[class*="ResultCard"]',
     '[class*="result"]',
-    '.calc-box-accent',
-    '.calc-soft',
-    '.bg-gradient-to-br',
   ].join(',');
 
   const values: string[] = [];
@@ -125,8 +123,9 @@ function captureResults(root: HTMLElement): string[] {
   for (const element of candidates) {
     if (!isVisible(element)) continue;
     if (element.querySelector('input, select, textarea')) continue;
+    if (element.parentElement?.closest(selectors)) continue;
     const text = normalizeText(element.innerText || element.textContent || '');
-    if (text.length < 3 || text.length > 260 || seen.has(text)) continue;
+    if (!text || text.length > 1200 || seen.has(text)) continue;
     if (/^(hesapla|temizle|seçiniz|sonuçlar?)$/i.test(text)) continue;
     seen.add(text);
     values.push(text);
@@ -138,8 +137,9 @@ function captureResults(root: HTMLElement): string[] {
 
 function setNativeValue(element: FieldElement, value: string, checked?: boolean) {
   if (element instanceof HTMLInputElement && ['checkbox', 'radio'].includes(element.type)) {
-    const checkedSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'checked')?.set;
-    checkedSetter?.call(element, Boolean(checked));
+    // React tracks checkbox/radio changes through click, not synthetic input/change.
+    if (element.checked !== Boolean(checked)) element.click();
+    return;
   } else {
     const prototype = element instanceof HTMLInputElement
       ? HTMLInputElement.prototype
@@ -155,7 +155,7 @@ function setNativeValue(element: FieldElement, value: string, checked?: boolean)
 
 function restoreFields(root: HTMLElement, fields: StoredField[]) {
   const elements = Array.from(root.querySelectorAll<FieldElement>('input, select, textarea'))
-    .filter((element) => !(element instanceof HTMLInputElement && ['file', 'hidden', 'submit', 'button'].includes(element.type)));
+    .filter((element) => !element.disabled && !(element instanceof HTMLInputElement && ['file', 'hidden', 'submit', 'button'].includes(element.type)));
 
   fields.forEach((field, index) => {
     const matching = elements.find((element, elementIndex) => getFieldKey(element, elementIndex) === field.key)
@@ -177,7 +177,7 @@ function snapshotText(snapshot: CalculationSnapshot) {
   const lines = [snapshot.toolName, formatDate(snapshot.createdAt), ''];
   if (snapshot.fields.length) {
     lines.push('Girdiler');
-    snapshot.fields.forEach((field) => lines.push(`${field.label}: ${field.checked === undefined ? field.value : field.checked ? 'Evet' : 'Hayır'}`));
+    snapshot.fields.forEach((field) => lines.push(`${field.label}: ${field.checked === undefined ? (field.displayValue ?? field.value) : field.checked ? 'Evet' : 'Hayır'}`));
   }
   if (snapshot.results.length) {
     lines.push('', 'Sonuçlar');
@@ -214,9 +214,9 @@ export default function CalculationWorkbench({ toolSlug, toolName }: Props) {
     const fields = captureFields(root);
     if (!fields.length) return;
     const updatedAt = Date.now();
-    saveCalculationDraft({ toolSlug, fields, updatedAt });
-    setLastSavedAt(updatedAt);
-  }, [toolSlug]);
+    if (saveCalculationDraft({ toolSlug, fields, updatedAt })) setLastSavedAt(updatedAt);
+    else { setLastSavedAt(null); flash('Otomatik kayıt yapılamadı. Tarayıcı depolamasını kontrol edin.'); }
+  }, [toolSlug, flash]);
 
   useEffect(() => {
     syncSnapshots();
@@ -230,8 +230,10 @@ export default function CalculationWorkbench({ toolSlug, toolName }: Props) {
   }, [syncSnapshots]);
 
   useEffect(() => {
+    restoredRef.current = false;
+    setRestored(false);
     const draft = getCalculationDraft(toolSlug);
-    if (draft) setLastSavedAt(draft.updatedAt);
+    setLastSavedAt(draft?.updatedAt ?? null);
 
     const tryRestore = () => {
       if (restoredRef.current) return true;
@@ -258,7 +260,7 @@ export default function CalculationWorkbench({ toolSlug, toolName }: Props) {
   }, [toolSlug]);
 
   useEffect(() => {
-    const root = getRoot();
+    const root = document.getElementById('hesaplama');
     if (!root) return;
 
     const onChange = () => {
@@ -298,7 +300,10 @@ export default function CalculationWorkbench({ toolSlug, toolName }: Props) {
       flash('Kaydedilecek hesap bilgisi bulunamadı.');
       return;
     }
-    saveCalculationSnapshot(snapshot);
+    if (!saveCalculationSnapshot(snapshot)) {
+      flash('Hesap kaydedilemedi. Tarayıcı depolaması dolu veya kapalı olabilir.');
+      return;
+    }
     persistDraft();
     setOpen(true);
     flash('Hesap cihazına kaydedildi.');
@@ -322,7 +327,7 @@ export default function CalculationWorkbench({ toolSlug, toolName }: Props) {
     if (!snapshot) return;
     const rows = [
       ['Bölüm', 'Alan', 'Değer'],
-      ...snapshot.fields.map((field) => ['Girdi', field.label, field.checked === undefined ? field.value : field.checked ? 'Evet' : 'Hayır']),
+      ...snapshot.fields.map((field) => ['Girdi', field.label, field.checked === undefined ? (field.displayValue ?? field.value) : field.checked ? 'Evet' : 'Hayır']),
       ...snapshot.results.map((result, index) => ['Sonuç', `Sonuç ${index + 1}`, result]),
     ];
     const csv = `\uFEFF${rows.map((row) => row.map(csvEscape).join(';')).join('\n')}`;
@@ -339,7 +344,7 @@ export default function CalculationWorkbench({ toolSlug, toolName }: Props) {
 
   const resetDraft = () => {
     if (!window.confirm('Bu araç için otomatik kaydedilen girişler temizlensin mi?')) return;
-    clearCalculationDraft(toolSlug);
+    if (!clearCalculationDraft(toolSlug)) { flash('Otomatik kayıt temizlenemedi.'); return; }
     setLastSavedAt(null);
     flash('Otomatik kayıt temizlendi. Varsayılan değerler yükleniyor.');
     window.setTimeout(() => window.location.reload(), 250);
@@ -356,7 +361,7 @@ export default function CalculationWorkbench({ toolSlug, toolName }: Props) {
       <div className="td-workbench-main">
         <div className="td-workbench-copy">
           <span><HardDrive size={14} /> YEREL ÇALIŞMA ALANI</span>
-          <strong>{statusText}</strong>
+          <strong role="status" aria-live="polite">{statusText}</strong>
           {restored && <small><Check size={13} /> Önceki girişler geri yüklendi.</small>}
         </div>
         <div className="td-workbench-actions">
@@ -385,7 +390,7 @@ export default function CalculationWorkbench({ toolSlug, toolName }: Props) {
                 <article key={snapshot.id}>
                   <div>
                     <strong>{formatDate(snapshot.createdAt)}</strong>
-                    <span>{snapshot.fields.slice(0, 3).map((field) => `${field.label}: ${field.value}`).join(' · ') || 'Hesap özeti'}</span>
+                    <span>{snapshot.fields.slice(0, 3).map((field) => `${field.label}: ${field.checked === undefined ? (field.displayValue ?? field.value) : field.checked ? 'Evet' : 'Hayır'}`).join(' · ') || 'Hesap özeti'}</span>
                     {snapshot.results[0] && <small>{snapshot.results[0]}</small>}
                   </div>
                   <div className="td-workbench-item-actions">
@@ -406,8 +411,7 @@ export default function CalculationWorkbench({ toolSlug, toolName }: Props) {
                     <button
                       type="button"
                       onClick={() => {
-                        deleteCalculationSnapshot(snapshot.id);
-                        flash('Kayıt silindi.');
+                        flash(deleteCalculationSnapshot(snapshot.id) ? 'Kayıt silindi.' : 'Kayıt silinemedi.');
                       }}
                       aria-label="Kaydı sil"
                     >

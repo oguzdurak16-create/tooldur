@@ -241,7 +241,7 @@ function InputField({ label, value, onChange }: { label: string; value: string; 
 
 function ResultCard({ label, value, note, accent = false }: { label: string; value: string; note?: string; accent?: boolean }) {
   return (
-    <div className={accent ? 'calc-result rounded-xl p-4' : 'calc-soft rounded-xl p-4'}>
+    <div data-result className={accent ? 'calc-result rounded-xl p-4' : 'calc-soft rounded-xl p-4'}>
       <span className="text-xs calc-muted block mb-1">{label}</span>
       <span className="block text-xl font-bold text-[var(--foreground)]">{value}</span>
       {note && <span className="text-xs calc-muted block mt-1">{note}</span>}
