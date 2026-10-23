@@ -2779,3 +2779,10 @@ html[data-theme="dark"] { --chroma-weight:100%; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* Selected calculator modes use the same theme tokens as their panels. */
+.calc-choice-selected {
+  color: var(--accent) !important;
+  background: var(--accent-soft) !important;
+  border-color: var(--accent) !important;
+}

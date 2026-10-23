@@ -139,7 +139,7 @@ export default function YuzdeHesaplamaCalculator() {
                 type="button"
                 className={`p-3 rounded-xl border-2 font-medium transition-all text-sm ${
                   hesaplamaTipi === tip.value
-                    ? 'border-indigo-500 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300'
+                    ? 'calc-choice-selected'
                     : 'calc-panel border-[var(--border)] text-[var(--foreground)]'
                 }`}
               >
@@ -214,7 +214,7 @@ export default function YuzdeHesaplamaCalculator() {
 
         <button
           onClick={hesapla}
-          className="w-full py-3 rounded-2xl font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 transition-all shadow-lg active:scale-[0.98]"
+          className="btn-primary w-full py-3 rounded-2xl font-bold"
           type="button"
         >
           <span className="inline-flex items-center gap-2">
