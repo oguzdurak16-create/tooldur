@@ -35,6 +35,11 @@ const defaultConsent: ConsentType = {
   version: CONSENT_VERSION,
 };
 
+function readSavedConsent() {
+  try { return localStorage.getItem(COOKIE_CONSENT_KEY); }
+  catch { return null; }
+}
+
 function normalizeConsent(value: Partial<ConsentType> | null | undefined): ConsentType {
   return {
     necessary: true,
@@ -173,7 +178,7 @@ export default function CookieConsent() {
     setDefaultDeniedConsent();
 
     const openSettings = () => {
-      const saved = localStorage.getItem(COOKIE_CONSENT_KEY);
+      const saved = readSavedConsent();
       if (saved) {
         try {
           setConsent(normalizeConsent(JSON.parse(saved) as Partial<ConsentType>));
@@ -187,7 +192,7 @@ export default function CookieConsent() {
 
     window.addEventListener('tooldur:cookie-settings', openSettings);
 
-    const savedConsent = localStorage.getItem(COOKIE_CONSENT_KEY);
+    const savedConsent = readSavedConsent();
     if (savedConsent) {
       try {
         const parsed = normalizeConsent(JSON.parse(savedConsent) as Partial<ConsentType>);
@@ -218,7 +223,8 @@ export default function CookieConsent() {
       version: CONSENT_VERSION,
     };
 
-    localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(nextConsent));
+    try { localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(nextConsent)); }
+    catch { /* Apply this visit's choice even when persistent storage is blocked. */ }
     setConsent(nextConsent);
     updateGoogleConsent(nextConsent);
 
