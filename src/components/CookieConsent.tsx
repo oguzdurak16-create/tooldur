@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Check, Cookie, Settings, X } from 'lucide-react';
+import { X } from 'lucide-react';
+import { useModalDialog } from '@/hooks/useModalDialog';
+import styles from './CookieConsent.module.css';
 import { UI_TEXT, getLocaleFromPathname, getLocalizedPath } from '@/lib/siteLanguage';
 
 const COOKIE_CONSENT_KEY = 'tooldur_cookie_consent';
@@ -170,9 +172,12 @@ export default function CookieConsent() {
   const pathname = usePathname();
   const locale = getLocaleFromPathname(pathname);
   const t = UI_TEXT[locale].cookie;
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const [consent, setConsent] = useState<ConsentType>(defaultConsent);
+  const settingsRef = useRef<HTMLDivElement>(null);
+  const closeSettings = useCallback(() => setShowSettings(false), []);
+  useModalDialog(isVisible && showSettings, settingsRef, closeSettings);
 
   useEffect(() => {
     setDefaultDeniedConsent();
@@ -197,18 +202,13 @@ export default function CookieConsent() {
       try {
         const parsed = normalizeConsent(JSON.parse(savedConsent) as Partial<ConsentType>);
         setConsent(parsed);
+        setIsVisible(false);
         updateGoogleConsent(parsed);
         if (parsed.analytics || parsed.advertising) loadGoogleTags(parsed);
         if (!parsed.analytics && !parsed.advertising) removeOptionalStorageAndAds();
       } catch {
         setIsVisible(true);
       }
-    } else {
-      const timer = window.setTimeout(() => setIsVisible(true), 600);
-      return () => {
-        window.clearTimeout(timer);
-        window.removeEventListener('tooldur:cookie-settings', openSettings);
-      };
     }
 
     return () => window.removeEventListener('tooldur:cookie-settings', openSettings);
@@ -234,6 +234,7 @@ export default function CookieConsent() {
       removeOptionalStorageAndAds();
     }
 
+    document.documentElement.dataset.tdConsentKnown = 'true';
     setIsVisible(false);
     setShowSettings(false);
   };
@@ -243,44 +244,24 @@ export default function CookieConsent() {
   const saveSettings = () => saveConsent(consent);
 
   if (!isVisible) return null;
+  if (!showSettings) return <section className={`td-consent-notice ${styles.notice}`} role="region" aria-label={t.title}>
+    <p>{t.settingsNote} <Link href={getLocalizedPath(locale, 'cookies')}>{t.policy}</Link></p>
+    <div className={styles.actions}>
+      <button type="button" onClick={rejectOptional}>{t.reject}</button>
+      <button type="button" onClick={() => setShowSettings(true)}>{t.manage}</button>
+      <button type="button" onClick={acceptAll}>{t.accept}</button>
+    </div>
+  </section>;
 
-  return (
-    <div className="cookie-consent fixed left-3 right-3 sm:left-4 sm:right-4 z-[100000] pointer-events-none bottom-[calc(92px_+_env(safe-area-inset-bottom))] sm:bottom-4">
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl border border-secondary-200 overflow-hidden pointer-events-auto max-h-[calc(100vh_-_120px_-_env(safe-area-inset-bottom))] sm:max-h-none overflow-y-auto">
-        {!showSettings ? (
-          <div className="p-4 sm:p-6">
-            <div className="flex items-start gap-3 sm:gap-4">
-              <div className="hidden sm:flex w-11 h-11 bg-primary-100 rounded-xl items-center justify-center flex-shrink-0">
-                <Cookie className="w-5 h-5 text-primary-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-bold text-secondary-900 mb-2">{t.title}</h3>
-                <p className="text-secondary-600 text-sm leading-6 mb-4">
-                  {t.text}{' '}
-                  <Link href={getLocalizedPath(locale, 'cookies')} className="text-primary-600 hover:underline font-semibold">{t.policy}</Link>
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <button onClick={rejectOptional} className="border border-secondary-200 text-secondary-800 hover:bg-secondary-50 font-semibold py-2.5 px-4 rounded-xl transition-colors">
-                    {t.reject}
-                  </button>
-                  <button onClick={() => setShowSettings(true)} className="border border-secondary-200 text-secondary-800 hover:bg-secondary-50 font-semibold py-2.5 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
-                    <Settings className="w-4 h-4" /> {t.manage}
-                  </button>
-                  <button onClick={acceptAll} className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
-                    <Check className="w-4 h-4" /> {t.accept}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="p-4 sm:p-6">
+  return <div className={styles.backdrop} onMouseDown={closeSettings}>
+    <div ref={settingsRef} className={styles.settings} role="dialog" aria-modal="true" aria-label={t.settingsTitle} tabIndex={-1} onMouseDown={(event) => event.stopPropagation()}>
+<div className="p-4 sm:p-6">
             <div className="flex items-center justify-between gap-4 mb-5">
               <div>
                 <h3 className="text-lg font-bold text-secondary-900">{t.settingsTitle}</h3>
                 <p className="text-xs text-secondary-500 mt-1">{t.settingsNote}</p>
               </div>
-              <button onClick={() => setShowSettings(false)} className="text-secondary-400 hover:text-secondary-600" aria-label={t.close}>
+              <button onClick={closeSettings} className="text-secondary-400 hover:text-secondary-600" aria-label={t.close}>
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -329,8 +310,6 @@ export default function CookieConsent() {
               <button onClick={acceptAll} className="border border-secondary-200 text-secondary-800 hover:bg-secondary-50 font-semibold py-2.5 px-4 rounded-xl transition-colors">{t.accept}</button>
             </div>
           </div>
-        )}
-      </div>
     </div>
-  );
+  </div>;
 }

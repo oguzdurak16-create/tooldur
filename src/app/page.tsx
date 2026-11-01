@@ -1,13 +1,12 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, Download, ShieldCheck, Wrench } from 'lucide-react';
+import { ArrowRight, Download, CheckCircle2 } from 'lucide-react';
 import TooldurSearchBox from '@/components/TooldurSearchBox';
-import ToolCard from '@/components/ToolCard';
-import CategoryCard from '@/components/CategoryCard';
-import { categories, tools, type Tool } from '@/data/tools';
+import { categories, tools } from '@/data/tools';
 import { mgStories } from '@/data/mgStories';
 import { getIndexableCategories, getIndexableTools } from '@/lib/seoFocus';
+import { getIcon, Calculator } from '@/lib/icons';
 import styles from './home.module.css';
 
 export const metadata: Metadata = {
@@ -17,15 +16,6 @@ export const metadata: Metadata = {
   openGraph: { type: 'website', locale: 'tr_TR', url: '/', siteName: 'Tooldur', title: 'Mühendislik Hesaplama Araçları | Tooldur', description: 'Sac ağırlığı, ISO tolerans, metrik diş ve pompa gücünü hesaplayın. Birimleri, hesap kapsamını ve sonucu aynı araçta kontrol edin.', images: [{ url: '/og-image.png', width: 1200, height: 630 }] },
   twitter: { card: 'summary_large_image', title: 'Mühendislik Hesaplama Araçları | Tooldur', description: 'Tolerans, sac ağırlığı, metrik diş ve pompa hesabına doğrudan ulaşın.', images: ['/og-image.png'] },
 };
-
-const prioritySlugs = [
-  'kilavuz-matkap-hesaplama',
-  'pompa-guc-hesaplama',
-  'konik-hesaplama',
-  'iso-gecme-tolerans-hesaplama',
-  'levha-agirlik-hesaplama',
-  'civata-sikma-torku-hesaplama',
-];
 
 const searchIntentLinks = [
   { label: 'Metrik diş tablosu', detail: 'M2–M42 kılavuz matkap ve teorik diş ölçüleri', href: '/arac/kilavuz-matkap-hesaplama' },
@@ -40,112 +30,58 @@ const searchIntentLinks = [
 
 export default function Home() {
   const indexableTools = getIndexableTools(tools);
-  const featuredTools = prioritySlugs
-    .map((slug) => tools.find((tool) => tool.slug === slug))
-    .filter((tool): tool is Tool => Boolean(tool));
   const visibleCategories = getIndexableCategories(categories);
   const homeJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
+    '@context': 'https://schema.org', '@type': 'ItemList',
     name: 'Öne çıkan mühendislik hesaplama araçları',
-    itemListElement: searchIntentLinks.map((item, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      name: item.label,
-      url: `https://www.tooldur.com${item.href}`,
-    })),
+    itemListElement: searchIntentLinks.map((item, index) => ({ '@type': 'ListItem', position: index + 1, name: item.label, url: `https://www.tooldur.com${item.href}` })),
   };
-
-  return (
-    <main className={styles.page}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }} />
-      <section className={`td-container ${styles.hero}`}>
-        <div className={styles.heroCopy}>
-          <div className={styles.eyebrow}><Wrench size={14} /> Mühendislik hesap araçları</div>
-          <h1 className={styles.heroTitle}>Mühendislik hesabına <span><em>buradan başla.</em></span></h1>
-          <p className={styles.heroLead}>Sac ağırlığı, tolerans, metrik diş veya pompa gücü. Aracını bul, birimleri kontrol et ve tasarımına devam et.</p>
-
-          <div className={styles.searchWrap}><TooldurSearchBox /></div>
-
-          <div className={styles.heroActions}>
-            <Link href="/araclar" className={`${styles.button} ${styles.buttonPrimary}`}>Tüm araçlar <ArrowRight size={16} /></Link>
-            <Link href="/kurulum-indir" className={styles.button}><Download size={16} /> TooldurCAD</Link>
-          </div>
-
-          <div className={styles.heroStats}>
-            <div><strong>{indexableTools.length}+ araç</strong><span>Tek arama alanında</span></div>
-            <div><strong>Ücretsiz</strong><span>Üyelik gerektirmeden</span></div>
-            <div><strong>Açık kapsam</strong><span>Ön hesap ve doğrulama notlarıyla</span></div>
-          </div>
+  return <main className={styles.page}>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }} />
+    <section className={styles.intro} aria-labelledby="home-title">
+      <div className={styles.container}>
+        <div className={styles.welcome}>
+          <div><h1 id="home-title">Mühendislik araçları</h1><p>Hesabını seç, sonucuna ulaş.</p></div>
+          <span className={styles.free}><CheckCircle2 size={16} /> {indexableTools.length} ücretsiz araç</span>
         </div>
+        <TooldurSearchBox compact />
+      </div>
+    </section>
 
-        <div className={styles.visual} aria-label="Tooldur hesaplama çalışma alanı">
-          <div className={styles.visualTop}><div className={styles.visualDots}><i /><i /><i /></div><span>tool workspace</span></div>
-          <div className={styles.visualBody}><Image src="/home/hero-engineering.webp" alt="Teknik çizimler ve mekanik parçalar" fill priority sizes="(max-width: 900px) 100vw, 46vw" /><div className={styles.visualShade} /></div>
-          <div className={`${styles.dataCard} ${styles.dataCardTop}`}><small>Örnek araç</small><strong>Metrik diş</strong><span>M8 × 1,25</span></div>
-          <div className={`${styles.dataCard} ${styles.dataCardRight}`}><small>Kılavuz matkap</small><strong>Ø6,8 mm</strong><span className={styles.dataStatus}>Tablo değeri</span></div>
-          <div className={`${styles.dataCard} ${styles.dataCardBottom}`}><div><small>Sonuç kapsamı</small><strong>Ön kontrol</strong></div><ShieldCheck size={27} color="var(--success)" /></div>
+    <div className={`${styles.container} ${styles.workspace}`}>
+      <section className={styles.directory} aria-labelledby="tools-title">
+        <div className={styles.sectionHeading}><h2 id="tools-title">Sık kullanılan hesaplar</h2><Link href="/araclar">Tüm araçlar <ArrowRight size={16} /></Link></div>
+        <div className={styles.toolGrid}>
+          {searchIntentLinks.map((item, index) => {
+            const tool = tools.find((tool) => item.href === `/arac/${tool.slug}`);
+            const Icon = getIcon(tool?.icon, Calculator);
+            return <Link href={item.href} className={styles.tool} key={item.href}>
+              <span className={styles.toolIcon} data-tone={index % 4}><Icon size={22} aria-hidden="true" /></span>
+              <span className={styles.toolCopy}><strong>{item.label}</strong><small>{item.detail}</small></span>
+              <ArrowRight className={styles.toolArrow} size={16} aria-hidden="true" />
+            </Link>;
+          })}
         </div>
       </section>
+      <aside className={styles.browse} aria-labelledby="browse-title">
+        <div className={styles.sectionHeading}><h2 id="browse-title">Çalışma alanını seç</h2></div>
+        <div className={styles.categoryGrid}>{visibleCategories.map((category) => {
+          const Icon = getIcon(category.icon, Calculator);
+          return <Link key={category.id} href={`/kategori/${category.slug}`}><Icon size={18} aria-hidden="true" /><span>{category.name}</span><ArrowRight size={14} aria-hidden="true" /></Link>;
+        })}</div>
+      </aside>
+    </div>
 
-      <section className={`td-container ${styles.section}`}>
-        <div className={styles.sectionHead}>
-          <div><span className={styles.sectionLabel}>İMALAT VE TASARIM</span><h2>Mühendislik hesabına doğrudan başla</h2><p>Metrik diş, pompa ve torna hesabı başta olmak üzere doğrudan girdilere ve sonuca geç.</p></div>
-          <Link href="/araclar" className={styles.textLink}>Tümünü gör <ArrowRight size={15} /></Link>
-        </div>
-        <div className={styles.toolsGrid}>{featuredTools.map((tool) => <ToolCard tool={tool} key={tool.slug} />)}</div>
-      </section>
+    <section className={`${styles.container} ${styles.extras}`} aria-label="Diğer çalışma araçları">
+      <div className={styles.extra}><span className={styles.smallLabel}>SOLIDWORKS İÇİN</span><h2>Hesaptan çizime.</h2><p>TooldurCAD yardımcı araçlarıyla tasarımına devam et.</p><Link href="/kurulum-indir"><Download size={16} /> TooldurCAD’i indir <ArrowRight size={16} /></Link></div>
+      <div className={styles.extra}><span className={styles.smallLabel}>SATINALMA İÇİN</span><h2>Sipariş ve faturayı karşılaştır.</h2><p>InvoiceGuard ile miktar ve birim fiyat farklarını tarayıcında kontrol et.</p><a href="https://invoiceguard.hatchable.site/?utm_source=tooldur&utm_medium=referral&utm_campaign=launch" target="_blank" rel="noopener noreferrer">InvoiceGuard’ı aç <ArrowRight size={16} /></a></div>
+    </section>
 
-      <section className={`td-container ${styles.section}`} aria-labelledby="mg-home-title">
-        <div className={styles.sectionHead}>
-          <div><span className={styles.sectionLabel}>MÜHENDİS GÖZÜYLE</span><h2 id="mg-home-title">Bir detayın arkasındaki mühendisliği keşfet</h2><p>Şerit metre, basınç tankı ve çelik halat gibi günlük mekanizmaların teknik açıklamaları.</p></div>
-          <Link href="/muhendis-gozuyle" className={styles.textLink}>Tüm anlatımları aç <ArrowRight size={15} /></Link>
-        </div>
-        <div className={styles.mgGrid}>
-          {mgStories.slice(0, 3).map((story) => (
-            <Link key={story.slug} href={'/muhendis-gozuyle/' + story.slug} className={styles.mgCard}>
-              <div className={styles.mgThumb}><Image src={story.image} alt={story.imageAlt} fill sizes="(max-width: 900px) 100vw, 33vw" unoptimized /></div>
-              <div className={styles.mgCardContent}><span>{story.category}</span><h3>{story.title}</h3><p>{story.summary}</p><strong>Teknik açıklamayı oku <ArrowRight size={15} /></strong></div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className={`td-container ${styles.section}`}>
-        <div className={styles.sectionHead}><div><span className={styles.sectionLabel}>KATEGORİLER</span><h2>Çalışma alanını seç</h2><p>Benzer araçları teknik alanına göre görüntüle.</p></div></div>
-        <div className={styles.categoriesGrid}>{visibleCategories.map((category) => <CategoryCard category={category} key={category.id} />)}</div>
-      </section>
-
-      <section className={`td-container ${styles.workspace}`}>
-        <div className={styles.workspaceVisual}><Image src="/visuals/topics/tool-software.webp" alt="TooldurCAD çalışma alanı" fill sizes="(max-width: 900px) 100vw, 52vw" /></div>
-        <div className={styles.workspaceCopy}>
-          <span className={styles.sectionLabel}>TOOLDURCAD</span>
-          <h2>Hesaptan çizime geç.</h2>
-          <p>SolidWorks için ücretsiz yardımcı araçları ayrı çalışma alanından indir.</p>
-          <div className={styles.stepList}>
-            <div><CheckCircle2 size={15} /> Hesabı veya teknik terimi bul.</div>
-            <div><CheckCircle2 size={15} /> Girdileri kontrol edip sonucu doğrula.</div>
-            <div><CheckCircle2 size={15} /> Teknik çıktıyı tasarım sürecine taşı.</div>
-          </div>
-          <div className={styles.workspaceActions}><Link href="/kurulum-indir" className={`${styles.button} ${styles.buttonPrimary}`}><Download size={16} /> İndirme sayfası</Link></div>
-        </div>
-      </section>
-
-      <section className={`td-container ${styles.section}`} aria-labelledby="invoiceguard-home-title">
-        <div className={styles.sectionHead}>
-          <div>
-            <span className={styles.sectionLabel}>ÜCRETSİZ SATINALMA ARACI</span>
-            <h2 id="invoiceguard-home-title">Sipariş ve faturayı karşılaştır, fiyat farklarını yakala.</h2>
-            <p>InvoiceGuard ile sipariş ve tedarikçi faturalarını PDF, Excel veya CSV olarak karşılaştır. Miktar ve birim fiyat uyuşmazlıklarını kontrol et. Dosyalar kendi tarayıcında işlenir.</p>
-          </div>
-          <a href="https://invoiceguard.hatchable.site/?utm_source=tooldur&utm_medium=referral&utm_campaign=launch" target="_blank" rel="noopener noreferrer" className={styles.textLink}>Ücretsiz InvoiceGuard'ı aç <ArrowRight size={15} /></a>
-        </div>
-      </section>
-
-      <section className={`td-container ${styles.finalCta}`}>
-        <div><span className={styles.sectionLabel}>HESABI BİLİYORSAN</span><h2>Arama kutusundan doğrudan çalışma alanına geç.</h2><p>Metrik diş, sac büküm, tolerans, pompa, donatı, tork veya kablo kesiti gibi teknik terimleri yaz.</p></div>
-        <Link href="/araclar" className={`${styles.button} ${styles.buttonPrimary}`}>Araç ara <ArrowRight size={16} /></Link>
-      </section>
-    </main>
-  );
+    <section className={`${styles.container} ${styles.stories}`} aria-labelledby="stories-title">
+      <div className={styles.sectionHeading}><div><span className={styles.smallLabel}>MÜHENDİS GÖZÜYLE</span><h2 id="stories-title">Biraz da nasıl çalıştığına bakalım.</h2></div><Link href="/muhendis-gozuyle">Tüm yazılar <ArrowRight size={16} /></Link></div>
+      <div className={styles.storyGrid}>{mgStories.slice(0, 3).map((story) => <Link key={story.slug} href={'/muhendis-gozuyle/' + story.slug} className={styles.story}>
+        <div className={styles.storyImage}><Image src={story.image} alt={story.imageAlt} fill sizes="(max-width: 640px) 100vw, 33vw" /></div><div className={styles.storyText}><span>{story.category}</span><h3>{story.title}</h3><p>{story.summary}</p></div>
+      </Link>)}</div>
+    </section>
+  </main>;
 }

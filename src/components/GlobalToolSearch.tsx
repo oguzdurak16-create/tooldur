@@ -225,8 +225,8 @@ export default function GlobalToolSearch({ locale }: Props) {
       </section>
 
       <style>{`
-        .td-command-backdrop{position:fixed;inset:0;z-index:2000;background:rgba(1,5,12,.76);backdrop-filter:blur(10px);padding:clamp(18px,7vh,72px) 16px;display:flex;align-items:flex-start;justify-content:center}
-        .td-command{width:min(720px,100%);max-height:min(760px,calc(100dvh - 36px));overflow:hidden;display:flex;flex-direction:column;border:1px solid rgba(148,163,184,.22);border-radius:22px;background:var(--bg-card);box-shadow:0 35px 120px rgba(0,0,0,.58)}
+        .td-command-backdrop{position:fixed;inset:var(--visual-viewport-top, 0px) 0 auto;height:var(--visual-viewport-height, 100dvh);z-index:2000;background:rgba(1,5,12,.76);backdrop-filter:blur(10px);padding:clamp(18px,7vh,72px) 16px;display:flex;align-items:flex-start;justify-content:center}
+        .td-command{width:min(720px,100%);max-height:min(760px,calc(var(--visual-viewport-height, 100dvh) - 36px));overflow:hidden;display:flex;flex-direction:column;border:1px solid rgba(148,163,184,.22);border-radius:22px;background:var(--bg-card);box-shadow:0 35px 120px rgba(0,0,0,.58)}
         .td-command-input{display:flex;align-items:center;gap:12px;min-height:68px;padding:0 18px;border-bottom:1px solid rgba(148,163,184,.14);color:var(--accent)}
         .td-command-input input{flex:1;min-width:0;border:0!important;box-shadow:none!important;background:transparent!important;color:var(--ink)!important;font-size:17px!important}
         .td-command-input button{width:34px;height:34px;border:0;border-radius:10px;background:rgba(255,255,255,.06);color:var(--ink-2);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
@@ -234,7 +234,7 @@ export default function GlobalToolSearch({ locale }: Props) {
         .td-command kbd{border:1px solid rgba(148,163,184,.18);background:rgba(255,255,255,.055);border-radius:6px;padding:3px 6px;color:var(--ink-3);font:700 10px/1.2 var(--font-mono)}
         .td-command-quick{display:flex;gap:7px;overflow:auto;padding:12px 16px 4px}
         .td-command-quick button{flex:0 0 auto;border:1px solid rgba(255,177,27,.18);border-radius:999px;background:rgba(255,177,27,.07);color:var(--accent);padding:7px 10px;font-size:11.5px;font-weight:800;cursor:pointer}
-        .td-command-results{overflow:auto;padding:10px}
+        .td-command-results{min-height:0;overflow:auto;padding:10px}
         .td-command-group+.td-command-group{margin-top:8px;padding-top:8px;border-top:1px solid rgba(148,163,184,.1)}
         .td-command-label{padding:7px 9px;color:var(--ink-3);font:800 10px/1 var(--font-mono);letter-spacing:.13em}
         .td-command-result{display:grid;grid-template-columns:38px minmax(0,1fr) 20px;align-items:center;gap:11px;min-height:58px;padding:8px 10px;border-radius:13px;color:var(--ink);text-decoration:none}
@@ -245,7 +245,7 @@ export default function GlobalToolSearch({ locale }: Props) {
         .td-command-result>svg{color:#64748b}
         .td-command-empty{padding:40px 18px;text-align:center;color:var(--ink)}.td-command-empty span{display:block;margin-top:7px;color:var(--ink-3);font-size:13px}
         .td-command-footer{display:flex;gap:18px;justify-content:flex-end;align-items:center;padding:10px 16px;border-top:1px solid rgba(148,163,184,.12);color:var(--ink-3);font-size:10.5px}.td-command-footer span{display:inline-flex;align-items:center;gap:5px}
-        @media(max-width:620px){.td-command-backdrop{padding:8px}.td-command{max-height:calc(100dvh - 16px);border-radius:16px}.td-command-input{min-height:60px;padding:0 13px}.td-command-input input{font-size:15px!important}.td-command-result small{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.td-command-footer{justify-content:flex-start;overflow:auto}.td-command-footer span:last-child{display:none}}
+        @media(max-width:620px){.td-command-backdrop{padding:8px}.td-command{max-height:calc(var(--visual-viewport-height, 100dvh) - 16px);border-radius:16px}.td-command-input{min-height:60px;padding:0 13px}.td-command-input input{font-size:16px!important}.td-command-result small{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.td-command-footer{justify-content:flex-start;overflow:auto}.td-command-footer span:last-child{display:none}}
       `}</style>
     </div>
   );

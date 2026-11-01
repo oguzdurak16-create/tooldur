@@ -7,12 +7,22 @@ import { Search, ArrowRight, X } from 'lucide-react';
 import { tools, categories } from '@/data/tools';
 import { recordZeroSearch } from '@/lib/searchInsights';
 import { discoveryQuickQueries, normalizeToolQuery, rankTools } from '@/lib/toolDiscovery';
+import styles from './TooldurSearchBox.module.css';
 
-export default function TooldurSearchBox() {
+export default function TooldurSearchBox({ compact = false }: { compact?: boolean }) {
+  const classes = compact ? {
+    form: styles.form, input: styles.input, shortcut: styles.shortcut, results: styles.results,
+    result: styles.result, empty: styles.empty,
+  } : {
+    form: 'td-searchbox', input: 'td-searchbox-input-wrap', shortcut: 'td-searchbox-shortcut', results: 'td-searchbox-results',
+    result: 'td-searchbox-result', empty: 'td-searchbox-empty',
+  };
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [popup, setPopup] = useState({ above: false, maxHeight: 420 });
   const resultsId = useId();
 
   useEffect(() => {
@@ -32,6 +42,37 @@ export default function TooldurSearchBox() {
 
   const normalizedQuery = normalizeToolQuery(query);
 
+  useEffect(() => {
+    if (!compact || !normalizedQuery) return;
+    const viewport = window.visualViewport;
+    let frame = 0;
+    const measure = () => {
+      const rect = formRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const top = viewport?.offsetTop || 0;
+      const bottom = top + (viewport?.height || window.innerHeight);
+      const headerBottom = document.querySelector('header')?.getBoundingClientRect().bottom || 0;
+      const below = Math.max(48, bottom - rect.bottom - 12);
+      const above = Math.max(0, rect.top - Math.max(top, headerBottom) - 12);
+      const opensAbove = below < 120 && above > below;
+      const maxHeight = Math.floor(Math.min(420, opensAbove ? above : below));
+      setPopup((previous) => previous.above === opensAbove && previous.maxHeight === maxHeight ? previous : { above: opensAbove, maxHeight });
+    };
+    const schedule = () => { window.cancelAnimationFrame(frame); frame = window.requestAnimationFrame(measure); };
+    measure();
+    viewport?.addEventListener('resize', schedule);
+    viewport?.addEventListener('scroll', schedule);
+    window.addEventListener('resize', schedule);
+    window.addEventListener('scroll', schedule, true);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      viewport?.removeEventListener('resize', schedule);
+      viewport?.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      window.removeEventListener('scroll', schedule, true);
+    };
+  }, [compact, normalizedQuery]);
+
   const matches = useMemo(() => {
     return rankTools(tools, query)
       .slice(0, normalizedQuery ? 7 : 6)
@@ -47,8 +88,8 @@ export default function TooldurSearchBox() {
   }, [matches.length, normalizedQuery, query]);
 
   return (
-    <form className="td-searchbox" role="search" action="/araclar" method="get">
-      <div className="td-searchbox-input-wrap">
+    <form ref={formRef} className={classes.form} role="search" action="/araclar" method="get">
+      <div className={classes.input}>
         <Search size={20} aria-hidden="true" />
         <input
           name="q"
@@ -70,7 +111,7 @@ export default function TooldurSearchBox() {
               router.push(`/arac/${matches[Math.max(activeIndex, 0)].tool.slug}`);
             }
           }}
-          placeholder="Ne hesaplamak istiyorsun? Örn: metrik diş, sac ağırlık, kablo kesiti..."
+          placeholder={compact ? 'Konu veya araç ara…' : 'Ne hesaplamak istiyorsun? Örn: metrik diş, sac ağırlık, kablo kesiti...'}
           aria-label="Araç ara"
           role="combobox"
           aria-autocomplete="list"
@@ -79,23 +120,24 @@ export default function TooldurSearchBox() {
           aria-expanded={normalizedQuery.length > 0 && matches.length > 0}
           autoComplete="off"
         />
-        <kbd className="td-searchbox-shortcut" aria-hidden="true">/</kbd>
+        <kbd className={classes.shortcut} aria-hidden="true">/</kbd>
         {query && (
           <button type="button" onClick={() => setQuery('')} aria-label="Aramayı temizle">
             <X size={16} />
           </button>
         )}
+        {compact && <button className={styles.submit} type="submit">Ara</button>}
       </div>
 
       {normalizedQuery.length > 0 && (
-        <div id={resultsId} className="td-searchbox-results" role="listbox" aria-label="Araç arama sonuçları" aria-live="polite">
+        <div id={resultsId} data-placement={popup.above ? 'above' : 'below'} style={compact ? { maxHeight: popup.maxHeight } : undefined} className={classes.results} role="listbox" aria-label="Araç arama sonuçları" aria-live="polite">
           {matches.length > 0 ? (
             matches.map(({ tool, category }, index) => (
               <Link
                 key={tool.id}
                 href={`/arac/${tool.slug}`}
                 id={`${resultsId}-${index}`}
-                className={`td-searchbox-result${activeIndex === index ? ' active' : ''}`}
+                className={`${classes.result}${activeIndex === index ? ' active' : ''}`}
                 onMouseEnter={() => setActiveIndex(index)}
                 role="option"
                 aria-selected={activeIndex === index}
@@ -109,18 +151,18 @@ export default function TooldurSearchBox() {
               </Link>
             ))
           ) : (
-            <div className="td-searchbox-empty">Bu arama için doğrudan eşleşme bulunamadı. <Link href={`/araclar?q=${encodeURIComponent(query)}`}>Araç dizininde ara</Link> veya farklı kelime dene.</div>
+            <div className={classes.empty}>Bu arama için doğrudan eşleşme bulunamadı. <Link href={`/araclar?q=${encodeURIComponent(query)}`}>Araç dizininde ara</Link> veya farklı kelime dene.</div>
           )}
         </div>
       )}
 
-      <div className="td-searchbox-quick" aria-label="Hızlı aramalar">
+      {!compact && <div className="td-searchbox-quick" aria-label="Hızlı aramalar">
         {discoveryQuickQueries.map((item) => (
           <button key={item} type="button" onClick={() => { setQuery(item); setActiveIndex(-1); inputRef.current?.focus(); }}>
             {item}
           </button>
         ))}
-      </div>
+      </div>}
     </form>
   );
 }

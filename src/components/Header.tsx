@@ -1,5 +1,6 @@
 'use client';
 
+import { useViewportMetrics } from '@/hooks/useViewportMetrics';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -13,6 +14,7 @@ import styles from './Header.module.css';
 const LANGUAGES = ALL_LOCALES.map((locale) => ({ code: locale, label: LANGUAGE_META[locale].label, short: LANGUAGE_META[locale].short })) as Array<{ code: Locale; label: string; short: string }>;
 
 export default function Header() {
+  useViewportMetrics();
   const pathname = usePathname();
   const languageRef = useRef<HTMLDivElement>(null);
   const languageButtonRef = useRef<HTMLButtonElement>(null);
@@ -109,7 +111,7 @@ export default function Header() {
             <span className={styles.brandText}><span className={styles.brandName}>tool<span>dur</span></span><span className={styles.brandTag}>engineering tools</span></span>
           </Link>
 
-          <div className={styles.center}>
+          <div className={`${styles.center} ${pathname === homeHref ? styles.homeCenter : ''}`}>
             <nav className={styles.nav} aria-label="Ana menü">
               {primaryLinks.map((item) => <Link key={item.href} href={item.href} className={`${styles.navLink} ${isActive(item.href) ? styles.active : ''}`}>{item.label}</Link>)}
             </nav>
@@ -122,6 +124,7 @@ export default function Header() {
               <summary aria-label="Menü"><Menu size={20} aria-hidden="true" /></summary>
               <nav aria-label="Mobil menü" className={styles.mobileNav}>
                 {primaryLinks.map((item) => <Link key={item.href} href={item.href} aria-current={isActive(item.href) ? 'page' : undefined} onClick={() => { if (mobileMenuRef.current) mobileMenuRef.current.open = false; }}>{item.label}</Link>)}
+                <Link href={getLocalizedPath(locale, 'project-management')}>{nav.projects}</Link>
                 <Link href={user ? '/dashboard' : '/giris'}>{user ? nav.panel : nav.login}</Link>
                 <div className={styles.mobileLanguages} aria-label="Dil seç">
                   {LANGUAGES.map((item) => <button key={item.code} type="button" lang={item.code} aria-label={item.label} aria-pressed={locale === item.code} onClick={() => changeLanguage(item.code)}>{item.short}</button>)}

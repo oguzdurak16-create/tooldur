@@ -4,7 +4,6 @@ import { usePathname } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CookieConsent from '@/components/CookieConsent';
-import MobileTabBar from '@/components/MobileTabBar';
 import ToastBridge from '@/components/ToastBridge';
 import PwaManager from '@/components/PwaManager';
 import MervePushSetup from '@/components/MervePushSetup';
@@ -28,6 +27,7 @@ export default function ClientChrome({ area }: Props) {
       <>
         <GoogleAnalytics />
         {!isHumanityTest && <Header />}
+        <CookieConsent />
       </>
     );
   }
@@ -35,7 +35,6 @@ export default function ClientChrome({ area }: Props) {
   if (isHumanityTest) {
     return (
       <>
-        <CookieConsent />
         <ToastBridge />
       </>
     );
@@ -44,8 +43,6 @@ export default function ClientChrome({ area }: Props) {
   return (
     <>
       <Footer />
-      <CookieConsent />
-      <MobileTabBar />
       <ToastBridge />
       <PwaManager />
       <MervePushSetup />
