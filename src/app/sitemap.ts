@@ -71,7 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
 
   const trOnlyStatic: MetadataRoute.Sitemap = [
-    { url: `${BASE}/hakkimizda`, lastModified: SITE_RELEASE_DATE, changeFrequency: 'monthly', priority: 0.45 },
+    { url: `${BASE}/hakkimizda`, lastModified: new Date('2026-11-01T00:00:00Z'), changeFrequency: 'monthly', priority: 0.45 },
     { url: `${BASE}/iletisim`, lastModified: SITE_RELEASE_DATE, changeFrequency: 'monthly', priority: 0.45 },
     { url: `${BASE}/gizlilik`, lastModified: POLICY_RELEASE_DATE, changeFrequency: 'yearly', priority: 0.2 },
     { url: `${BASE}/kullanim-sartlari`, lastModified: POLICY_RELEASE_DATE, changeFrequency: 'yearly', priority: 0.2 },

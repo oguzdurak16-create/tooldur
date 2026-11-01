@@ -45,6 +45,12 @@ export default function AboutPage() {
           </p>
         </div>
 
+        <section style={{ marginBottom: 40, color: 'var(--ink-2)', lineHeight: 1.85 }} aria-labelledby="calculation-method">
+          <h2 id="calculation-method">Kalıcı araç, açık hesaplama yöntemi</h2>
+          <p>Bir hesaplayıcının adresi ay veya yıl değiştiği için yenilenmez. Formül, kullanılan birimler, varsayımlar ve hesap sınırları birlikte değerlendirilir. Örnek bir değer, güncel bir standart veya üretici önerisi anlamına gelmez.</p>
+          <p>Bir standart, malzeme verisi veya üretici belgesi değiştiğinde ilgili araç ve açıklama birlikte gözden geçirilmelidir. Ön hesapları nihai tasarım onayı yerine kullanmayın; sonucu projenize uygulanabilir güncel kaynakla doğrulayın.</p>
+        </section>
+
         {/* İstatistikler */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0, marginBottom: 48, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16, overflow: 'hidden' }}>
           {stats.map((s, i) => {
