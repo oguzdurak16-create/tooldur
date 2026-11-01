@@ -2792,3 +2792,12 @@ html[data-theme="dark"] { --chroma-weight:100%; }
 .seo-skip-link:focus{transform:translateY(0)}
 :where(a,button,input,select,textarea,summary):focus-visible{outline:3px solid #2563eb;outline-offset:4px}
 @media(prefers-reduced-motion:reduce){html:focus-within{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Shared focus and calculator legibility. */
+:where(a, button, summary, input, select, textarea):focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.tool-compact-calculator .calc-title { font-size: 14px; line-height: 1.5; }
+.tool-compact-calculator input, .tool-compact-calculator select { min-height: 48px; font-size: 16px; }
+@media (max-width: 620px) {
+  .td-searchbox-quick { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 8px; padding-bottom: 4px; scrollbar-width: thin; }
+  .td-searchbox-quick button { flex: 0 0 auto; min-height: 44px; font-size: 12px; }
+}

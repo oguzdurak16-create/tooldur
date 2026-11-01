@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, Globe, LayoutDashboard, LogIn, Search, WalletCards } from 'lucide-react';
+import { ChevronDown, Globe, LayoutDashboard, LogIn, Menu, Search, WalletCards } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import ThemeToggle from '@/components/ThemeToggle';
 import GlobalToolSearch from '@/components/GlobalToolSearch';
@@ -16,6 +16,8 @@ export default function Header() {
   const pathname = usePathname();
   const languageRef = useRef<HTMLDivElement>(null);
   const languageButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuRef = useRef<HTMLDetailsElement>(null);
+  const previousPathnameRef = useRef(pathname);
   const [langOpen, setLangOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [authReady, setAuthReady] = useState(false);
@@ -49,7 +51,28 @@ export default function Header() {
     return () => { mounted = false; subscription.unsubscribe(); };
   }, []);
 
-  useEffect(() => { setLangOpen(false); }, [pathname]);
+  useEffect(() => {
+    setLangOpen(false);
+    if (previousPathnameRef.current !== pathname && mobileMenuRef.current) mobileMenuRef.current.open = false;
+    previousPathnameRef.current = pathname;
+  }, [pathname]);
+  useEffect(() => {
+    const dismiss = (event: PointerEvent) => {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) mobileMenuRef.current.open = false;
+    };
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && mobileMenuRef.current?.open) {
+        mobileMenuRef.current.open = false;
+        mobileMenuRef.current.querySelector('summary')?.focus();
+      }
+    };
+    document.addEventListener('pointerdown', dismiss);
+    document.addEventListener('keydown', escape);
+    return () => {
+      document.removeEventListener('pointerdown', dismiss);
+      document.removeEventListener('keydown', escape);
+    };
+  }, []);
   useEffect(() => {
     if (!langOpen) return;
     const dismiss = (event: PointerEvent) => {
@@ -69,6 +92,7 @@ export default function Header() {
   const isActive = (href: string) => href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
   const openSearch = () => {
     setLangOpen(false);
+    if (mobileMenuRef.current) mobileMenuRef.current.open = false;
     window.dispatchEvent(new Event('tooldur:open-search'));
   };
   const changeLanguage = (code: Locale) => {
@@ -94,6 +118,16 @@ export default function Header() {
 
           <div className={styles.actions}>
             <ThemeToggle />
+            <details className={styles.mobileMenu} ref={mobileMenuRef}>
+              <summary aria-label="Menü"><Menu size={20} aria-hidden="true" /></summary>
+              <nav aria-label="Mobil menü" className={styles.mobileNav}>
+                {primaryLinks.map((item) => <Link key={item.href} href={item.href} aria-current={isActive(item.href) ? 'page' : undefined} onClick={() => { if (mobileMenuRef.current) mobileMenuRef.current.open = false; }}>{item.label}</Link>)}
+                <Link href={user ? '/dashboard' : '/giris'}>{user ? nav.panel : nav.login}</Link>
+                <div className={styles.mobileLanguages} aria-label="Dil seç">
+                  {LANGUAGES.map((item) => <button key={item.code} type="button" lang={item.code} aria-label={item.label} aria-pressed={locale === item.code} onClick={() => changeLanguage(item.code)}>{item.short}</button>)}
+                </div>
+              </nav>
+            </details>
             {authReady && user ? (
               <>
                 <Link href="/dashboard/butce" className={`${styles.action} ${styles.desktopAction}`} title="Harcama ve bütçe takibi"><WalletCards size={15} /> Bütçe</Link>

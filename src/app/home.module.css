@@ -331,3 +331,20 @@
 .workspaceVisual::after { background: linear-gradient(90deg,transparent,color-mix(in srgb, var(--bg) 10%, transparent)); }
 
 @media(max-width:640px) { .hero { padding-top:24px; } .heroTitle { font-size:clamp(32px,9vw,46px); } }
+
+/* Keep the search and first action in view, including at narrow widths. */
+.heroTitle { font-size: clamp(36px, 4.3vw, 60px); line-height: 1.08; letter-spacing: -.045em; text-wrap: balance; }
+.heroLead { max-width: 52ch; margin-top: 20px; line-height: 1.65; }
+.searchWrap { margin-top: 24px; box-shadow: 0 12px 36px rgba(0,0,0,.08); }
+.heroStats { margin-top: 24px; }
+@media (max-width: 620px) {
+  .hero { padding-top: 26px; gap: 30px; }
+  .heroTitle { font-size: clamp(32px, 9.6vw, 42px); margin-top: 15px; }
+  .heroLead { margin-top: 16px; font-size: 15px; }
+  .heroStats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .heroStats strong { font-size: 14px; }
+  .heroStats span { font-size: 12px; line-height: 1.5; }
+  .heroStats div { padding: 13px 10px; border-top: 0; border-left: 1px solid var(--border); }
+  .heroStats div:first-child { border-left: 0; }
+  .heroActions .button { min-height: 48px; font-size: 14px; }
+}

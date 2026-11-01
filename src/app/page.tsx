@@ -27,12 +27,6 @@ const prioritySlugs = [
   'civata-sikma-torku-hesaplama',
 ];
 
-const quickSearches = [
-  { label: 'Metrik diş tablosu', href: '/arac/kilavuz-matkap-hesaplama' },
-  { label: 'Dalgıç pompa hesabı', href: '/arac/pompa-guc-hesaplama' },
-  { label: 'Torna derece hesaplama', href: '/arac/konik-hesaplama' },
-];
-
 const searchIntentLinks = [
   { label: 'Metrik diş tablosu', detail: 'M2–M42 kılavuz matkap ve teorik diş ölçüleri', href: '/arac/kilavuz-matkap-hesaplama' },
   { label: 'Dalgıç pompa hesabı', detail: 'Debi, basma yüksekliği, verim ve motor gücü', href: '/arac/pompa-guc-hesaplama' },
@@ -68,11 +62,10 @@ export default function Home() {
       <section className={`td-container ${styles.hero}`}>
         <div className={styles.heroCopy}>
           <div className={styles.eyebrow}><Wrench size={14} /> Mühendislik hesap araçları</div>
-          <h1 className={styles.heroTitle}>Mühendislik hesaplama araçları. <span><em>Hesabı bul.</em> Sonucu kontrol et.</span></h1>
-          <p className={styles.heroLead}>Sac ağırlığı, mil-delik toleransı, metrik diş, pompa gücü veya kablo kesiti hesapla. Birimleri ve hesap sınırlarını kontrol ederek tasarımına devam et.</p>
+          <h1 className={styles.heroTitle}>Mühendislik hesabına <span><em>buradan başla.</em></span></h1>
+          <p className={styles.heroLead}>Sac ağırlığı, tolerans, metrik diş veya pompa gücü. Aracını bul, birimleri kontrol et ve tasarımına devam et.</p>
 
           <div className={styles.searchWrap}><TooldurSearchBox /></div>
-          <div className={styles.quickLinks}>{quickSearches.map((item) => <Link href={item.href} key={item.href}>{item.label}</Link>)}</div>
 
           <div className={styles.heroActions}>
             <Link href="/araclar" className={`${styles.button} ${styles.buttonPrimary}`}>Tüm araçlar <ArrowRight size={16} /></Link>
