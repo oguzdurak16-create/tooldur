@@ -2786,3 +2786,9 @@ html[data-theme="dark"] { --chroma-weight:100%; }
   background: var(--accent-soft) !important;
   border-color: var(--accent) !important;
 }
+
+/* Keyboard navigation and motion preferences apply across the whole site. */
+.seo-skip-link{position:fixed;top:12px;left:12px;z-index:99999;transform:translateY(-160%);padding:12px 18px;background:#fff;color:#14243b;border:2px solid #2563eb;border-radius:8px;font-weight:700}
+.seo-skip-link:focus{transform:translateY(0)}
+:where(a,button,input,select,textarea,summary):focus-visible{outline:3px solid #2563eb;outline-offset:4px}
+@media(prefers-reduced-motion:reduce){html:focus-within{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}

@@ -11,9 +11,11 @@ import { getIndexableCategories, getIndexableTools } from '@/lib/seoFocus';
 import styles from './home.module.css';
 
 export const metadata: Metadata = {
-  title: { absolute: 'Mühendislik Hesaplama Araçları | Tooldur' },
+  title: { absolute: 'Mühendislik Hesaplama: Tolerans, Sac ve Pompa | Tooldur' },
   description: 'Metrik diş tablosu, kılavuz matkap çapları, dalgıç pompa, torna derece, ISO tolerans ve imalat hesapları için ücretsiz online mühendislik araçları.',
   alternates: { canonical: '/' },
+  openGraph: { type: 'website', locale: 'tr_TR', url: '/', siteName: 'Tooldur', title: 'Mühendislik Hesaplama Araçları | Tooldur', description: 'Sac ağırlığı, ISO tolerans, metrik diş ve pompa gücünü hesaplayın. Birimleri, hesap kapsamını ve sonucu aynı araçta kontrol edin.', images: [{ url: '/og-image.png', width: 1200, height: 630 }] },
+  twitter: { card: 'summary_large_image', title: 'Mühendislik Hesaplama Araçları | Tooldur', description: 'Tolerans, sac ağırlığı, metrik diş ve pompa hesabına doğrudan ulaşın.', images: ['/og-image.png'] },
 };
 
 const prioritySlugs = [
@@ -66,8 +68,8 @@ export default function Home() {
       <section className={`td-container ${styles.hero}`}>
         <div className={styles.heroCopy}>
           <div className={styles.eyebrow}><Wrench size={14} /> Mühendislik hesap araçları</div>
-          <h1 className={styles.heroTitle}>Hesabı bul. <span><em>Sonucu kontrol et.</em> İşine devam et.</span></h1>
-          <p className={styles.heroLead}>Teknik terimi veya hesabı yaz. Tooldur seni doğrudan ilgili araca götürsün.</p>
+          <h1 className={styles.heroTitle}>Mühendislik hesaplama araçları. <span><em>Hesabı bul.</em> Sonucu kontrol et.</span></h1>
+          <p className={styles.heroLead}>Sac ağırlığı, mil-delik toleransı, metrik diş, pompa gücü veya kablo kesiti hesapla. Birimleri ve hesap sınırlarını kontrol ederek tasarımına devam et.</p>
 
           <div className={styles.searchWrap}><TooldurSearchBox /></div>
           <div className={styles.quickLinks}>{quickSearches.map((item) => <Link href={item.href} key={item.href}>{item.label}</Link>)}</div>
@@ -95,7 +97,7 @@ export default function Home() {
 
       <section className={`td-container ${styles.section}`}>
         <div className={styles.sectionHead}>
-          <div><span className={styles.sectionLabel}>ARAMADA ÖNE ÇIKANLAR</span><h2>En çok aranan mühendislik araçları</h2><p>Metrik diş, pompa ve torna hesabı başta olmak üzere doğrudan girdilere ve sonuca geç.</p></div>
+          <div><span className={styles.sectionLabel}>İMALAT VE TASARIM</span><h2>Mühendislik hesabına doğrudan başla</h2><p>Metrik diş, pompa ve torna hesabı başta olmak üzere doğrudan girdilere ve sonuca geç.</p></div>
           <Link href="/araclar" className={styles.textLink}>Tümünü gör <ArrowRight size={15} /></Link>
         </div>
         <div className={styles.toolsGrid}>{featuredTools.map((tool) => <ToolCard tool={tool} key={tool.slug} />)}</div>

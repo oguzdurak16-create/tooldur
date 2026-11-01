@@ -47,10 +47,12 @@ export default function TooldurSearchBox() {
   }, [matches.length, normalizedQuery, query]);
 
   return (
-    <div className="td-searchbox" role="search">
+    <form className="td-searchbox" role="search" action="/araclar" method="get">
       <div className="td-searchbox-input-wrap">
         <Search size={20} aria-hidden="true" />
         <input
+          name="q"
+          type="search"
           ref={inputRef}
           value={query}
           onChange={(event) => { setQuery(event.target.value); setActiveIndex(-1); }}
@@ -107,7 +109,7 @@ export default function TooldurSearchBox() {
               </Link>
             ))
           ) : (
-            <div className="td-searchbox-empty">Bu arama için araç bulunamadı. Farklı kelime dene.</div>
+            <div className="td-searchbox-empty">Bu arama için doğrudan eşleşme bulunamadı. <Link href={`/araclar?q=${encodeURIComponent(query)}`}>Araç dizininde ara</Link> veya farklı kelime dene.</div>
           )}
         </div>
       )}
@@ -119,6 +121,6 @@ export default function TooldurSearchBox() {
           </button>
         ))}
       </div>
-    </div>
+    </form>
   );
 }
