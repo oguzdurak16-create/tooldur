@@ -138,6 +138,17 @@ export default function Home() {
         </div>
       </section>
 
+      <section className={`td-container ${styles.section}`} aria-labelledby="invoiceguard-home-title">
+        <div className={styles.sectionHead}>
+          <div>
+            <span className={styles.sectionLabel}>ÜCRETSİZ SATINALMA ARACI</span>
+            <h2 id="invoiceguard-home-title">Sipariş ve faturayı karşılaştır, fiyat farklarını yakala.</h2>
+            <p>InvoiceGuard ile sipariş ve tedarikçi faturalarını PDF, Excel veya CSV olarak karşılaştır. Miktar ve birim fiyat uyuşmazlıklarını kontrol et. Dosyalar kendi tarayıcında işlenir.</p>
+          </div>
+          <a href="https://invoiceguard.hatchable.site/?utm_source=tooldur&utm_medium=referral&utm_campaign=launch" target="_blank" rel="noopener noreferrer" className={styles.textLink}>Ücretsiz InvoiceGuard'ı aç <ArrowRight size={15} /></a>
+        </div>
+      </section>
+
       <section className={`td-container ${styles.finalCta}`}>
         <div><span className={styles.sectionLabel}>HESABI BİLİYORSAN</span><h2>Arama kutusundan doğrudan çalışma alanına geç.</h2><p>Metrik diş, sac büküm, tolerans, pompa, donatı, tork veya kablo kesiti gibi teknik terimleri yaz.</p></div>
         <Link href="/araclar" className={`${styles.button} ${styles.buttonPrimary}`}>Araç ara <ArrowRight size={16} /></Link>
