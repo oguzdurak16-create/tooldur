@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { generateDrawing } from '@/lib/drawingEngine';
 import TeknikCizimPanel from '@/components/TeknikCizimPanel';
 import { Calculator, Info, Sparkles, Ruler, Hash, CircleDot } from 'lucide-react';
@@ -28,6 +28,8 @@ const demirCaplari: Record<string, number> = {
 };
 
 export default function DemirHesaplamaCalculator() {
+  const diameterId = useId();
+  const barLengthId = useId();
   const [hesaplamaTipi, setHesaplamaTipi] = useState<'uzunluk' | 'adet'>('uzunluk');
   const [formData, setFormData] = useState({
     cap: '12',
@@ -43,9 +45,13 @@ export default function DemirHesaplamaCalculator() {
     boyAdedi?: number;
   } | null>(null);
 
+  const [error, setError] = useState('');
   const [svgContent, setSvgContent] = useState<string>('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setSonuc(null);
+    setSvgContent('');
+    setError('');
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
@@ -55,6 +61,9 @@ export default function DemirHesaplamaCalculator() {
   const seciliBirimAgirlik = useMemo(() => demirCaplari[formData.cap], [formData.cap]);
 
   const hesapla = () => {
+    setSonuc(null);
+    setSvgContent('');
+    setError('');
     const cap = formData.cap;
     const birimAgirlik = demirCaplari[cap];
 
@@ -63,12 +72,12 @@ export default function DemirHesaplamaCalculator() {
 
     if (hesaplamaTipi === 'uzunluk') {
       toplamUzunluk = parseLocalizedNumber(formData.uzunluk);
-      if (Number.isNaN(toplamUzunluk) || toplamUzunluk <= 0) return;
+      if (!Number.isFinite(toplamUzunluk) || toplamUzunluk <= 0) { setError('Toplam uzunluk pozitif ve geçerli bir sayı olmalıdır.'); return; }
     } else {
-      const adet = parseInt(formData.adet, 10);
+      const adet = parseLocalizedNumber(formData.adet);
       const boyUzunluk = parseLocalizedNumber(formData.boyUzunluk);
 
-      if (Number.isNaN(adet) || Number.isNaN(boyUzunluk) || adet <= 0 || boyUzunluk <= 0) return;
+      if (!Number.isSafeInteger(adet) || !Number.isFinite(boyUzunluk) || adet <= 0 || boyUzunluk <= 0) { setError('Boy adedi pozitif tam sayı, boy uzunluğu pozitif sayı olmalıdır.'); return; }
 
       toplamUzunluk = adet * boyUzunluk;
       boyAdedi = adet;
@@ -76,6 +85,7 @@ export default function DemirHesaplamaCalculator() {
 
     const toplamAgirlik = toplamUzunluk * birimAgirlik;
 
+    if (!Number.isFinite(toplamAgirlik)) { setError('Bu büyüklüklerle sonlu bir ağırlık hesaplanamadı.'); return; }
     setSonuc({
       birimAgirlik,
       toplamUzunluk,
@@ -121,7 +131,7 @@ export default function DemirHesaplamaCalculator() {
           <label className="calc-title">Hesaplama Yöntemi</label>
           <div className="grid grid-cols-2 gap-2 mt-2">
             <button
-              onClick={() => setHesaplamaTipi('uzunluk')}
+              onClick={() => { setHesaplamaTipi('uzunluk'); setSonuc(null); setSvgContent(''); setError(''); }}
               type="button"
               className={`p-3 rounded-xl border-2 font-medium transition-all ${
                 hesaplamaTipi === 'uzunluk'
@@ -133,7 +143,7 @@ export default function DemirHesaplamaCalculator() {
             </button>
 
             <button
-              onClick={() => setHesaplamaTipi('adet')}
+              onClick={() => { setHesaplamaTipi('adet'); setSonuc(null); setSvgContent(''); setError(''); }}
               type="button"
               className={`p-3 rounded-xl border-2 font-medium transition-all ${
                 hesaplamaTipi === 'adet'
@@ -148,8 +158,9 @@ export default function DemirHesaplamaCalculator() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div>
-            <label className="calc-title">Demir Çapı (mm)</label>
+            <label htmlFor={diameterId} className="calc-title">Demir Çapı (mm)</label>
             <select
+              id={diameterId}
               name="cap"
               value={formData.cap}
               onChange={handleChange}
@@ -184,8 +195,9 @@ export default function DemirHesaplamaCalculator() {
               />
 
               <div>
-                <label className="calc-title">Boy Uzunluğu (m)</label>
+                <label htmlFor={barLengthId} className="calc-title">Boy Uzunluğu (m)</label>
                 <select
+                  id={barLengthId}
                   name="boyUzunluk"
                   value={formData.boyUzunluk}
                   onChange={handleChange}
@@ -221,6 +233,8 @@ export default function DemirHesaplamaCalculator() {
           </span>
         </button>
       </div>
+
+      {error && <p role="alert" className="calc-box text-amber-700 dark:text-amber-400">{error}</p>}
 
       {sonuc && (
         <div className="calc-box">
@@ -313,8 +327,8 @@ export default function DemirHesaplamaCalculator() {
 
           <div className="calc-soft rounded-xl p-4">
             <p className="calc-prose">
-              Sık aramalar: <strong>demir ağırlık hesaplama</strong>, <strong>inşaat demiri kg/m</strong>,
-              <strong> nervürlü demir metrajı</strong>, <strong>donatı ağırlıkları</strong>, <strong>donatı tonaj hesabı</strong>.
+              Boy adedi seçeneğinde tam çubuk sayısını ve bir çubuğun metre cinsinden uzunluğunu
+              girin. Farklı çaplar için hesabı ayrı yapıp ağırlıkları toplayın.
             </p>
           </div>
         </div>
@@ -345,15 +359,17 @@ function InputField({
   placeholder: string;
   icon?: React.ReactNode;
 }) {
+  const id = useId();
   return (
     <div>
-      <label className="calc-title flex items-center gap-2">
+      <label htmlFor={id} className="calc-title flex items-center gap-2">
         {icon}
         {label}
       </label>
       <input
         type="text"
         inputMode="decimal"
+        id={id}
         name={name}
         value={value}
         onChange={onChange}

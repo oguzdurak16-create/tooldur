@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { Calculator, Info, Sparkles } from 'lucide-react';
 import { generateDrawing } from '@/lib/drawingEngine';
@@ -23,9 +23,13 @@ export default function OhmKanunuCalculator() {
     direnc: '',
   });
   const [sonuc, setSonuc] = useState<Sonuc | null>(null);
+  const [error, setError] = useState('');
   const [svgContent, setSvgContent] = useState<string>('');
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSonuc(null);
+    setSvgContent('');
+    setError('');
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -33,10 +37,18 @@ export default function OhmKanunuCalculator() {
   };
 
   const hesapla = () => {
+    setSonuc(null);
+    setSvgContent('');
+    setError('');
     const V = parseLocalizedNumber(formData.gerilim);
     const I = parseLocalizedNumber(formData.akim);
     const R = parseLocalizedNumber(formData.direnc);
 
+    const required = hesaplamaTipi === 'gerilim' ? [I, R] : hesaplamaTipi === 'akim' ? [V, R] : [V, I];
+    if (!required.every(Number.isFinite) || (hesaplamaTipi !== 'direnc' && R < 0) || (hesaplamaTipi === 'akim' && R === 0) || (hesaplamaTipi === 'direnc' && I === 0)) {
+      setError('Geçerli sayılar girin. Pasif direnç negatif olamaz; akım hesabında direnç, direnç hesabında akım sıfır olamaz.');
+      return;
+    }
     let sonucDeger: number;
     let birim: string;
     let aciklama: string;
@@ -67,6 +79,10 @@ export default function OhmKanunuCalculator() {
         return;
     }
 
+    if (!Number.isFinite(sonucDeger) || (hesaplamaTipi === 'direnc' && sonucDeger < 0)) {
+      setError('Sonuç bu pasif direnç modeli için geçerli değil. İşaretleri ve değerlerin büyüklüğünü kontrol edin.');
+      return;
+    }
     setSonuc({ deger: sonucDeger, birim, aciklama });
 
     const Vf = parseLocalizedNumber(formData.gerilim) || 0;
@@ -104,6 +120,8 @@ export default function OhmKanunuCalculator() {
                 onClick={() => {
                   setHesaplamaTipi(tip.value as HesaplamaTipi);
                   setSonuc(null);
+                  setSvgContent('');
+                  setError('');
                 }}
                 type="button"
                 className={`p-3 rounded-xl border-2 font-medium transition-all ${
@@ -171,12 +189,14 @@ export default function OhmKanunuCalculator() {
         </button>
       </div>
 
+      {error && <p role="alert" className="calc-box text-amber-700 dark:text-amber-400">{error}</p>}
+
       {sonuc && (
         <div className="calc-box">
           <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Sonuç</h3>
           <div className="calc-result rounded-xl p-6 text-center">
             <span className="text-4xl font-bold text-blue-600 dark:text-blue-400">
-              {formatSmartNumber(sonuc.deger, 'tr-TR', 4).replace(/\.?0+$/, '')}
+              {formatSmartNumber(sonuc.deger, 'tr-TR', 4)}
             </span>
             <span className="text-xl calc-muted ml-2">{sonuc.birim}</span>
             <p className="calc-muted mt-2">{sonuc.aciklama}</p>
@@ -218,8 +238,7 @@ export default function OhmKanunuCalculator() {
 
           <div className="calc-soft rounded-xl p-4">
             <p className="calc-prose">
-              Sık aramalar: <strong>ohm kanunu hesaplama</strong>, <strong>volt amper ohm hesabı</strong>,
-              <strong> direnç hesaplama</strong>, <strong>elektrik temel formülleri</strong>.
+              Bu model, sabit dirençli doğru akım devreleri içindir. Alternatif akımda empedans ve faz ilişkisi ayrıca değerlendirilir.
             </p>
           </div>
         </div>
@@ -241,12 +260,14 @@ function InputField({
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   placeholder: string;
 }) {
+  const id = useId();
   return (
     <div>
-      <label className="calc-title block mb-2">{label}</label>
+      <label htmlFor={id} className="calc-title block mb-2">{label}</label>
       <input
         type="text"
         inputMode="decimal"
+        id={id}
         name={name}
         value={value}
         onChange={onChange}

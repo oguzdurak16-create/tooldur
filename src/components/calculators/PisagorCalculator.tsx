@@ -27,11 +27,15 @@ export default function PisagorCalculator() {
   const [uyari, setUyari] = useState('');
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSonuc(null);
+    setSvgContent('');
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setUyari('');
   };
 
   const hesapla = () => {
+    setSonuc(null);
+    setSvgContent('');
     setUyari('');
 
     const a = parseLocalizedNumber(formData.a);
@@ -43,13 +47,13 @@ export default function PisagorCalculator() {
     let aciklama: string;
 
     if (hesaplamaTipi === 'hipotenus') {
-      if (Number.isNaN(a) || Number.isNaN(b) || a <= 0 || b <= 0) return;
+      if (![a, b].every(Number.isFinite) || a <= 0 || b <= 0) { setUyari('Kenar uzunlukları pozitif ve geçerli sayılar olmalıdır.'); return; }
 
-      sonucDeger = Math.sqrt(a * a + b * b);
+      sonucDeger = Math.hypot(a, b);
       formul = `c = √(a² + b²) = √(${a}² + ${b}²) = √(${a * a} + ${b * b}) = √${a * a + b * b}`;
       aciklama = `Hipotenüs (c) = ${sonucDeger.toFixed(4)}`;
     } else {
-      if (Number.isNaN(c) || Number.isNaN(b) || c <= 0 || b <= 0) return;
+      if (![c, b].every(Number.isFinite) || c <= 0 || b <= 0) { setUyari('Kenar uzunlukları pozitif ve geçerli sayılar olmalıdır.'); return; }
 
       if (c <= b) {
         setSonuc(null);
@@ -63,6 +67,7 @@ export default function PisagorCalculator() {
       aciklama = `Dik Kenar (a) = ${sonucDeger.toFixed(4)}`;
     }
 
+    if (!Number.isFinite(sonucDeger)) { setUyari('Bu büyüklüklerle sonlu bir sonuç hesaplanamadı.'); return; }
     setSonuc({ deger: sonucDeger, formul, aciklama });
 
     const aD = hesaplamaTipi === 'hipotenus' ? parseLocalizedNumber(formData.a) || 3 : sonucDeger;
@@ -93,6 +98,7 @@ export default function PisagorCalculator() {
                 setHesaplamaTipi('hipotenus');
                 setSonuc(null);
                 setUyari('');
+                setSvgContent('');
               }}
               type="button"
               className={`p-4 rounded-xl border-2 font-medium transition-all ${
@@ -110,6 +116,7 @@ export default function PisagorCalculator() {
                 setHesaplamaTipi('dik_kenar');
                 setSonuc(null);
                 setUyari('');
+                setSvgContent('');
               }}
               type="button"
               className={`p-4 rounded-xl border-2 font-medium transition-all ${
@@ -215,7 +222,7 @@ export default function PisagorCalculator() {
 
           <div className="calc-result rounded-xl p-6 text-center">
             <span className="text-4xl font-bold text-violet-600 dark:text-violet-400">
-              {formatSmartNumber(sonuc.deger, 'tr-TR', 4).replace(/\.?0+$/, '')}
+              {formatSmartNumber(sonuc.deger, 'tr-TR', 4)}
             </span>
             <span className="text-xl calc-muted ml-2">birim</span>
             <p className="text-[var(--foreground)] mt-2 font-medium">{sonuc.aciklama}</p>
@@ -298,8 +305,8 @@ export default function PisagorCalculator() {
 
           <div className="calc-soft rounded-xl p-4">
             <p className="calc-prose">
-              Sık aramalar: <strong>pisagor hesaplama</strong>, <strong>hipotenüs bulma</strong>,
-              <strong> dik üçgen hesaplama</strong>, <strong>pisagor üçlüleri</strong>.
+              Kenar uzunluklarını aynı birimde girin. Hipotenüs, dik açının karşısındaki en uzun
+              kenardır; bir dik kenarı hesaplarken hipotenüs diğer kenardan büyük olmalıdır.
             </p>
           </div>
         </div>

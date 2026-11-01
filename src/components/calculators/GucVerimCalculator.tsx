@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useCalculationHistory } from '@/hooks/useCalculationHistory';
 import { Zap, Gauge, Sparkles, ArrowRightLeft, Info } from 'lucide-react';
 import { parseLocalizedNumber, formatSmartNumber } from '@/lib/calculator-utils';
@@ -27,19 +27,28 @@ type Sonuc = {
 };
 
 export default function GucVerimCalculator() {
+  const powerId = useId();
   const { saveCalculation } = useCalculationHistory();
 
   const [Pgir, setPgir] = useState('5.5');
   const [secili, setSecili] = useState<string[]>([]);
+  const [error, setError] = useState('');
   const [sonuc, setSonuc] = useState<Sonuc | null>(null);
 
   const toggle = (key: string) => {
+    setSonuc(null);
+    setError('');
     setSecili((prev) => (prev.includes(key) ? prev.filter((x) => x !== key) : [...prev, key]));
   };
 
   const hesapla = () => {
-    const P = parseLocalizedNumber(Pgir) || 5.5;
-    if (secili.length === 0) return;
+    setSonuc(null);
+    setError('');
+    const P = parseLocalizedNumber(Pgir);
+    if (!Number.isFinite(P) || P < 0 || secili.length === 0) {
+      setError('Giriş gücü sıfır veya pozitif bir sayı olmalı ve en az bir eleman seçilmelidir.');
+      return;
+    }
 
     const etaTotalRaw = secili.reduce((acc, key) => acc * COMPONENTS[key].eta, 1);
     const P_cikis = P * etaTotalRaw;
@@ -87,12 +96,13 @@ export default function GucVerimCalculator() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div>
-              <label className="calc-title">Giriş Gücü P (kW)</label>
+              <label htmlFor={powerId} className="calc-title">Giriş Gücü P (kW)</label>
               <input
                 type="text"
                 inputMode="decimal"
+                id={powerId}
                 value={Pgir}
-                onChange={(e) => setPgir(e.target.value.replace(/[^0-9.,-]/g, ''))}
+                onChange={(e) => { setPgir(e.target.value.replace(/[^0-9.,-]/g, '')); setSonuc(null); setError(''); }}
                 className="w-full mt-2 px-4 py-3 rounded-xl calc-panel outline-none focus:ring-2 focus:ring-blue-500/30"
               />
             </div>
@@ -199,6 +209,8 @@ export default function GucVerimCalculator() {
         </div>
       </div>
 
+      {error && <p role="alert" className="calc-box text-amber-700 dark:text-amber-400">{error}</p>}
+
       <div className="calc-box">
         <h4 className="font-medium text-[var(--foreground)] mb-2 flex items-center gap-2">
           <Info className="w-4 h-4 text-blue-500" />
@@ -228,8 +240,7 @@ export default function GucVerimCalculator() {
 
           <div className="calc-soft rounded-xl p-4">
             <p className="calc-prose">
-              Sık aramalar: <strong>mekanik verim hesabı</strong>, <strong>güç kaybı hesaplama</strong>,
-              <strong> transmisyon verimi</strong>, <strong>çıkış gücü hesabı</strong>.
+              Eleman verimleri örnek ön kabullerdir. Gerçek yük, yağlama, sıcaklık ve üretici verileriyle değişir; nihai sistem seçiminde çalışma noktasındaki değerleri kullanın.
             </p>
           </div>
         </div>
