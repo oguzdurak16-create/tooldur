@@ -50,11 +50,11 @@ export default function IsoToleransCalculator({ locale = 'tr' }: { locale?: Loca
     const holeMax = d + hole.es / 1000;
     const shaftMin = d + shaft.ei / 1000;
     const shaftMax = d + shaft.es / 1000;
-    const minClearance = holeMin - shaftMax;
-    const maxClearance = holeMax - shaftMin;
-    const type = minClearance > 0
+    const minClearance = (hole.ei - shaft.es) / 1000;
+    const maxClearance = (hole.es - shaft.ei) / 1000;
+    const type = minClearance >= 0
       ? (isEnglish ? 'Clearance fit' : 'Boşluklu geçme')
-      : maxClearance < 0
+      : maxClearance <= 0
         ? (isEnglish ? 'Interference fit' : 'Sıkı geçme')
         : (isEnglish ? 'Transition fit' : 'Geçiş geçmesi');
     return { d, row, holeGrade, shaft, holeMin, holeMax, shaftMin, shaftMax, minClearance, maxClearance, type };
@@ -80,7 +80,7 @@ export default function IsoToleransCalculator({ locale = 'tr' }: { locale?: Loca
         <div className="grid md:grid-cols-2 gap-4">
           <label className="block">
             <span className="calc-title block mb-2">{isEnglish ? 'Nominal diameter (mm)' : 'Nominal çap (mm)'}</span>
-            <input value={diameter} onChange={(e) => setDiameter(e.target.value.replace(/[^0-9.,]/g, ''))} inputMode="decimal" className="calc-panel w-full px-4 py-3 rounded-xl outline-none" />
+            <input value={diameter} onChange={(e) => setDiameter(e.target.value.replace(/[^0-9.,-]/g, ''))} inputMode="decimal" className="calc-panel w-full px-4 py-3 rounded-xl outline-none" />
           </label>
           <label className="block">
             <span className="calc-title block mb-2">{isEnglish ? 'Fit type' : 'Geçme tipi'}</span>
@@ -93,8 +93,8 @@ export default function IsoToleransCalculator({ locale = 'tr' }: { locale?: Loca
         <div className="calc-box-accent mt-6">
           <p className="calc-prose">
             {isEnglish
-              ? 'This tool is intended for quick preliminary checks from 0 to 120 mm. Verify the current ISO 286 tables before issuing final drawings or inspection documents.'
-              : 'Bu araç 0-120 mm aralığında hızlı ön kontrol içindir. Son teknik resim ve kalite dokümanı için güncel ISO 286 tablosu ayrıca doğrulanmalıdır.'}
+              ? 'This tool is intended for quick preliminary checks for diameters greater than 0 and up to 120 mm. Verify the current ISO 286 tables before issuing final drawings or inspection documents.'
+              : 'Bu araç 0’dan büyük, 120 mm’ye kadar çaplarda hızlı ön kontrol içindir. Son teknik resim ve kalite dokümanı için güncel ISO 286 tablosu ayrıca doğrulanmalıdır.'}
           </p>
         </div>
       </div>

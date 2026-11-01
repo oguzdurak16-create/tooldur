@@ -42,9 +42,13 @@ export default function LevhaAgirlikCalculator({ locale = 'tr' }: { locale?: Loc
   });
 
   const [sonuc, setSonuc] = useState<Sonuc | null>(null);
+  const [error, setError] = useState('');
   const [svgContent, setSvgContent] = useState<string>('');
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setSonuc(null);
+    setSvgContent('');
+    setError('');
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -52,10 +56,16 @@ export default function LevhaAgirlikCalculator({ locale = 'tr' }: { locale?: Loc
     const uzunluk = parseLocalizedNumber(formData.uzunluk);
     const genislik = parseLocalizedNumber(formData.genislik);
     const kalinlik = parseLocalizedNumber(formData.kalinlik);
-    const adet = parseInt(formData.adet, 10) || 1;
+    const adet = parseLocalizedNumber(formData.adet);
     const yogunluk = malzemeler[formData.malzeme].yogunluk;
 
-    if (Number.isNaN(uzunluk) || Number.isNaN(genislik) || Number.isNaN(kalinlik) || uzunluk <= 0 || genislik <= 0 || kalinlik <= 0) return;
+    if (![uzunluk, genislik, kalinlik, adet].every(Number.isFinite) || uzunluk <= 0 || genislik <= 0 || kalinlik <= 0 || !Number.isSafeInteger(adet) || adet <= 0) {
+      setSonuc(null);
+      setSvgContent('');
+      setError(isEnglish ? 'Enter positive dimensions and a positive whole-number quantity.' : 'Ölçüler pozitif, adet ise pozitif tam sayı olmalıdır.');
+      return;
+    }
+    setError('');
 
     const alanM2 = (uzunluk * genislik) / 1_000_000;
     const hacimCm3 = (uzunluk * genislik * kalinlik) / 1000;
@@ -112,6 +122,8 @@ export default function LevhaAgirlikCalculator({ locale = 'tr' }: { locale?: Loc
           <span className="inline-flex items-center gap-2"><Calculator className="w-5 h-5" />{isEnglish ? 'Calculate Weight' : 'Ağırlık Hesapla'}</span>
         </button>
       </div>
+
+      {error && <p role="alert" className="calc-box text-amber-700 dark:text-amber-400">{error}</p>}
 
       {sonuc && (
         <div className="calc-box">

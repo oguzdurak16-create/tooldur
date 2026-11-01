@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { Info, Ruler, Triangle } from 'lucide-react';
 import type { Tool } from '@/data/tools';
 import { formatSmartNumber, parseLocalizedNumber } from '@/lib/calculator-utils';
@@ -22,11 +22,13 @@ type TaperResult = {
 const commonRatios = [5, 10, 12, 15, 20, 30, 50, 100];
 
 function NumberInput({ label, value, onChange, unit = 'mm' }: { label: string; value: string; onChange: (v: string) => void; unit?: string }) {
+  const id = useId();
   return (
     <div>
-      <label className="calc-title block mb-2">{label}</label>
+      <label htmlFor={id} className="calc-title block mb-2">{label}</label>
       <div className="relative">
         <input
+          id={id}
           value={value}
           onChange={(e) => onChange(e.target.value.replace(/[^0-9.,-]/g, ''))}
           inputMode="decimal"
@@ -57,7 +59,7 @@ function toDms(value: number) {
 }
 
 function resultFromRatio(D: number, L: number, ratioN: number): TaperResult | null {
-  if (D <= 0 || L <= 0 || ratioN <= 0) return null;
+  if (![D, L, ratioN].every(Number.isFinite) || D <= 0 || L <= 0 || ratioN <= 0) return null;
   const delta = L / ratioN;
   const d = D - delta;
   if (d <= 0) return null;
@@ -86,11 +88,11 @@ export default function KonikHesaplamaCalculator({ tool }: { tool?: Tool }) {
   const result = useMemo<TaperResult | null>(() => {
     const D = parseLocalizedNumber(bigDiameter) || 0;
     const L = parseLocalizedNumber(length) || 0;
-    if (D <= 0 || L <= 0) return null;
+    if (![D, L].every(Number.isFinite) || D <= 0 || L <= 0) return null;
 
     if (mode === 'diameters-length') {
       const d = parseLocalizedNumber(smallDiameter) || 0;
-      if (d <= 0 || D <= d) return null;
+      if (!Number.isFinite(d) || d <= 0 || D <= d) return null;
       const delta = D - d;
       const halfAngle = (Math.atan(delta / (2 * L)) * 180) / Math.PI;
       const ratioN = L / delta;
@@ -113,7 +115,7 @@ export default function KonikHesaplamaCalculator({ tool }: { tool?: Tool }) {
     }
 
     const angle = parseLocalizedNumber(includedAngle) || 0;
-    if (angle <= 0 || angle >= 180) return null;
+    if (!Number.isFinite(angle) || angle <= 0 || angle >= 180) return null;
     const halfAngleRad = (angle / 2) * (Math.PI / 180);
     const delta = 2 * L * Math.tan(halfAngleRad);
     const d = D - delta;

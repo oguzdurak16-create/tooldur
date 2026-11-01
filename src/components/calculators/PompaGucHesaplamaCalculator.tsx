@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { Gauge, Info, Sparkles } from 'lucide-react';
 import { parseLocalizedNumber, formatSmartNumber } from '@/lib/calculator-utils';
 
@@ -47,34 +47,36 @@ export default function PompaGucHesaplamaCalculator() {
   const [ozelYogunluk, setOzelYogunluk] = useState('1000');
 
   const hesap = useMemo(() => {
-    const Q = parseLocalizedNumber(debi) || 0;
-    const etaPump = parseLocalizedNumber(verim) || 0;
-    const etaMotor = parseLocalizedNumber(motorVerimi) || 0;
-    const margin = parseLocalizedNumber(motorPayi) || 0;
-    const rho = SIVI[siviTip].yogunluk || parseLocalizedNumber(ozelYogunluk) || 998;
+    const Q = parseLocalizedNumber(debi);
+    const etaPump = parseLocalizedNumber(verim);
+    const etaMotor = parseLocalizedNumber(motorVerimi);
+    const margin = parseLocalizedNumber(motorPayi);
+    const rho = siviTip === SIVI.length - 1 ? parseLocalizedNumber(ozelYogunluk) : SIVI[siviTip].yogunluk;
     const g = 9.81;
 
-    let H = parseLocalizedNumber(toplamBasma) || 0;
+    let H = parseLocalizedNumber(toplamBasma);
     let pressureHead = 0;
     let staticHead = 0;
     let frictionHead = 0;
 
     if (headMode === 'components') {
-      staticHead = parseLocalizedNumber(statikYukseklik) || 0;
-      frictionHead = parseLocalizedNumber(hatKaybi) || 0;
-      const pressureBar = parseLocalizedNumber(cikisBasinci) || 0;
+      staticHead = parseLocalizedNumber(statikYukseklik);
+      frictionHead = parseLocalizedNumber(hatKaybi);
+      const pressureBar = parseLocalizedNumber(cikisBasinci);
+      if (![staticHead, frictionHead, pressureBar].every(Number.isFinite) || frictionHead < 0 || pressureBar < 0) return null;
       pressureHead = pressureBar > 0 ? (pressureBar * 100000) / (rho * g) : 0;
       H = staticHead + frictionHead + pressureHead;
     }
 
+    if (![Q, H, etaPump, etaMotor, margin, rho].every(Number.isFinite) || margin < 0) return null;
     if (Q <= 0 || H <= 0 || etaPump <= 0 || etaPump > 100 || etaMotor <= 0 || etaMotor > 100 || rho <= 0) return null;
 
     const Qm3s = Q / 3600;
     const hydraulicW = rho * g * Qm3s * H;
     const shaftKw = hydraulicW / (etaPump / 100) / 1000;
-    const requiredMotorKw = shaftKw * (1 + Math.max(margin, 0) / 100);
+    const requiredMotorKw = shaftKw * (1 + margin / 100);
     const standardMotorKw = nextStandardMotor(requiredMotorKw);
-    const electricalInputKw = standardMotorKw / (etaMotor / 100);
+    const electricalInputKw = shaftKw / (etaMotor / 100);
 
     return {
       Q,
@@ -122,7 +124,7 @@ export default function PompaGucHesaplamaCalculator() {
         <div className="grid gap-4 md:grid-cols-2">
           <InputField label="Debi Q (m³/h)" value={debi} onChange={setDebi} />
           {headMode === 'total' ? (
-            <InputField label="Toplam Basma Yüksekliği H (mSS)" value={toplamBasma} onChange={setToplamBasma} />
+            <InputField label="Toplam Basma Yüksekliği H (m)" value={toplamBasma} onChange={setToplamBasma} />
           ) : (
             <InputField label="Statik yükseklik (m)" value={statikYukseklik} onChange={setStatikYukseklik} />
           )}
@@ -137,22 +139,22 @@ export default function PompaGucHesaplamaCalculator() {
 
         <div className="grid gap-4 mt-4 md:grid-cols-2">
           <div>
-            <label className="calc-title block mb-2">Pompa Tipi</label>
-            <select value={pompaTip} onChange={(e) => setPompaTip(Number(e.target.value))} className="calc-panel w-full px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/30">
+            <label htmlFor="pump-type" className="calc-title block mb-2">Pompa Tipi</label>
+            <select id="pump-type" value={pompaTip} onChange={(e) => setPompaTip(Number(e.target.value))} className="calc-panel w-full px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/30">
               {POMPA_TIPLERI.map((pump, index) => <option key={pump.ad} value={index}>{pump.ad}</option>)}
             </select>
           </div>
           <div>
-            <label className="calc-title block mb-2">Pompa Verimi η (%)</label>
-            <input type="text" inputMode="decimal" value={verim} onChange={(e) => setVerim(e.target.value.replace(/[^0-9.,-]/g, ''))} className="calc-panel w-full px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/30" />
+            <label htmlFor="pump-efficiency" className="calc-title block mb-2">Pompa Verimi η (%)</label>
+            <input id="pump-efficiency" type="text" inputMode="decimal" value={verim} onChange={(e) => setVerim(e.target.value.replace(/[^0-9.,-]/g, ''))} className="calc-panel w-full px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/30" />
             <p className="text-xs calc-muted mt-2">Tipik başlangıç aralığı: {POMPA_TIPLERI[pompaTip].verimMin}–{POMPA_TIPLERI[pompaTip].verimMax}%</p>
           </div>
         </div>
 
         <div className="grid gap-4 mt-4 md:grid-cols-2">
           <div>
-            <label className="calc-title block mb-2">Sıvı</label>
-            <select value={siviTip} onChange={(e) => setSiviTip(Number(e.target.value))} className="calc-panel w-full px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/30">
+            <label htmlFor="pump-fluid" className="calc-title block mb-2">Sıvı</label>
+            <select id="pump-fluid" value={siviTip} onChange={(e) => setSiviTip(Number(e.target.value))} className="calc-panel w-full px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/30">
               {SIVI.map((fluid, index) => <option key={fluid.ad} value={index}>{fluid.ad} {fluid.yogunluk > 0 ? `(${fluid.yogunluk} kg/m³)` : ''}</option>)}
             </select>
           </div>
@@ -177,6 +179,8 @@ export default function PompaGucHesaplamaCalculator() {
         </div>
       </div>
 
+      {!hesap && <p role="alert" className="calc-box text-amber-700 dark:text-amber-400">Debi, basma yüksekliği ve yoğunluk pozitif; verimler 0’dan büyük ve en fazla %100 olmalıdır. Motor payı, hat kaybı ve gerekli çıkış basıncı negatif olamaz.</p>}
+
       {hesap && (
         <div className="calc-box">
           <h3 className="text-emerald-600 dark:text-emerald-400 text-sm font-bold mb-4">Dalgıç pompa güç ve motor sonucu</h3>
@@ -186,7 +190,7 @@ export default function PompaGucHesaplamaCalculator() {
               <ResultCard label="Statik yükseklik" value={`${formatSmartNumber(hesap.staticHead, 'tr-TR', 2)} m`} />
               <ResultCard label="Hat kayıpları" value={`${formatSmartNumber(hesap.frictionHead, 'tr-TR', 2)} m`} />
               <ResultCard label="Basınç karşılığı" value={`${formatSmartNumber(hesap.pressureHead, 'tr-TR', 2)} m`} />
-              <ResultCard label="Toplam basma H" value={`${formatSmartNumber(hesap.H, 'tr-TR', 2)} mSS`} accent />
+              <ResultCard label="Toplam basma H" value={`${formatSmartNumber(hesap.H, 'tr-TR', 2 )} m`} accent />
             </div>
           )}
 
@@ -194,14 +198,14 @@ export default function PompaGucHesaplamaCalculator() {
             <ResultCard label="Hidrolik güç" value={`${formatSmartNumber(hesap.hydraulicKw, 'tr-TR', 3)} kW`} />
             <ResultCard label="Pompa mil gücü" value={`${formatSmartNumber(hesap.shaftKw, 'tr-TR', 3)} kW`} />
             <ResultCard label={`Paylı gerekli motor (${formatSmartNumber(hesap.margin, 'tr-TR', 1)}%)`} value={`${formatSmartNumber(hesap.requiredMotorKw, 'tr-TR', 3)} kW`} />
-            <ResultCard label="Önerilen standart motor" value={`${formatSmartNumber(hesap.standardMotorKw, 'tr-TR', 2)} kW`} note={`${formatSmartNumber(hesap.hp, 'tr-TR', 2)} HP`} accent />
-            <ResultCard label="Tahmini elektrik giriş gücü" value={`${formatSmartNumber(hesap.electricalInputKw, 'tr-TR', 2)} kW`} note={`Motor verimi: %${formatSmartNumber(hesap.etaMotor, 'tr-TR', 1)}`} />
+            <ResultCard label={hesap.requiredMotorKw <= 400 ? "Önerilen standart motor" : "Gerekli motor gücü ön seçimi"} value={`${formatSmartNumber(hesap.standardMotorKw, 'tr-TR', 2)} kW`} note={hesap.requiredMotorKw <= 400 ? `${formatSmartNumber(hesap.hp, 'tr-TR', 2)} HP` : "Listelenen 400 kW üst sınırı aşıldı; üretici seçimi gerekir."} accent />
+            <ResultCard label="Tahmini elektrik giriş gücü" value={`${formatSmartNumber(hesap.electricalInputKw, 'tr-TR', 2)} kW`} note={`Çalışma noktasında motor verimi: %${formatSmartNumber(hesap.etaMotor, 'tr-TR', 1)}`} />
             <ResultCard label="Debi dönüşümü" value={`${formatSmartNumber(hesap.Qm3s * 1000, 'tr-TR', 2)} L/s`} note={`${formatSmartNumber(hesap.Q, 'tr-TR', 2)} m³/h`} />
           </div>
 
           <div className="mt-4 calc-panel rounded-xl p-4 text-xs">
             <p className="font-mono calc-muted">Pmil = {formatSmartNumber(hesap.rho, 'tr-TR', 0)} × {formatSmartNumber(hesap.g, 'tr-TR', 2)} × {formatSmartNumber(hesap.Qm3s, 'tr-TR', 5)} × {formatSmartNumber(hesap.H, 'tr-TR', 2)} / {formatSmartNumber(hesap.etaPump / 100, 'tr-TR', 3)}</p>
-            <p className="font-mono calc-muted mt-1">Pompa mil gücü = {formatSmartNumber(hesap.shaftKw, 'tr-TR', 3)} kW</p>
+            <p className="font-mono calc-muted mt-1">Pompa mil gücü (üstteki W sonucu / 1000) = {formatSmartNumber(hesap.shaftKw, 'tr-TR', 3)} kW</p>
           </div>
         </div>
       )}
@@ -211,7 +215,8 @@ export default function PompaGucHesaplamaCalculator() {
           <Info className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
           <div>
             <p className="font-bold text-[var(--foreground)] mb-1">Pompa eğrisi ve motor seçimi notu</p>
-            <p className="calc-prose">Standart motor sonucu ön seçimdir. Nihai pompa modeli; üreticinin Q-H eğrisi, çalışma noktası, NPSH şartı, kuyu soğutması, kablo gerilim düşümü ve yol verme yöntemiyle doğrulanmalıdır.</p>
+            <p className="calc-prose">Elektrik giriş gücü, çalışma noktasındaki mil gücünün motor verimine bölünmesidir; seçilen motorun etiket gücü tüketim değildir. Kısmi yükte gerçek motor verimi değişir. Standart motor sonucu ön seçimdir. Nihai pompa modeli; üreticinin Q-H eğrisi, çalışma noktası, NPSH şartı, kuyu soğutması, kablo gerilim düşümü ve yol verme yöntemiyle doğrulanmalıdır.</p>
+            <p className="calc-prose mt-2"><a href="https://www.grundfos.com/solutions/learn/research-and-insights/induced-power" target="_blank" rel="noopener noreferrer">Kaynak: Grundfos — pompa mil gücü ve verim</a></p>
           </div>
         </div>
       </div>
@@ -231,10 +236,11 @@ export default function PompaGucHesaplamaCalculator() {
 }
 
 function InputField({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  const id = useId();
   return (
     <div>
-      <label className="calc-title block mb-2">{label}</label>
-      <input type="text" inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value.replace(/[^0-9.,-]/g, ''))} className="calc-panel w-full px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/30" />
+      <label htmlFor={id} className="calc-title block mb-2">{label}</label>
+      <input id={id} type="text" inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value.replace(/[^0-9.,-]/g, ''))} className="calc-panel w-full px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/30" />
     </div>
   );
 }

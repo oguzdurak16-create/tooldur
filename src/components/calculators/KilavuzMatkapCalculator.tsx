@@ -162,7 +162,8 @@ export default function KilavuzMatkapCalculator({ tool, locale = 'tr' }: { tool?
   }, [seriesFilter, tableQuery, numberLocale]);
 
   const clearance = fit === 'close' ? row.clearanceClose : fit === 'loose' ? row.clearanceLoose : row.clearanceNormal;
-  const depthNumber = Number(depth.replace(',', '.')) || row.d * 2;
+  const depthNumber = Number(depth.replace(',', '.'));
+  const validDepth = depth.trim() !== '' && Number.isFinite(depthNumber) && depthNumber > 0;
   const drillDepth = blindHole ? depthNumber + Math.max(row.d * 0.7, row.pitch * 4) : depthNumber;
   const chamfer = row.d <= 8 ? `${fmt(0.5)} × 45°` : row.d <= 16 ? `1 × 45°` : `${fmt(1.5)} × 45°`;
   const d2 = pitchDiameter(row.d, row.pitch);
@@ -174,7 +175,7 @@ export default function KilavuzMatkapCalculator({ tool, locale = 'tr' }: { tool?
         `${displaySize(row.size)} - 6H internal thread`,
         `Tap drill: Ø${fmt(row.tapDrill)} mm`,
         `Thread depth: ${fmt(depthNumber)} mm`,
-        blindHole ? `Pilot hole depth: min. ${fmt(drillDepth)} mm` : 'Through hole: full part thickness',
+        blindHole ? `Pilot hole depth estimate: ${fmt(drillDepth)} mm` : 'Through hole: full part thickness',
         `Entry chamfer: ${chamfer}`,
         `Bolt clearance hole (${fitLabels[fit]}): Ø${fmt(clearance)} mm`,
       ].join('\n')
@@ -182,12 +183,13 @@ export default function KilavuzMatkapCalculator({ tool, locale = 'tr' }: { tool?
         `${row.size} - 6H iç diş`,
         `Kılavuz matkap: Ø${fmt(row.tapDrill)} mm`,
         `Diş derinliği: ${fmt(depthNumber)} mm`,
-        blindHole ? `Ön delik derinliği: min. ${fmt(drillDepth)} mm` : 'Açık delik: parça boyunca',
+        blindHole ? `Ön delik derinliği tahmini: ${fmt(drillDepth)} mm` : 'Açık delik: parça boyunca',
         `Giriş pahı: ${chamfer}`,
         `Bağlantı boşluk deliği (${fitLabels[fit]}): Ø${fmt(clearance)} mm`,
       ].join('\n');
 
   const copy = async () => {
+    if (!validDepth) return;
     try {
       await navigator.clipboard.writeText(callout);
       setCopied(true);
@@ -225,7 +227,7 @@ export default function KilavuzMatkapCalculator({ tool, locale = 'tr' }: { tool?
           </div>
           <div>
             <label className="calc-title text-sm font-semibold">{isEnglish ? 'Thread depth (mm)' : 'Diş derinliği (mm)'}</label>
-            <input value={depth} onChange={(e) => setDepth(e.target.value.replace(/[^0-9.,]/g, ''))} inputMode="decimal" className="w-full mt-2 px-4 py-3 rounded-xl calc-panel outline-none" />
+            <input value={depth} onChange={(e) => setDepth(e.target.value.replace(/[^0-9.,-]/g, ''))} inputMode="decimal" className="w-full mt-2 px-4 py-3 rounded-xl calc-panel outline-none" />
           </div>
           <div>
             <label className="calc-title text-sm font-semibold">{isEnglish ? 'Hole type' : 'Delik tipi'}</label>
@@ -242,16 +244,16 @@ export default function KilavuzMatkapCalculator({ tool, locale = 'tr' }: { tool?
 
       <div className="grid md:grid-cols-2 gap-4">
         <ResultCard label={isEnglish ? 'Clearance hole' : 'Boşluk deliği'} value={`Ø${fmt(clearance)} mm`} note={`${fitLabels[fit]} • ${isEnglish ? 'close' : 'sıkı'} Ø${fmt(row.clearanceClose)} / ${isEnglish ? 'normal' : 'normal'} Ø${fmt(row.clearanceNormal)} / ${isEnglish ? 'loose' : 'rahat'} Ø${fmt(row.clearanceLoose)}`} />
-        <ResultCard label={isEnglish ? 'Pilot hole depth' : 'Ön delik derinliği'} value={blindHole ? `${fmt(drillDepth)} mm` : (isEnglish ? 'Through part' : 'Parça boyunca')} note={isEnglish ? 'Blind holes include allowance for chips and tap runout.' : 'Kör delikte talaş ve kılavuz çıkışı için emniyet payı eklenir.'} />
+        <ResultCard label={isEnglish ? 'Pilot hole depth' : 'Ön delik derinliği'} value={!validDepth ? '—' : blindHole ? `${fmt(drillDepth)} mm` : (isEnglish ? 'Through part' : 'Parça boyunca')} note={isEnglish ? 'Blind holes include allowance for chips and tap runout.' : 'Kör delikte talaş ve kılavuz çıkışı için emniyet payı eklenir.'} />
       </div>
 
       <div className="calc-box-accent">
         <div className="flex flex-col md:flex-row md:items-start gap-4 md:justify-between">
           <div>
             <h3 className="calc-section-title flex items-center gap-2"><Clipboard className="w-4 h-4" /> {isEnglish ? 'Drawing callout' : 'Teknik resim çağrısı'}</h3>
-            <pre className="mt-3 whitespace-pre-wrap rounded-2xl calc-soft p-4 text-sm font-mono text-[var(--foreground)] leading-relaxed">{callout}</pre>
+            <pre className="mt-3 whitespace-pre-wrap rounded-2xl calc-soft p-4 text-sm font-mono text-[var(--foreground)] leading-relaxed">{validDepth ? callout : (isEnglish ? 'Enter a positive thread depth to create the callout.' : 'Çağrı oluşturmak için pozitif diş derinliği girin.')}</pre>
           </div>
-          <button onClick={copy} className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-3 font-bold text-slate-950 hover:bg-amber-400 transition">
+          <button type="button" disabled={!validDepth} onClick={copy} className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-3 font-bold text-slate-950 hover:bg-amber-400 transition">
             {copied ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             {copied ? (isEnglish ? 'Copied' : 'Kopyalandı') : (isEnglish ? 'Copy callout' : 'Çağrıyı kopyala')}
           </button>

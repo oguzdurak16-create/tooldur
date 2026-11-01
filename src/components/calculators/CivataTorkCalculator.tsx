@@ -5,11 +5,11 @@ import { Gauge, Info, Wrench } from 'lucide-react';
 import { parseLocalizedNumber, formatSmartNumber } from '@/lib/calculator-utils';
 import type { Locale } from '@/lib/siteLanguage';
 
-const CLASSES: Record<string, { proof: number; ratio: number; note: string }> = {
-  '8.8': { proof: 640, ratio: 0.75, note: 'Genel makine imalatında yaygın ön sıkma seviyesi' },
-  '10.9': { proof: 900, ratio: 0.75, note: 'Yüksek dayanımlı bağlantılar için' },
-  '12.9': { proof: 1080, ratio: 0.70, note: 'Yüksek dayanım, dikkatli montaj gerektirir' },
-  'A2-70': { proof: 450, ratio: 0.65, note: 'Paslanmaz bağlantılar için yaklaşık ön kontrol' },
+const CLASSES: Record<string, { yieldStrength: number; ratio: number; note: string }> = {
+  '8.8': { yieldStrength: 640, ratio: 0.75, note: 'Genel makine imalatında yaygın ön sıkma seviyesi' },
+  '10.9': { yieldStrength: 900, ratio: 0.75, note: 'Yüksek dayanımlı bağlantılar için' },
+  '12.9': { yieldStrength: 1080, ratio: 0.70, note: 'Yüksek dayanım, dikkatli montaj gerektirir' },
+  'A2-70': { yieldStrength: 450, ratio: 0.65, note: 'Paslanmaz bağlantılar için yaklaşık ön kontrol' },
 };
 
 const THREADS: Record<string, { d: number; pitch: number; area: number }> = {
@@ -39,16 +39,18 @@ export default function CivataTorkCalculator({ locale = 'tr' }: { locale?: Local
     const t = THREADS[thread];
     const g = CLASSES[grade];
     const nut = parseLocalizedNumber(k) || 0;
-    if (!t || !g || nut <= 0) return null;
+    if (!t || !g || !Number.isFinite(nut) || nut <= 0) return null;
 
-    const autoPreload = t.area * g.proof * g.ratio;
+    const autoPreload = t.area * g.yieldStrength * g.ratio;
     const manual = parseLocalizedNumber(customPreload);
-    const preload = manual > 0 ? manual : autoPreload;
+    const manualUsed = customPreload.trim() !== '';
+    if (manualUsed && (!Number.isFinite(manual) || manual <= 0)) return null;
+    const preload = manualUsed ? manual : autoPreload;
     const torque = nut * preload * (t.d / 1000);
     const low = torque * 0.85;
     const high = torque * 1.15;
 
-    return { t, g, preload, torque, low, high, autoPreload, manualUsed: manual > 0 };
+    return { t, g, preload, torque, low, high, autoPreload, manualUsed };
   }, [thread, grade, k, customPreload]);
 
   return (
@@ -63,7 +65,7 @@ export default function CivataTorkCalculator({ locale = 'tr' }: { locale?: Local
             <p className="calc-prose mt-1">
               {isEnglish
                 ? 'Estimate tightening torque from metric thread size, property class and nut factor.'
-                : 'Metrik vida, kalite sınıfı ve sürtünme katsayısına göre yaklaşık sıkma torkunu hesaplayın.'}
+                : 'Metrik vida, kalite sınıfı ve boyutsuz K tork katsayısına göre yaklaşık sıkma torkunu hesaplayın.'}
             </p>
           </div>
         </div>
@@ -79,13 +81,13 @@ export default function CivataTorkCalculator({ locale = 'tr' }: { locale?: Local
               {Object.keys(CLASSES).map((m) => <option key={m} value={m}>{m}</option>)}
             </select>
           </Field>
-          <Field label={isEnglish ? 'Nut factor K' : 'Sürtünme katsayısı K'}>
-            <input value={k} onChange={(e) => setK(e.target.value.replace(/[^0-9.,]/g, ''))} inputMode="decimal" className="calc-panel w-full px-4 py-3 rounded-xl outline-none" />
+          <Field label={isEnglish ? 'Nut factor K' : 'Tork katsayısı K (boyutsuz)'}>
+            <input value={k} onChange={(e) => setK(e.target.value.replace(/[^0-9.,-]/g, ''))} inputMode="decimal" className="calc-panel w-full px-4 py-3 rounded-xl outline-none" />
           </Field>
           <Field label={isEnglish ? 'Manual preload Fv (N) — optional' : 'Manuel ön yük Fv (N) - isteğe bağlı'}>
             <input
               value={customPreload}
-              onChange={(e) => setCustomPreload(e.target.value.replace(/[^0-9.,]/g, ''))}
+              onChange={(e) => setCustomPreload(e.target.value.replace(/[^0-9.,-]/g, ''))}
               inputMode="decimal"
               placeholder={isEnglish ? 'Automatic when blank' : 'Boşsa otomatik'}
               className="calc-panel w-full px-4 py-3 rounded-xl outline-none"
@@ -103,17 +105,21 @@ export default function CivataTorkCalculator({ locale = 'tr' }: { locale?: Local
         </div>
       </div>
 
+      {!result && <p role="alert" className="calc-box">{isEnglish ? 'K and an entered manual preload must be finite positive numbers. Leave manual preload blank to use the estimate.' : 'K ve girilmiş manuel ön yük pozitif, geçerli sayılar olmalıdır. Otomatik tahmin için manuel ön yükü boş bırakın.'}</p>}
+
       {result && (
         <div className="calc-box">
           <h3 className="text-amber-600 dark:text-amber-400 text-sm font-bold mb-4 flex items-center gap-2">
             <Gauge className="w-4 h-4" /> {isEnglish ? 'Tightening Torque Result' : 'Sıkma Torku Sonucu'}
           </h3>
           <div className="grid md:grid-cols-3 gap-3">
-            <Result label={isEnglish ? 'Recommended torque' : 'Önerilen tork'} value={`${formatSmartNumber(result.torque, numberLocale, 1)} Nm`} strong />
-            <Result label={isEnglish ? 'Check range' : 'Kontrol aralığı'} value={`${formatSmartNumber(result.low, numberLocale, 1)} - ${formatSmartNumber(result.high, numberLocale, 1)} Nm`} />
+            <Result label={isEnglish ? 'Estimated torque' : 'Tahmini tork'} value={`${formatSmartNumber(result.torque, numberLocale, 1)} Nm`} strong />
+            <Result label={isEnglish ? 'Illustrative ±15% sensitivity' : 'Örnek ±%15 duyarlılık'} value={`${formatSmartNumber(result.low, numberLocale, 1)} - ${formatSmartNumber(result.high, numberLocale, 1)} Nm`} />
             <Result label={isEnglish ? 'Preload' : 'Ön yük'} value={`${formatSmartNumber(result.preload, numberLocale, 0)} N`} />
             <Result label={isEnglish ? 'Tensile stress area' : 'Diş çekme alanı'} value={`${formatSmartNumber(result.t.area, numberLocale, 2)} mm²`} />
             <Result label={isEnglish ? 'Pitch' : 'Hatve'} value={`${result.t.pitch} mm`} />
+            <Result label={isEnglish ? 'Nominal yield benchmark' : 'Nominal akma dayanımı varsayımı'} value={`${result.g.yieldStrength} MPa`} />
+            <Result label={isEnglish ? 'Automatic preload fraction' : 'Otomatik ön yük oranı'} value={`%${formatSmartNumber(result.g.ratio * 100, numberLocale, 0)}`} />
             <Result label={isEnglish ? 'Preload source' : 'Kaynak'} value={result.manualUsed ? (isEnglish ? 'Manual Fv' : 'Manuel Fv') : (isEnglish ? 'Automatic preload' : 'Otomatik ön yük')} />
           </div>
         </div>
@@ -126,9 +132,9 @@ export default function CivataTorkCalculator({ locale = 'tr' }: { locale?: Local
         </div>
         <div className="calc-soft rounded-xl p-4 calc-prose">
           {isEnglish ? (
-            <>Approximate formula: <strong>T = K × Fv × d</strong>. T is tightening torque, K is the nut factor, Fv is preload and d is nominal bolt diameter. For critical joints, also verify the manufacturer torque table, lubrication condition and assembly procedure.</>
+            <>Approximate formula: <strong>T = K × Fv × d</strong>. With Fv in N and d in m, T is in Nm. K is a dimensionless nut factor, not a friction coefficient. Automatic preload uses a stated fraction of nominal yield strength × tensile stress area; the ±15% band is a sensitivity example, not an acceptance tolerance. For critical joints, also verify the manufacturer torque table, lubrication condition and assembly procedure.</>
           ) : (
-            <>Yaklaşık formül: <strong>T = K × Fv × d</strong>. Burada T sıkma torku, K nut factor, Fv ön yük, d nominal vida çapıdır. Kritik bağlantılarda üretici tablosu, yağlama durumu ve montaj prosedürü ayrıca kontrol edilmelidir.</>
+            <>Yaklaşık formül: <strong>T = K × Fv × d</strong>. Fv N, d metre girildiğinde T Nm çıkar. K boyutsuz tork katsayısıdır; sürtünme katsayısıyla aynı değildir. Otomatik ön yük, nominal akma dayanımı × çekme alanının seçili oranıdır; ±%15 aralığı kabul toleransı değil, örnek duyarlılıktır. Kritik bağlantılarda üretici tablosu, yağlama durumu ve montaj prosedürü ayrıca kontrol edilmelidir.</>
           )}
         </div>
       </section>

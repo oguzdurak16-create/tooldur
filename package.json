@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint src",
     "seo:audit": "node scripts/seo-data-audit.mjs",
-    "lint:fix": "eslint src --fix"
+    "lint:fix": "eslint src --fix",
+    "test:calculations": "node --experimental-strip-types scripts/check-calculator-inputs.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
