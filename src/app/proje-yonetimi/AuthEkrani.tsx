@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
 import { ArrowRight, FolderKanban } from "lucide-react";
 
 export default function AuthEkrani() {
   return (
     <div className="pm-root pm-auth-screen">
       <section className="pm-auth-card">
-        <div className="pm-auth-mark">T</div>
+        <div className="pm-auth-toolbar"><Link className="pm-auth-mark" href="/" aria-label="Tooldur ana sayfa">T</Link><ThemeToggle /></div>
         <div className="pm-breadcrumb">
           <FolderKanban size={12} /> Tooldur Proje Yönetimi
         </div>

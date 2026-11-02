@@ -30,7 +30,7 @@ export default function ClientChrome({ area }: Props) {
     return (
       <>
         <GoogleAnalytics />
-        {!isHumanityTest && <Header />}
+        {!isHumanityTest && pathname !== "/proje-yonetimi" && <Header />}
         <CookieConsent />
       </>
     );
@@ -46,7 +46,7 @@ export default function ClientChrome({ area }: Props) {
 
   return (
     <>
-      {isWorkspace ? (
+      {pathname === "/proje-yonetimi" ? null : isWorkspace ? (
         <footer className={workspaceStyles.footer}>
           <Link href="/">Tooldur ana sayfa</Link>
           <Link href="/iletisim">Yardım ve geri bildirim</Link>

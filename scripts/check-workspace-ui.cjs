@@ -57,7 +57,26 @@ async function setup(browser, signedIn = true, theme = "light", empty = false) {
     serviceWorkers: "block",
   });
   const state = {
-    projects: empty ? [] : [{ ...project }],
+    projects: empty
+      ? []
+      : [
+          { ...project },
+          {
+            ...project,
+            id: "fixture-project-two",
+            ad: "Montaj ve test planı",
+            aciklama: "Yeni üretim hattı için hazırlıklar",
+            renk: "#237849",
+            emoji: "📁",
+          },
+          {
+            ...project,
+            id: "fixture-project-three",
+            ad: "Mekanik sistem doğrulaması ve üretim hazırlığı",
+            renk: "#7c3aed",
+            emoji: "🔧",
+          },
+        ],
     tasks: empty ? [] : [{ ...task }],
     failWrite: false,
     failReads: false,
@@ -476,7 +495,9 @@ async function fakeKeyboard(page, height = 330) {
           await page.locator('[aria-label="Kayıt özeti"]').innerText(),
           /1/,
         );
-        for (const width of [320, 393, 768, 1440]) {
+        for (const width of [
+          320, 393, 768, 1024, 1100, 1215, 1280, 1440, 1519,
+        ]) {
           await page.setViewportSize({ width, height: 900 });
           await fit(page);
         }
@@ -515,16 +536,61 @@ async function fakeKeyboard(page, height = 330) {
         pass(theme + ": panel layout, real count responses, tool search");
         await ready(page, "/proje-yonetimi");
         await page.locator(".pm-task-card").first().waitFor();
-        for (const width of [320, 393, 768, 1440]) {
+        for (const width of [
+          320, 393, 768, 1024, 1100, 1215, 1280, 1440, 1519,
+        ]) {
           await page.setViewportSize({ width, height: 900 });
           await fit(page);
         }
+        await page.setViewportSize({ width: 1519, height: 596 });
+        await fit(page);
+        const lanes = await page.locator(".pm-column").evaluateAll((es) =>
+          es.map((e) => {
+            const r = e.getBoundingClientRect();
+            return { x: r.x, right: r.right, y: r.y };
+          }),
+        );
+        assert.equal(lanes.length, 4);
+        assert.equal(new Set(lanes.map((l) => Math.round(l.y))).size, 1);
+        assert.ok(lanes.every((l) => l.x >= 0 && l.right <= 1520));
+        const newTaskBounds = await page
+          .locator(".pm-top-actions")
+          .getByRole("button", { name: "Yeni görev", exact: true })
+          .boundingBox();
+        assert.ok(newTaskBounds.x + newTaskBounds.width <= 1520);
+        await settle(page);
+        await page.screenshot({
+          path: `${output}/${engine}-desktop-board-${theme}.png`,
+        });
+        await page
+          .getByRole("button", { name: /^Montaj ve test planı/ })
+          .click();
+        await page
+          .getByRole("heading", {
+            name: "Bu projede ne yapacağız?",
+            exact: true,
+          })
+          .waitFor();
+        assert.equal(await page.locator(".pm-board").count(), 0);
+        await page.screenshot({
+          path: `${output}/${engine}-desktop-empty-${theme}.png`,
+        });
+        await page
+          .getByRole("searchbox", { name: "Projelerde ara" })
+          .fill("bulunamayanproje");
+        await page
+          .getByRole("status")
+          .filter({ hasText: "Bu adla proje bulunamadı." })
+          .waitFor();
+        await page.getByRole("searchbox", { name: "Projelerde ara" }).fill("");
+        await page.getByRole("button", { name: /^Atölye tasarımı/ }).click();
+        await page.locator(".pm-task-card").first().waitFor();
         await page.setViewportSize({ width: 393, height: 780 });
         assert.equal(
           await page.locator(".pm-topbar .pm-new-project").isVisible(),
           true,
         );
-        for (const label of ["Takım", "Ayarlar", "Yeni görev"])
+        for (const label of ["Takım", "Proje ayarları", "Yeni görev"])
           assert.equal(
             await page
               .locator(".pm-top-actions")
@@ -739,6 +805,58 @@ async function fakeKeyboard(page, height = 330) {
       } finally {
         await t.close();
       }
+    }
+    const empty = await setup(browser, true, "light", true);
+    try {
+      await empty.page.goto(base + "/proje-yonetimi", { waitUntil: "load" });
+      await empty.page
+        .getByRole("heading", { name: "Projelerim", exact: true })
+        .waitFor();
+      await empty.page
+        .getByText("İlk projenle başla", { exact: true })
+        .waitFor();
+      await empty.page.locator(".pm-topbar .pm-new-project").click();
+      let modal = empty.page.getByRole("dialog", {
+        name: "Yeni proje",
+        exact: true,
+      });
+      await modal
+        .getByLabel("Proje adı", { exact: true })
+        .fill("İlk çalışma alanım");
+      await modal
+        .getByRole("button", { name: "Projeyi oluştur", exact: true })
+        .click();
+      await empty.page
+        .getByRole("heading", { name: "Bu projede ne yapacağız?", exact: true })
+        .waitFor();
+      await fit(empty.page);
+      await empty.page.screenshot({
+        path: `${output}/${engine}-mobile-empty.png`,
+        fullPage: true,
+      });
+      await empty.page
+        .getByRole("button", { name: "İlk görevi ekle", exact: true })
+        .click();
+      modal = empty.page.getByRole("dialog", {
+        name: "Yeni görev",
+        exact: true,
+      });
+      await modal
+        .getByLabel("Görev başlığı", { exact: true })
+        .fill("Teknik gereksinimleri belirle");
+      await modal
+        .getByRole("button", { name: "Görevi oluştur", exact: true })
+        .click();
+      await empty.page
+        .locator(".pm-task-card")
+        .filter({ hasText: "Teknik gereksinimleri belirle" })
+        .waitFor();
+      assert.deepEqual(empty.errors, []);
+      pass(
+        "first project and first task: actionable onboarding replaces four empty columns",
+      );
+    } finally {
+      await empty.close();
     }
     const guest = await setup(browser, false);
     try {

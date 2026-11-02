@@ -1,7 +1,12 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
+import workspace from "./Workspace.module.css";
 import {
+  ArrowLeft,
+  ArrowUpRight,
   AlertTriangle,
   BarChart3,
   Bell,
@@ -169,16 +174,10 @@ function Modal({
   );
 }
 
-function Metric({ label, value, icon, danger = false }: { label: string; value: number; icon: React.ReactNode; danger?: boolean }) {
-  return (
-    <div className={`pm-metric ${danger ? "is-danger" : ""}`}>
-      <div className="pm-metric-icon">{icon}</div>
-      <div className="pm-metric-copy">
-        <strong>{value}</strong>
-        <span>{label}</span>
-      </div>
-    </div>
-  );
+function Metric({ label, value, icon, danger = false, active, onClick }: { label: string; value: number; icon: React.ReactNode; danger?: boolean; active: boolean; onClick: () => void }) {
+  return <button type="button" className={`pm-metric ${danger ? "is-danger" : ""} ${active ? "is-active" : ""}`} onClick={onClick} aria-pressed={active}>
+    <span className="pm-metric-icon">{icon}</span><strong>{value}</strong><span>{label}</span>
+  </button>;
 }
 
 function TaskCard({
@@ -805,6 +804,7 @@ export default function ProjectManagementPage() {
   const [selectedTask, setSelectedTask] = useState<Gorev | null>(null);
   const [tab, setTab] = useState<Sekme>("kanban");
   const [search, setSearch] = useState("");
+  const [projectSearch, setProjectSearch] = useState("");
   const [priorityFilter, setPriorityFilter] = useState<Oncelik | "tum">("tum");
   const [memberFilter, setMemberFilter] = useState("tum");
   const [quickFilter, setQuickFilter] = useState<HizliFiltre>("tum");
@@ -913,7 +913,10 @@ export default function ProjectManagementPage() {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
         event.stopPropagation();
-        document.getElementById("pm-global-search")?.focus();
+        const taskSearch = document.getElementById("pm-global-search");
+        const projectSearchInput = document.querySelector<HTMLInputElement>('input[aria-label="Projelerde ara"]');
+        if (taskSearch?.getClientRects().length) taskSearch.focus();
+        else if (projectSearchInput?.getClientRects().length) projectSearchInput.focus();
       }
       if (!typing && (event.ctrlKey || event.metaKey) && event.key === "Enter" && activeProjectId) {
         event.preventDefault();
@@ -932,6 +935,8 @@ export default function ProjectManagementPage() {
     document.addEventListener("mousedown", onOutside);
     return () => document.removeEventListener("mousedown", onOutside);
   }, []);
+
+  const matchingProjects = useMemo(() => projects.filter(project => project.ad.toLocaleLowerCase("tr-TR").includes(projectSearch.trim().toLocaleLowerCase("tr-TR"))), [projects, projectSearch]);
 
   const activeProject = useMemo(() => projects.find((project) => project.id === activeProjectId) ?? null, [activeProjectId, projects]);
 
@@ -1117,34 +1122,33 @@ export default function ProjectManagementPage() {
   if (!user) return <AuthEkrani />;
 
   return (
-    <div className="pm-root">
+    <div className={`pm-root ${workspace.root}`} data-pm-workspace>
       <div className="pm-app">
         <aside className="pm-sidebar">
-          <div className="pm-brand">
-            <div className="pm-brand-mark">T</div>
-            <div className="pm-brand-copy"><strong>Tooldur</strong><span>Proje Yönetimi</span></div>
-          </div>
+          <Link href="/" className="pm-brand" aria-label="Tooldur ana sayfa">
+            <div className="pm-brand-mark">T<span>.</span></div>
+            <div className="pm-brand-copy"><strong>tooldur</strong><span>Çalışma alanı</span></div>
+          </Link>
+          <Link href="/dashboard" className={workspace.backLink}><ArrowLeft size={16} />Panelime dön</Link>
 
           <div className="pm-sidebar-scroll">
             <section className="pm-sidebar-section">
-              <div className="pm-section-label">Projeler</div>
+              <div className="pm-section-label">Projeler <span>{projects.length}</span></div>
+              <label className={workspace.projectSearch}><Search size={16} /><input type="search" aria-label="Projelerde ara" placeholder="Proje bul…" value={projectSearch} onChange={event => setProjectSearch(event.target.value)} /></label>
               <div className="pm-project-list">
-                {projects.map((project) => (
-                  <button key={project.id} type="button" className={`pm-project-button ${project.id === activeProjectId ? "is-active" : ""}`} onClick={() => setActiveProjectId(project.id)}>
+                {matchingProjects.map((project) => (
+                  <button key={project.id} type="button" className={`pm-project-button ${project.id === activeProjectId ? "is-active" : ""}`} aria-label={project.ad} aria-current={project.id === activeProjectId ? "page" : undefined} onClick={() => setActiveProjectId(project.id)}>
                     <span className="pm-project-icon">{project.emoji || "P"}</span>
                     <span className="pm-project-copy"><strong>{project.ad}</strong><span>{project.uyeler?.length || (project.sahipUid === user.uid ? 1 : 0)} üye · {project.id === activeProjectId ? `${summary.total} görev` : "Açmak için seç"}</span></span>
                     <span className="pm-project-accent" style={{ background: project.renk || "var(--pm-yellow)" }} />
                   </button>
                 ))}
               </div>
+              {!!projects.length && !matchingProjects.length && <p className={workspace.projectSearchEmpty} role="status">Bu adla proje bulunamadı.</p>}
               {!projectsLoading && !projects.length && <div className="pm-sidebar-empty">Henüz proje yok. İlk projeyi oluşturarak görev takibine başlayabilirsin.</div>}
             </section>
 
-            <section className="pm-sidebar-section pm-sidebar-actions">
-              <button type="button" className="pm-button is-primary is-block" onClick={() => setProjectModal("create")}><Plus size={15} />Yeni proje</button>
-              <button type="button" className="pm-button is-block" disabled={!activeProject} onClick={() => setTeamModalOpen(true)}><Users size={15} />Takım</button>
-              <button type="button" className="pm-button is-block" disabled={!activeProject || activeProject.sahipUid !== user.uid} onClick={() => setProjectModal("edit")}><Settings size={15} />Proje ayarları</button>
-            </section>
+            <nav className={workspace.sidebarLinks} aria-label="Çalışma alanı bağlantıları"><Link href="/araclar"><ArrowUpRight size={16} />Hesaplama araçları</Link><Link href="/iletisim">Yardım ve geri bildirim</Link></nav>
           </div>
 
           <div className="pm-sidebar-footer">
@@ -1164,11 +1168,13 @@ export default function ProjectManagementPage() {
             </select>
 
             <div className="pm-title-area">
-              <div className="pm-breadcrumb"><FolderKanban size={12} />Proje Yönetimi</div>
-              <div className="pm-title-line"><h1>{activeProject?.ad || "Projeler"}</h1>{activeProject && <span>{summary.progress}% tamamlandı</span>}</div>
+              <div className="pm-breadcrumb"><Link href="/dashboard">Panelim</Link><ChevronRight size={12} /><span>Proje yönetimi</span></div>
+              <div className="pm-title-line"><h1>{activeProject?.ad || "Projelerim"}</h1></div>
+              <p className={workspace.description}>{activeProject?.aciklama || (activeProject ? "Görevleri planla, ilerlemeyi birlikte takip et." : "Bir proje oluştur, işlerini tek yerden takip et.")}</p>
             </div>
 
             <div className="pm-top-actions">
+              <div className={workspace.theme}><ThemeToggle /></div>
               <button type="button" className="pm-button pm-new-project" onClick={() => setProjectModal("create")}><Plus size={15} /><span>Yeni proje</span></button>
               <div className="pm-notification-wrap" ref={notificationRef}>
                 <button type="button" className="pm-icon-button" onClick={() => setNotificationOpen((current) => !current)} aria-label="Bildirimler">
@@ -1188,7 +1194,7 @@ export default function ProjectManagementPage() {
                 )}
               </div>
               <button type="button" className="pm-button" disabled={!activeProject} onClick={() => setTeamModalOpen(true)}><Users size={15} /><span>Takım</span></button>
-              <button type="button" className="pm-button" disabled={!activeProject || activeProject.sahipUid !== user.uid} onClick={() => setProjectModal("edit")}><Settings size={15} /><span>Ayarlar</span></button>
+              <button type="button" className="pm-button" disabled={!activeProject || activeProject.sahipUid !== user.uid} aria-label="Proje ayarları" title="Proje ayarları" onClick={() => setProjectModal("edit")}><Settings size={18} /><span className={workspace.settingsLabel}>Ayarlar</span></button>
               <button type="button" className="pm-button is-primary" disabled={!activeProject} onClick={() => setTaskModalStatus("yapilacak")}><Plus size={15} /><span>Yeni görev</span></button>
             </div>
           </header>
@@ -1208,16 +1214,7 @@ export default function ProjectManagementPage() {
 
             {activeProject ? (
               <>
-                <section className="pm-project-strip" style={{ borderLeftColor: activeProject.renk || "var(--pm-yellow)" }}>
-                  <div className="pm-project-strip-main">
-                    <div className="pm-project-strip-icon">{activeProject.emoji || "P"}</div>
-                    <div className="pm-project-strip-copy"><strong>{activeProject.ad}</strong><span>{activeProject.aciklama || "Proje açıklaması eklenmemiş."}</span></div>
-                  </div>
-                  <div className="pm-progress-group">
-                    <div className="pm-progress-label"><span>{summary.completed}/{summary.total} görev tamamlandı</span><b>{summary.progress}%</b></div>
-                    <div className="pm-progress-track"><span style={{ width: `${summary.progress}%`, background: activeProject.renk || "var(--pm-yellow)" }} /></div>
-                  </div>
-                </section>
+
 
                 {pendingToolItem && (
                   <section className="pm-transfer-banner">
@@ -1226,14 +1223,17 @@ export default function ProjectManagementPage() {
                   </section>
                 )}
 
-                <section className="pm-metrics">
-                  <Metric label="Toplam görev" value={summary.total} icon={<ListTodo size={16} />} />
-                  <Metric label="Bugün teslim" value={summary.today} icon={<Clock3 size={16} />} />
-                  <Metric label="Geciken" value={summary.overdue} icon={<AlertTriangle size={16} />} danger={summary.overdue > 0} />
-                  <Metric label="Tamamlanan" value={summary.completed} icon={<CheckCircle2 size={16} />} />
-                </section>
+                {tasks.length > 0 && <section className="pm-overview" aria-label="Proje özeti">
+                  <div className="pm-metrics">
+                    <Metric label="görev" value={summary.total} icon={<ListTodo size={16} />} active={quickFilter === "tum"} onClick={() => setQuickFilter("tum")} />
+                    <Metric label="bugün teslim" value={summary.today} icon={<Clock3 size={16} />} active={quickFilter === "bugun"} onClick={() => setQuickFilter(quickFilter === "bugun" ? "tum" : "bugun")} />
+                    <Metric label="geciken" value={summary.overdue} icon={<AlertTriangle size={16} />} active={quickFilter === "geciken"} onClick={() => setQuickFilter(quickFilter === "geciken" ? "tum" : "geciken")} danger={summary.overdue > 0} />
+                  </div>
+                  <div className="pm-progress-group"><div className="pm-progress-label"><span>{summary.completed}/{summary.total} görev tamamlandı</span><b>{summary.progress}%</b></div><div className="pm-progress-track" role="progressbar" aria-label="Proje ilerlemesi" aria-valuenow={summary.progress} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${summary.progress}%` }} /></div></div>
+                </section>}
 
-                <section className="pm-viewbar">
+
+                <section className="pm-viewbar" data-empty={tasks.length === 0 ? "true" : undefined}>
                   <div className="pm-tabs" role="tablist" aria-label="Proje görünümü">
                     {([
                       ["kanban", "Kanban", <LayoutDashboard key="kanban" size={14} />],
@@ -1285,16 +1285,24 @@ export default function ProjectManagementPage() {
 
                 {tasksLoading ? (
                   <div className="pm-empty-state" style={{ marginTop: 12 }}><div><strong>Görevler yükleniyor</strong><span>Aktif proje verileri hazırlanıyor.</span></div></div>
+                ) : tasks.length === 0 ? (
+                  <section className={workspace.firstTask} aria-labelledby="first-task-title">
+                    <div className={workspace.emptyIcon}><FolderKanban size={30} strokeWidth={1.5} /></div>
+                    <p className={workspace.eyebrow}>İLK ADIM</p><h2 id="first-task-title">Bu projede ne yapacağız?</h2>
+                    <p>İlk görevi ekle; sorumlusunu, önceliğini ve teslim tarihini belirle. İlerledikçe görevleri aşamalar arasında taşı.</p>
+                    <button type="button" className="pm-button is-primary" onClick={() => setTaskModalStatus("yapilacak")}><Plus size={18} />İlk görevi ekle</button>
+                    <div className={workspace.workflow} aria-label="Görev akışı">{KOLONLAR.map((column, index) => <React.Fragment key={column.id}><span><i style={{ background: column.renk }} />{column.label}</span>{index < KOLONLAR.length - 1 && <ChevronRight size={14} aria-hidden="true" />}</React.Fragment>)}</div>
+                  </section>
                 ) : tab === "kanban" ? (
                   <div className="pm-board-wrap">
                     <div className="pm-mobile-board-note">Kolonlar arasında yatay kaydırabilir, durum menüsünden görevi taşıyabilirsin.</div>
-                    <section className={`pm-board ${compact ? "is-compact" : ""}`}>
+                    <section className={`pm-board ${compact ? "is-compact" : ""}`} aria-label="Görev panosu">
                       {KOLONLAR.map((column) => {
                         const columnTasks = filteredTasks.filter((task) => task.durum === column.id);
                         return (
                           <section
                             key={column.id}
-                            className={`pm-column ${dragOverStatus === column.id ? "is-drag-over" : ""}`}
+                            className={`pm-column ${dragOverStatus === column.id ? "is-drag-over" : ""}`} aria-label={column.label}
                             onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; setDragOverStatus(column.id); }}
                             onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setDragOverStatus(null); }}
                             onDrop={(event) => { event.preventDefault(); const id = event.dataTransfer.getData("text/plain"); setDragOverStatus(null); if (id) moveTask(id, column.id); }}
@@ -1304,7 +1312,7 @@ export default function ProjectManagementPage() {
                               <button type="button" className="pm-column-add" onClick={() => setTaskModalStatus(column.id)} title={`${column.label} kolonuna görev ekle`}><Plus size={14} /></button>
                             </header>
                             <div className="pm-column-body">
-                              {columnTasks.length ? columnTasks.map((task) => <TaskCard key={task.id} gorev={task} onOpen={setSelectedTask} onDelete={deleteTask} onStatusChange={moveTask} />) : <EmptyState title="Görev yok" text="Bu kolona yeni görev ekleyebilirsin." />}
+                              {columnTasks.length ? columnTasks.map((task) => <TaskCard key={task.id} gorev={task} onOpen={setSelectedTask} onDelete={deleteTask} onStatusChange={moveTask} />) : <button type="button" className={workspace.emptyColumn} onClick={() => setTaskModalStatus(column.id)}><Plus size={16} /><span>Görev ekle</span></button>}
                             </div>
                           </section>
                         );
@@ -1322,7 +1330,7 @@ export default function ProjectManagementPage() {
             ) : projectsLoading ? (
               <EmptyState title="Projeler yükleniyor" text="Kayıtlı projelerin hazırlanıyor." />
             ) : (
-              <EmptyState title="Bir proje seç" text="Soldaki listeden proje seç veya yeni bir proje oluştur." action={<button type="button" className="pm-button is-primary" onClick={() => setProjectModal("create")}><Plus size={15} />Yeni proje</button>} />
+              <EmptyState title={projects.length ? "Bir proje seç" : "İlk projenle başla"} text={projects.length ? "Listeden bir proje seçerek kaldığın yerden devam et." : "Projene bir ad ver; görevleri, tarihleri ve ekibini tek bir yerde topla."} action={<button type="button" className="pm-button is-primary" onClick={() => setProjectModal("create")}><Plus size={15} />Yeni proje</button>} />
             )}
           </div>
         </section>

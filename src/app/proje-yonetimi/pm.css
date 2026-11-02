@@ -739,3 +739,8 @@ html[data-theme="dark"] .pm-root { --pm-danger:#ffaaa8; --pm-success:#7ed6a3; --
 .pm-root .pm-task-description { font-size:12px; line-height:1.6; }
 .pm-root .pm-task-table td[data-mobile-label]::before { font-size:11px; }
 @media(max-width:760px) { .pm-root .pm-task-menu { opacity:1; transition:none; } .pm-root .pm-task-mini { width:34px; height:34px; } }
+
+.pm-auth-toolbar { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; }
+.pm-auth-toolbar .pm-auth-mark { text-decoration:none; }
+
+.pm-auth-screen,.pm-loading-screen { min-height:100dvh; }

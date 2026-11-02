@@ -1,0 +1,956 @@
+.root {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  color: var(--ink);
+  background: var(--bg);
+  font-size: 14px;
+}
+.root :global(.pm-app) {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  min-height: 100dvh;
+}
+.root :global(.pm-sidebar) {
+  display: flex;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  padding: 0;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+}
+.root :global(.pm-brand) {
+  display: flex;
+  min-height: 94px;
+  gap: 12px;
+  padding: 24px;
+  border: 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+.root :global(.pm-brand-mark) {
+  width: 40px;
+  height: 40px;
+  background: var(--action-bg);
+  color: var(--action-ink);
+  font-size: 23px;
+  border-radius: 11px;
+}
+.root :global(.pm-brand-mark span) {
+  margin-left: -4px;
+}
+.root :global(.pm-brand-copy strong) {
+  font-size: 22px;
+  font-weight: 850;
+  letter-spacing: -0.06em;
+}
+.root :global(.pm-brand-copy span) {
+  margin-top: 4px;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-weight: 400;
+}
+.backLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin: 0 16px 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--ink-2);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.backLink:hover {
+  background: var(--bg-muted);
+}
+.root :global(.pm-sidebar-scroll) {
+  padding: 18px 16px;
+}
+.root :global(.pm-section-label) {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  margin: 0 8px 14px;
+  color: var(--ink-3);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.root :global(.pm-section-label span) {
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: var(--bg-muted);
+  font-size: 11px;
+}
+.projectSearch {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  margin: 0 0 12px;
+  padding: 0 10px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--ink-3);
+  background: var(--bg);
+}
+.projectSearch input {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  font-size: 13px;
+  border: 0;
+  outline: 0;
+  color: var(--ink);
+  background: transparent;
+}
+.projectSearch:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.root :global(.pm-project-list) {
+  display: grid;
+  gap: 6px;
+  overflow: visible;
+}
+.root :global(.pm-project-button) {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  gap: 10px;
+  min-height: 68px;
+  padding: 10px;
+  border-radius: 9px;
+}
+.root :global(.pm-project-button.is-active) {
+  border-color: var(--border);
+  background: var(--bg-muted);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.root :global(.pm-project-icon) {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
+  font-size: 18px;
+}
+.root :global(.pm-project-button.is-active .pm-project-icon) {
+  background: var(--bg-card);
+}
+.root :global(.pm-project-copy strong) {
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 650;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.root :global(.pm-project-copy span) {
+  font-size: 11px;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.root :global(.pm-project-accent) {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  align-self: start;
+  margin-top: 7px;
+}
+.sidebarLinks {
+  display: grid;
+  gap: 3px;
+  border-top: 1px solid var(--border);
+  margin-top: 24px;
+  padding-top: 18px;
+}
+.sidebarLinks a {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 8px;
+  min-height: 40px;
+  color: var(--ink-3);
+  font-size: 12px;
+  text-decoration: none;
+}
+.sidebarLinks a:hover {
+  color: var(--accent);
+}
+.root :global(.pm-sidebar-footer) {
+  padding: 14px 12px;
+}
+.root :global(.pm-user-copy strong) {
+  font-size: 13px;
+}
+.root :global(.pm-user-copy span) {
+  font-size: 11px;
+}
+.root :global(.pm-workspace) {
+  min-width: 0;
+  max-width: 100%;
+  background: var(--bg);
+}
+.root :global(.pm-topbar) {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+}
+.root :global(.pm-title-area) {
+  display: block;
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+.root :global(.pm-breadcrumb) {
+  display: flex;
+  gap: 7px;
+  font-size: 12px;
+  line-height: 1.5;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+.root :global(.pm-breadcrumb a) {
+  color: var(--ink-3);
+  text-decoration: none;
+}
+.root :global(.pm-breadcrumb a:hover) {
+  color: var(--accent);
+}
+.root :global(.pm-title-line) {
+  display: block;
+  margin-top: 9px;
+}
+.root :global(.pm-title-line h1) {
+  font-size: 28px;
+  font-weight: 750;
+  letter-spacing: -0.035em;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+}
+.description {
+  max-width: 600px;
+  margin: 9px 0 0;
+  color: var(--ink-3);
+  font-size: 13px;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.root :global(.pm-top-actions) {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+  max-width: 540px;
+}
+.root :global(.pm-top-actions .pm-button) {
+  min-height: 42px;
+  padding: 0 12px;
+  font-size: 13px;
+  border-radius: 8px;
+}
+.root :global(.pm-top-actions .pm-button:not(.is-primary)) {
+  display: inline-flex;
+}
+.root :global(.pm-top-actions .pm-button svg) {
+  display: block;
+}
+.root :global(.pm-top-actions .pm-button span) {
+  display: inline;
+}
+.root :global(.pm-top-actions .pm-button.is-primary) {
+  order: 6;
+  padding: 0 16px;
+}
+.root :global(.pm-new-project) {
+  order: 0;
+}
+.root :global(.pm-top-actions .pm-button[aria-label="Proje ayarları"]) {
+  width: 42px;
+  padding: 0;
+}
+.root .settingsLabel {
+  display: none !important;
+}
+.root :global(.pm-notification-wrap) {
+  position: static;
+  order: 3;
+}
+.theme {
+  order: 4;
+  display: flex;
+}
+.root :global(.pm-dropdown) {
+  top: calc(100% - 4px);
+  right: 24px;
+  width: min(340px, calc(100vw - 32px));
+  max-height: min(440px, calc(var(--visual-viewport-height, 100dvh) - 170px));
+  overflow-y: auto;
+  box-shadow: var(--shadow);
+  border-radius: 12px;
+}
+.root :global(.pm-content) {
+  padding: 24px 28px 32px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+.root :global(.pm-overview) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 22px;
+  padding: 0 0 20px;
+  border-bottom: 1px solid var(--border);
+}
+.root :global(.pm-metrics) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+}
+.root :global(.pm-metric) {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
+  color: var(--ink-3);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.root :global(.pm-metric strong) {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 750;
+}
+.root :global(.pm-metric-icon) {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  border: 0;
+  background: none;
+  border-radius: 0;
+  color: var(--ink-3);
+}
+.root :global(.pm-metric.is-active) {
+  color: var(--accent);
+  border-color: var(--border-mid);
+  background: var(--accent-soft);
+}
+.root :global(.pm-metric.is-danger) {
+  color: var(--pm-danger);
+}
+.root :global(.pm-progress-group) {
+  width: 200px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+.root :global(.pm-progress-label) {
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+.root :global(.pm-progress-track) {
+  height: 5px;
+}
+.root :global(.pm-viewbar) {
+  display: grid;
+  grid-template-columns: auto minmax(160px, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  margin-top: 0;
+  min-width: 0;
+}
+.root :global(.pm-tabs) {
+  display: flex;
+  padding: 4px;
+  gap: 2px;
+  border-radius: 9px;
+  background: var(--bg-card);
+  border-color: var(--border);
+  overflow-x: auto;
+}
+.root :global(.pm-tab) {
+  display: inline-flex;
+  gap: 7px;
+  padding: 0 12px;
+  min-height: 40px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+.root :global(.pm-tab.is-active) {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: transparent;
+}
+.root :global(.pm-search) {
+  height: 48px;
+  min-width: 0;
+  border-radius: 9px;
+  padding: 0 13px;
+}
+.root :global(.pm-search input) {
+  font-size: 13px;
+}
+.root :global(.pm-search kbd) {
+  font-size: 10px;
+  white-space: nowrap;
+}
+.root :global(.pm-view-actions) {
+  display: flex;
+  gap: 7px;
+  padding: 0;
+  overflow: visible;
+}
+.root :global(.pm-filter-chip) {
+  min-height: 44px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+.root :global(.pm-viewbar[data-empty="true"]) {
+  display: none;
+}
+.root :global(.pm-filters) {
+  margin-top: 16px;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 10px;
+}
+.root :global(.pm-board-wrap) {
+  margin-top: 20px;
+  min-width: 0;
+}
+.root :global(.pm-board) {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  min-width: 0;
+  overflow: visible;
+}
+.root :global(.pm-column) {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: clamp(300px, calc(100dvh - 280px), 680px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-muted);
+  overflow: hidden;
+}
+.root :global(.pm-column-head) {
+  min-height: 56px;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 0;
+  background: transparent;
+}
+.root :global(.pm-column-title) {
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.root :global(.pm-column-title strong) {
+  color: var(--ink-2);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: normal;
+  overflow: visible;
+}
+.root :global(.pm-column-title > span:first-child) {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.root :global(.pm-column-count) {
+  min-width: 22px;
+  height: 22px;
+  color: var(--ink-3);
+  background: var(--bg-card);
+  font-size: 11px;
+}
+.root :global(.pm-column-add) {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  flex-shrink: 0;
+}
+.root :global(.pm-column-body) {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  padding: 0 10px 10px;
+  overflow-y: auto;
+}
+.root :global(.pm-task-card) {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
+  border-radius: 9px;
+  background: var(--bg-card);
+  box-shadow: 0 2px 4px #16243704;
+}
+.root :global(.pm-task-card.is-overdue) {
+  border-left-color: var(--pm-danger);
+}
+.root :global(.pm-task-card.is-high) {
+  border-left-color: var(--pm-warning);
+}
+.root :global(.pm-task-title) {
+  margin-top: 10px;
+  font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: -0.015em;
+}
+.root :global(.pm-task-description) {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.root :global(.pm-task-menu) {
+  opacity: 1;
+  transition: none;
+}
+.root :global(.pm-task-mini) {
+  width: 30px;
+  height: 30px;
+}
+.root :global(.pm-task-footer) {
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 12px;
+  margin-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.root :global(.pm-task-status-select) {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  min-height: 36px;
+  font-size: 12px;
+}
+.root :global(.pm-meta) {
+  min-height: 24px;
+  font-size: 10px;
+}
+.root :global(.pm-mobile-board-note) {
+  display: none;
+}
+.emptyColumn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px;
+  border: 1px dashed var(--border-dark);
+  border-radius: 8px;
+  color: var(--ink-3);
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.emptyColumn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--bg-card);
+}
+.firstTask {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: clamp(340px, calc(100dvh - 220px), 620px);
+  padding: 40px 24px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  text-align: center;
+  background: var(--bg-card);
+}
+.emptyIcon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  margin-bottom: 24px;
+}
+.eyebrow {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  margin: 0 0 10px;
+}
+.firstTask h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 28px;
+  line-height: 1.3;
+  font-weight: 750;
+  letter-spacing: -0.035em;
+}
+.firstTask > p:not(.eyebrow) {
+  max-width: 430px;
+  margin: 14px 0 24px;
+  color: var(--ink-3);
+  font-size: 14px;
+  line-height: 1.8;
+}
+.root .firstTask :global(.pm-button) {
+  min-height: 46px;
+  padding: 0 20px;
+  font-size: 14px;
+}
+.workflow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 36px;
+  color: var(--ink-3);
+  font-size: 11px;
+}
+.workflow span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.workflow i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.root :global(.pm-task-table th) {
+  font-size: 11px;
+}
+.root :global(.pm-task-table td) {
+  font-size: 13px;
+}
+.root :global(.pm-empty-state strong) {
+  font-size: 20px;
+}
+.root :global(.pm-empty-state span) {
+  font-size: 14px;
+  line-height: 1.7;
+}
+.root :global(.pm-mobile-project-select) {
+  display: none;
+}
+@media (max-width: 1279px) {
+  .root :global(.pm-app) {
+    grid-template-columns: 224px minmax(0, 1fr);
+  }
+  .root :global(.pm-topbar) {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 22px 24px;
+    gap: 16px;
+  }
+  .root :global(.pm-title-area) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .root :global(.pm-top-actions) {
+    grid-column: 1;
+    grid-row: 2;
+    justify-content: flex-start;
+    max-width: 100%;
+  }
+  .root :global(.pm-content) {
+    padding: 22px 24px 32px;
+  }
+  .root :global(.pm-board) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .root :global(.pm-viewbar) {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .root :global(.pm-tabs) {
+    grid-column: 1/-1;
+    justify-self: start;
+  }
+  .root :global(.pm-search) {
+    grid-column: 1;
+  }
+  .root :global(.pm-view-actions) {
+    grid-column: 2;
+  }
+  .root :global(.pm-column) {
+    height: 360px;
+  }
+}
+@media (max-width: 1000px) {
+  .root :global(.pm-app) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .root :global(.pm-sidebar) {
+    display: none;
+  }
+  .root :global(.pm-topbar) {
+    position: static;
+  }
+  .root :global(.pm-mobile-project-select) {
+    display: block;
+    grid-column: 1;
+    grid-row: 2;
+    width: min(360px, 100%);
+    min-width: 0;
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-input);
+    color: var(--ink);
+    font-size: 16px;
+  }
+  .root :global(.pm-top-actions) {
+    grid-row: 3;
+  }
+  .root :global(.pm-overview) {
+    gap: 12px;
+  }
+}
+@media (max-width: 700px) {
+  .root :global(.pm-topbar) {
+    padding: 20px 16px;
+    gap: 14px;
+  }
+  .root :global(.pm-title-line h1) {
+    font-size: 25px;
+  }
+  .description {
+    font-size: 13px;
+  }
+  .root :global(.pm-top-actions) {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .root :global(.pm-top-actions .pm-button) {
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .root :global(.pm-top-actions .pm-button.is-primary) {
+    flex: 1 0 auto;
+    justify-content: center;
+  }
+  .root :global(.pm-top-actions .pm-new-project svg) {
+    display: none;
+  }
+  .root :global(.pm-top-actions .pm-button.is-primary svg) {
+    display: block;
+  }
+  .root :global(.pm-mobile-project-select) {
+    width: 100%;
+  }
+  .root :global(.pm-content) {
+    padding: 18px 16px 28px;
+  }
+  .root :global(.pm-metrics) {
+    gap: 6px;
+  }
+  .root :global(.pm-metric) {
+    gap: 5px;
+    padding: 8px;
+    font-size: 11px;
+    border: 1px solid var(--border);
+  }
+  .root :global(.pm-metric-icon) {
+    display: none;
+  }
+  .root :global(.pm-progress-group) {
+    width: 100%;
+    flex-shrink: 1;
+  }
+  .root :global(.pm-viewbar) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .root :global(.pm-tabs) {
+    width: 100%;
+    justify-self: stretch;
+  }
+  .root :global(.pm-tab) {
+    padding: 0 9px;
+    font-size: 12px;
+    flex: 1 0 auto;
+    justify-content: center;
+  }
+  .root :global(.pm-search) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .root :global(.pm-search input) {
+    font-size: 16px;
+  }
+  .root :global(.pm-view-actions) {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .root :global(.pm-board) {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    scroll-snap-type: x mandatory;
+  }
+  .root :global(.pm-column) {
+    flex: 0 0 min(84vw, 360px);
+    height: auto;
+    min-height: 300px;
+    scroll-snap-align: start;
+  }
+  .root :global(.pm-column-body) {
+    min-height: 220px;
+    overflow: visible;
+    padding: 0 12px 12px;
+  }
+  .root :global(.pm-column-title strong) {
+    font-size: 14px;
+  }
+  .root :global(.pm-task-status-select) {
+    font-size: 16px;
+    min-height: 40px;
+  }
+  .root :global(.pm-task-mini) {
+    width: 34px;
+    height: 34px;
+  }
+  .root :global(.pm-mobile-board-note) {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .root :global(.pm-dropdown) {
+    right: 16px;
+  }
+  .firstTask {
+    min-height: 360px;
+    padding: 30px 18px;
+    border-radius: 12px;
+  }
+  .firstTask h2 {
+    font-size: 25px;
+  }
+  .firstTask > p:not(.eyebrow) {
+    font-size: 14px;
+  }
+  .workflow {
+    gap: 10px;
+    font-size: 10px;
+    margin-top: 28px;
+  }
+  .workflow > svg {
+    display: none;
+  }
+}
+
+.projectSearchEmpty {
+  padding: 12px 8px;
+  color: var(--ink-3);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.root :global(.pm-content) > :global(.pm-empty-state) {
+  min-height: 340px;
+  border-style: solid;
+  border-radius: 16px;
+  background: var(--bg-card);
+}
+
+.root :global(.pm-brand-mark) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (min-width: 1280px) {
+  .root :global(.pm-workspace) {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    min-height: 0;
+  }
+  .root :global(.pm-topbar) {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .root :global(.pm-content) {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+  .root :global(.pm-overview),
+  .root :global(.pm-viewbar),
+  .root :global(.pm-filters) {
+    flex-shrink: 0;
+  }
+  .root :global(.pm-board-wrap) {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 200px;
+  }
+  .root :global(.pm-board) {
+    flex: 1;
+    min-height: 0;
+    align-items: stretch;
+  }
+  .root :global(.pm-column) {
+    height: auto;
+    min-height: 0;
+  }
+  .firstTask {
+    flex: 1;
+  }
+}
