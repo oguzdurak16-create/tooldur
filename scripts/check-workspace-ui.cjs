@@ -60,6 +60,7 @@ async function setup(browser, signedIn = true, theme = "light", empty = false) {
     tasks: empty ? [] : [{ ...task }],
     failWrite: false,
     failReads: false,
+    failRecent: false,
     writes: [],
   };
   await ctx.addInitScript(
@@ -209,6 +210,18 @@ async function setup(browser, signedIn = true, theme = "light", empty = false) {
             headers: cors,
             body: JSON.stringify({
               message: "Test: kayıtlar geçici olarak kullanılamıyor",
+            }),
+          });
+        if (
+          state.failRecent &&
+          table === "calculation_history" &&
+          req.method() === "GET"
+        )
+          return route.fulfill({
+            status: 503,
+            headers: cors,
+            body: JSON.stringify({
+              message: "Test: son kayıtlar geçici olarak kullanılamıyor",
             }),
           });
         let rows = db[table] || [];
@@ -363,12 +376,10 @@ async function checkSelectedContrast(page) {
       .getAnimations()
       .every((a) => !(a instanceof CSSTransition) || a.playState !== "running"),
   );
-  const colors = await page
-    .locator(".pm-tab.is-active")
-    .evaluate((e) => ({
-      text: getComputedStyle(e).color,
-      bg: getComputedStyle(e).backgroundColor,
-    }));
+  const colors = await page.locator(".pm-tab.is-active").evaluate((e) => ({
+    text: getComputedStyle(e).color,
+    bg: getComputedStyle(e).backgroundColor,
+  }));
   const a = luminance(colors.text),
     b = luminance(colors.bg);
   assert.ok(
@@ -672,8 +683,26 @@ async function fakeKeyboard(page, height = 330) {
         await page.waitForFunction(
           () => !document.querySelector('[data-dashboard] [role="alert"]'),
         );
+        await page.waitForLoadState("networkidle");
+        state.failRecent = true;
+        await page.reload();
+        await page
+          .getByRole("heading", { name: "Kayıtlar yüklenemedi", exact: true })
+          .waitFor();
+        assert.match(
+          await page.locator('[aria-label="Kayıt özeti"]').innerText(),
+          /1/,
+        );
+        state.failRecent = false;
+        await page
+          .getByRole("button", { name: "Yeniden dene", exact: true })
+          .click();
+        await page.getByRole("link", { name: /Ohm Kanunu.*20 V/ }).waitFor();
         assert.deepEqual(t.errors, []);
-        pass(theme + ": failed reads recover and no page errors");
+        pass(
+          theme +
+            ": failed reads and partial history errors recover with no page errors",
+        );
       } catch (e) {
         await page.screenshot({
           path: `${output}/${engine}-failure.png`,

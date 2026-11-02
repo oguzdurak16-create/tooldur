@@ -511,12 +511,12 @@ export default function DashboardPage() {
                   <div className={styles.empty}>
                     <Calculator size={28} />
                     <h3>
-                      {historyCount === null
+                      {historyCount === null || historyCount > 0
                         ? "Kayıtlar yüklenemedi"
                         : "İlk hesabınla başla"}
                     </h3>
                     <p>
-                      {historyCount === null
+                      {historyCount === null || historyCount > 0
                         ? "Yeniden denediğinde kayıtların burada görünecek."
                         : "Kaydettiğin hesaplamalara buradan hızla dönebilirsin."}
                     </p>
