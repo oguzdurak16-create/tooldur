@@ -30,6 +30,8 @@ import {
 
 import { useAuth } from "@/hooks/usePmAuth";
 import {
+  dbToProje,
+  dbToGorev,
   bekleyenDavetleriGetir,
   davetiKabulEt,
   davetiReddet,
@@ -54,6 +56,8 @@ import {
 } from "@/hooks/useBildirimler";
 
 import AuthEkrani from "./AuthEkrani";
+import { useDialogFocus } from "@/hooks/useDialogFocus";
+import { useViewportMetrics } from "@/hooks/useViewportMetrics";
 import GorevDetayModal from "./GorevDetayModal";
 import { KOLONLAR, ONCELIK_MAP, PROJE_EMOJILER, PROJE_RENKLERI } from "./pm-constants";
 import type { Durum, Gorev, Oncelik, Proje, UyeRef } from "./pm-types";
@@ -144,22 +148,12 @@ function Modal({
   width?: number;
   children: React.ReactNode;
 }) {
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [onClose]);
+  const dialogRef = useRef<HTMLElement>(null);
+  useDialogFocus(dialogRef, onClose);
 
   return (
     <div className="pm-modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <section className="pm-modal" style={{ "--pm-modal-width": `${width}px` } as React.CSSProperties} role="dialog" aria-modal="true" aria-label={title}>
+      <section ref={dialogRef} tabIndex={-1} className="pm-modal" style={{ "--pm-modal-width": `${width}px` } as React.CSSProperties} role="dialog" aria-modal="true" aria-label={title}>
         <header className="pm-modal-head">
           <div className="pm-modal-title">
             <h2>{title}</h2>
@@ -211,6 +205,7 @@ function TaskCard({
       draggable
       onClick={() => onOpen(gorev)}
       onKeyDown={(event) => {
+        if (event.target !== event.currentTarget) return;
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
           onOpen(gorev);
@@ -276,7 +271,7 @@ function TaskCard({
 
       {!!totalChecks && (
         <div className="pm-task-progress">
-          <div className="pm-task-progress-line"><span>İlerleme</span><span>%{progress}</span></div>
+          <div className="pm-task-progress-line"><span>İlerleme</span><span>{progress}%</span></div>
           <div className="pm-progress-track"><span style={{ width: `${progress}%` }} /></div>
         </div>
       )}
@@ -350,7 +345,7 @@ function ProjectModal({
         {error && <div className="pm-error-banner">{error}</div>}
         <div>
           <label className="pm-label" htmlFor="pm-project-name">Proje adı</label>
-          <input id="pm-project-name" className="pm-input" autoFocus maxLength={80} value={name} onChange={(event) => setName(event.target.value)} placeholder="Örn. APHS 31150 geliştirme" />
+          <input id="pm-project-name" className="pm-input" maxLength={80} value={name} onChange={(event) => setName(event.target.value)} placeholder="Örn. APHS 31150 geliştirme" />
         </div>
         <div>
           <label className="pm-label" htmlFor="pm-project-description">Açıklama</label>
@@ -441,7 +436,7 @@ function TaskCreateModal({
         {error && <div className="pm-error-banner">{error}</div>}
         <div>
           <label className="pm-label" htmlFor="pm-task-name">Görev başlığı</label>
-          <input id="pm-task-name" className="pm-input" autoFocus maxLength={160} value={form.baslik} onChange={(event) => setForm((current) => ({ ...current, baslik: event.target.value }))} placeholder="Örn. Alt çene teknik resmini revize et" />
+          <input id="pm-task-name" className="pm-input" maxLength={160} value={form.baslik} onChange={(event) => setForm((current) => ({ ...current, baslik: event.target.value }))} placeholder="Örn. Alt çene teknik resmini revize et" />
         </div>
         <div>
           <label className="pm-label" htmlFor="pm-task-description">Açıklama</label>
@@ -575,7 +570,7 @@ function TeamModal({
             <label className="pm-label" htmlFor="pm-member-search">E-posta veya kullanıcı adıyla davet et</label>
             <div className="pm-search">
               <Search size={15} />
-              <input id="pm-member-search" autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="isim veya e-posta" />
+              <input id="pm-member-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="isim veya e-posta" />
               {searching && <span style={{ fontSize: 9 }}>Aranıyor</span>}
             </div>
             {!!query.trim() && (results.length > 0 || emailValid) && (
@@ -766,7 +761,7 @@ function AnalysisView({ tasks }: { tasks: Gorev[] }) {
       <div className="pm-analysis-grid">
         <div className="pm-analysis-card">
           <h3 className="pm-analysis-title">Proje sağlığı</h3>
-          <div className="pm-health-line"><div className="pm-health-score">{health}</div><div className="pm-health-copy">{overdue} geciken, {high} yüksek öncelikli açık görev.<br />Tamamlanma oranı %{completion}.</div></div>
+          <div className="pm-health-line"><div className="pm-health-score">{health}</div><div className="pm-health-copy">{overdue} geciken, {high} yüksek öncelikli açık görev.<br />Tamamlanma oranı {completion}%.</div></div>
           <div className="pm-progress-track" style={{ marginTop: 16 }}><span style={{ width: `${health}%`, background: health >= 70 ? "var(--pm-success)" : health >= 40 ? "var(--pm-warning)" : "var(--pm-danger)" }} /></div>
         </div>
         <div className="pm-analysis-card">
@@ -800,6 +795,7 @@ function EmptyState({ title, text, action }: { title: string; text: string; acti
 
 export default function ProjectManagementPage() {
   const { user, loading: authLoading, cikisYap } = useAuth();
+  useViewportMetrics();
   const [hydrated, setHydrated] = useState(false);
   const [projects, setProjects] = useState<Proje[]>([]);
   const [tasks, setTasks] = useState<Gorev[]>([]);
@@ -911,20 +907,22 @@ export default function ProjectManagementPage() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      if (document.querySelector('[role="dialog"]')) return;
       const target = event.target as HTMLElement | null;
       const typing = !!target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
+        event.stopPropagation();
         document.getElementById("pm-global-search")?.focus();
       }
       if (!typing && (event.ctrlKey || event.metaKey) && event.key === "Enter" && activeProjectId) {
         event.preventDefault();
         setTaskModalStatus("yapilacak");
       }
-      if (!typing && event.key.toLowerCase() === "f") setFiltersOpen((current) => !current);
+      if (!typing && !event.ctrlKey && !event.metaKey && !event.altKey && !document.querySelector('[role="dialog"]') && event.key.toLowerCase() === "f") setFiltersOpen((current) => !current);
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
   }, [activeProjectId]);
 
   useEffect(() => {
@@ -998,7 +996,11 @@ export default function ProjectManagementPage() {
     if (!user) return;
     await runAction(async () => {
       const row = await projeEkle(user.uid, { ...payload, sahipUid: user.uid });
-      if (row?.id) setActiveProjectId(row.id);
+      if (row?.id) {
+        const created = dbToProje({ ...row, _uyeler: [{ uid: user.uid, email: user.email, displayName: user.displayName, photoURL: user.photoURL, rol: "sahip" }] });
+        setProjects(current => [created, ...current.filter(project => project.id !== created.id)]);
+        setActiveProjectId(row.id);
+      }
     }, "Proje oluşturuldu.", "Proje oluşturulamadı.");
   };
 
@@ -1015,6 +1017,7 @@ export default function ProjectManagementPage() {
     if (!window.confirm(`"${activeProject.ad}" projesi ve içindeki görevler silinsin mi?`)) return;
     await runAction(async () => {
       await projeSil(activeProject.id);
+      setProjects(current => current.filter(project => project.id !== activeProject.id));
       setActiveProjectId("");
     }, "Proje silindi.", "Proje silinemedi.");
   };
@@ -1022,7 +1025,7 @@ export default function ProjectManagementPage() {
   const createTask = async (form: GorevForm) => {
     if (!user || !activeProjectId) return;
     await runAction(async () => {
-      await gorevEkle(
+      const row = await gorevEkle(
         user.uid,
         activeProjectId,
         {
@@ -1037,12 +1040,14 @@ export default function ProjectManagementPage() {
         },
         { actorAd: user.displayName, actorFoto: user.photoURL },
       );
+      if (row?.id) setTasks(current => [...current.filter(task => task.id !== row.id), dbToGorev(row)]);
     }, "Görev oluşturuldu.", "Görev oluşturulamadı.");
   };
 
   const deleteTask = async (id: string) => {
     await runAction(async () => {
       await gorevSil(id);
+      setTasks(current => current.filter(task => task.id !== id));
       if (selectedTask?.id === id) setSelectedTask(null);
     }, "Görev silindi.", "Görev silinemedi.");
   };
@@ -1164,6 +1169,7 @@ export default function ProjectManagementPage() {
             </div>
 
             <div className="pm-top-actions">
+              <button type="button" className="pm-button pm-new-project" onClick={() => setProjectModal("create")}><Plus size={15} /><span>Yeni proje</span></button>
               <div className="pm-notification-wrap" ref={notificationRef}>
                 <button type="button" className="pm-icon-button" onClick={() => setNotificationOpen((current) => !current)} aria-label="Bildirimler">
                   <Bell size={17} />
@@ -1208,7 +1214,7 @@ export default function ProjectManagementPage() {
                     <div className="pm-project-strip-copy"><strong>{activeProject.ad}</strong><span>{activeProject.aciklama || "Proje açıklaması eklenmemiş."}</span></div>
                   </div>
                   <div className="pm-progress-group">
-                    <div className="pm-progress-label"><span>{summary.completed}/{summary.total} görev tamamlandı</span><b>%{summary.progress}</b></div>
+                    <div className="pm-progress-label"><span>{summary.completed}/{summary.total} görev tamamlandı</span><b>{summary.progress}%</b></div>
                     <div className="pm-progress-track"><span style={{ width: `${summary.progress}%`, background: activeProject.renk || "var(--pm-yellow)" }} /></div>
                   </div>
                 </section>
@@ -1241,18 +1247,18 @@ export default function ProjectManagementPage() {
 
                   <label className="pm-search">
                     <Search size={15} />
-                    <input id="pm-global-search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Görev, açıklama, etiket veya kişi ara" />
+                    <input id="pm-global-search" value={search} onChange={(event) => setSearch(event.target.value)} aria-label="Projede görev ara" placeholder="Görev, etiket veya kişi ara" />
                     <kbd>Ctrl K</kbd>
                   </label>
 
                   <div className="pm-view-actions">
-                    <button type="button" className={`pm-filter-chip ${filtersOpen ? "is-active" : ""}`} onClick={() => setFiltersOpen((current) => !current)}><SlidersHorizontal size={14} />Filtre</button>
+                    <button type="button" className={`pm-filter-chip ${filtersOpen ? "is-active" : ""}`} aria-expanded={filtersOpen} onClick={() => setFiltersOpen((current) => !current)}><SlidersHorizontal size={14} />Filtre</button>
                     <button type="button" className={`pm-filter-chip ${compact ? "is-active" : ""}`} onClick={() => setCompact((current) => !current)}><ListFilter size={14} />{compact ? "Rahat" : "Kompakt"}</button>
                   </div>
                 </section>
 
                 {filtersOpen && (
-                  <section className="pm-filters">
+                  <section className="pm-filters" aria-label="Görev filtreleri">
                     <div className="pm-filter-group">
                       <span className="pm-filter-caption">Göster</span>
                       {([

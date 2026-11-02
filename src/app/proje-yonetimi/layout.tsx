@@ -1,6 +1,5 @@
 import './pm.css';
 import type { Metadata } from 'next';
-import ProjectManagementUiFixes from './ProjectManagementUiFixes';
 
 export const metadata: Metadata = {
   title: 'Proje Yönetimi',
@@ -22,7 +21,6 @@ export default function ProjeYonetimiLayout({
 }) {
   return (
     <>
-      <ProjectManagementUiFixes />
       {children}
     </>
   );

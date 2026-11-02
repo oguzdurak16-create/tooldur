@@ -11,19 +11,20 @@ type AdWindow = Window & { adsbygoogle?: Array<Record<string, unknown>> };
 
 export default function SiteMonetization() {
   const pathname = usePathname();
+  const isWorkspace = pathname === '/dashboard' || pathname === '/proje-yonetimi';
   const slot = process.env.NEXT_PUBLIC_ADSENSE_CONTENT_SLOT?.trim();
 
   useEffect(() => {
-    if (!slot) return;
+    if (!slot || isWorkspace) return;
     try {
       const adWindow = window as AdWindow;
       (adWindow.adsbygoogle = adWindow.adsbygoogle || []).push({});
     } catch {
       // Ad blockers and delayed consent can prevent initialization safely.
     }
-  }, [slot]);
+  }, [slot, isWorkspace]);
 
-  if (pathname === '/insanlik-testi') return null;
+  if (pathname === '/insanlik-testi' || isWorkspace) return null;
 
   return (
     <>

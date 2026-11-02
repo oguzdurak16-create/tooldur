@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useDialogFocus } from "@/hooks/useDialogFocus";
 import {
   Check,
   CheckSquare,
@@ -108,18 +109,8 @@ export default function GorevDetayModal({
     setComments(gorev.yorumlar ?? []);
   }, [gorev]);
 
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !saving && !uploading) onKapat();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [onKapat, saving, uploading]);
+  const dialogRef = useRef<HTMLElement>(null);
+  useDialogFocus(dialogRef, onKapat, saving || uploading);
 
   useEffect(() => {
     const unsubscribe = gorevAktiviteleriniDinle(gorev.id, setActivities);
@@ -312,7 +303,7 @@ export default function GorevDetayModal({
 
   return (
     <div className="pmd-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && !saving && onKapat()}>
-      <section className="pmd-shell" role="dialog" aria-modal="true" aria-label="Görev detayları">
+      <section ref={dialogRef} tabIndex={-1} className="pmd-shell" role="dialog" aria-modal="true" aria-label="Görev detayları">
         <header className="pmd-header">
           <input className="pmd-title-input" value={title} onChange={(event) => authorized && setTitle(event.target.value)} readOnly={!authorized} maxLength={160} aria-label="Görev başlığı" />
           <button type="button" className="pm-icon-button" onClick={onKapat} disabled={saving || uploading} aria-label="Görev detayını kapat"><X size={17} /></button>

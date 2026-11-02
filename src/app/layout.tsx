@@ -55,11 +55,12 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/favicon.svg?v=20261102', type: 'image/svg+xml', sizes: 'any' },
+      { url: '/favicon-32.png?v=20261102', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon.ico?v=20261102', sizes: '16x16 32x32 48x48 64x64' },
     ],
-    apple: '/apple-touch-icon.png',
-    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png?v=20261102',
+    shortcut: '/favicon.ico?v=20261102',
   },
   openGraph: {
     type: 'website',
@@ -143,8 +144,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteIdentityJsonLd) }}
         />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="mobile-web-app-capable" content="yes" />
         <script
           id="tooldur-service-worker-guard"

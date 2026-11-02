@@ -2,7 +2,7 @@ import { supabase } from './supabase';
 import type { Proje, Gorev, Yorum, UyeRef, Ek, PmAktivite, PmAktiviteTipi } from '../app/proje-yonetimi/pm-types';
 
 /* ─── Tip dönüşümleri ──────────────────────────────────── */
-function dbToProje(r: any): Proje {
+export function dbToProje(r: any): Proje {
   return {
     id: r.id, ad: r.ad, aciklama: r.aciklama ?? '',
     renk: r.renk ?? '#1e3a5f', emoji: r.emoji ?? '📁',
@@ -92,7 +92,7 @@ export async function gorevAktivitesiEkle(params: {
   await aktiviteLogEkle(params);
 }
 
-function dbToGorev(r: any): Gorev {
+export function dbToGorev(r: any): Gorev {
   return {
     id: r.id, baslik: r.baslik, aciklama: r.aciklama ?? '',
     durum: r.durum, oncelik: r.oncelik, termin: r.termin ?? '',
