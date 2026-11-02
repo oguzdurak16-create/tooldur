@@ -1162,6 +1162,7 @@ export default function ProjectManagementPage() {
 
         <section className="pm-workspace">
           <header className="pm-topbar">
+            <Link href="/dashboard" className={workspace.mobileBack} data-pm-mobile-back><ArrowLeft size={18} aria-hidden="true" />Panele dön</Link>
             <select className="pm-mobile-project-select" value={activeProjectId} onChange={(event) => setActiveProjectId(event.target.value)} aria-label="Aktif proje">
               <option value="">Proje seç</option>
               {projects.map((project) => <option key={project.id} value={project.id}>{project.ad}</option>)}

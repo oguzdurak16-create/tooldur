@@ -119,13 +119,15 @@ export default function Header() {
           </div>
 
           <div className={styles.actions}>
-            <ThemeToggle />
+            <Link href="/dashboard" className={styles.mobileAccount} aria-current={isActive('/dashboard') ? 'page' : undefined}>{nav.panel}</Link>
+            <div className={styles.inlineTheme}><ThemeToggle /></div>
             <details className={styles.mobileMenu} ref={mobileMenuRef}>
               <summary aria-label="Menü"><Menu size={20} aria-hidden="true" /></summary>
               <nav aria-label="Mobil menü" className={styles.mobileNav}>
-                {primaryLinks.map((item) => <Link key={item.href} href={item.href} aria-current={isActive(item.href) ? 'page' : undefined} onClick={() => { if (mobileMenuRef.current) mobileMenuRef.current.open = false; }}>{item.label}</Link>)}
+                <Link href="/dashboard" className={styles.mobilePanelEntry} onClick={() => { if (mobileMenuRef.current) mobileMenuRef.current.open = false; }}><LayoutDashboard size={18} aria-hidden="true" />{authReady && !user ? (locale === 'tr' ? 'Panele giriş' : nav.login) : nav.panel}</Link>
                 <Link href={getLocalizedPath(locale, 'project-management')}>{nav.projects}</Link>
-                <Link href={user ? '/dashboard' : '/giris'}>{user ? nav.panel : nav.login}</Link>
+                {primaryLinks.map((item) => <Link key={item.href} href={item.href} aria-current={isActive(item.href) ? 'page' : undefined} onClick={() => { if (mobileMenuRef.current) mobileMenuRef.current.open = false; }}>{item.label}</Link>)}
+                <div className={styles.menuTheme}><span>{locale === 'tr' ? 'Görünüm' : 'Theme'}</span><ThemeToggle /></div>
                 <div className={styles.mobileLanguages} aria-label="Dil seç">
                   {LANGUAGES.map((item) => <button key={item.code} type="button" lang={item.code} aria-label={item.label} aria-pressed={locale === item.code} onClick={() => changeLanguage(item.code)}>{item.short}</button>)}
                 </div>

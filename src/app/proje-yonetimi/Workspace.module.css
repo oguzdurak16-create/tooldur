@@ -954,3 +954,16 @@
     flex: 1;
   }
 }
+
+.mobileBack { display:none; }
+@media(max-width:1000px) {
+ .mobileBack { display:inline-flex; align-items:center; justify-content:center; gap:8px; grid-column:1/-1; grid-row:1; justify-self:start; min-height:44px; padding:0 12px; border:1px solid var(--border-mid); border-radius:8px; color:var(--ink); background:var(--bg-card); text-decoration:none; font-size:13px; font-weight:700; }
+ .root :global(.pm-title-area) { grid-row:2; }
+ .root :global(.pm-title-line) { margin-top:0; }
+ .root :global(.pm-breadcrumb) { display:none; }
+ .root :global(.pm-mobile-project-select) { grid-row:3; }
+ .root :global(.pm-top-actions) { grid-row:4; }
+}
+@media(max-width:700px) {
+ .root :global(.pm-topbar) { padding:16px; gap:12px; }
+}

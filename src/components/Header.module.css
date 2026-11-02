@@ -314,3 +314,25 @@
  .brandName { font-size: 18px; }
  .actions { gap: 6px; }
 }
+
+/* Direct account access stays visible on phones and tablets. */
+.mobileAccount { display:none; }
+.inlineTheme { display:flex; }
+.menuTheme { display:none; }
+.mobileNav > .mobilePanelEntry { gap:10px; margin-bottom:6px; background:var(--accent-soft); color:var(--accent); }
+@media(max-width:1100px) {
+ .mobileAccount { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:0 12px; border:1px solid var(--action-bg); border-radius:10px; background:var(--action-bg); color:var(--action-ink); text-decoration:none; font-size:12px; font-weight:800; white-space:nowrap; }
+}
+@media(max-width:620px) {
+ .inner { width:calc(100% - 24px); gap:6px; }
+ .brand { gap:6px; }
+ .mark { width:32px; height:32px; }
+ .brandName { font-size:17px; }
+ .search { display:inline-flex; align-items:center; justify-content:center; flex:0 0 44px; width:44px; min-width:44px; max-width:44px; height:44px; min-height:44px; gap:0; padding:0; }
+ .search svg { display:block; flex-shrink:0; margin:0; }
+ .mobileAccount { min-width:64px; padding:0 9px; }
+}
+@media(max-width:360px) {
+ .inlineTheme { display:none; }
+ .menuTheme { display:flex; align-items:center; justify-content:space-between; padding:12px 14px 4px; color:var(--ink-3); font-size:13px; }
+}

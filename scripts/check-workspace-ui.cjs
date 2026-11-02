@@ -467,6 +467,145 @@ async function fakeKeyboard(page, height = 330) {
     height,
   );
 }
+async function checkMobileNavigation(browser) {
+  const t = await setup(browser, true, "light");
+  const { page, state } = t;
+  state.tasks = [];
+  const center = async () => {
+    const button = page.getByRole("button", { name: "Araç ara", exact: true });
+    const b = await button.boundingBox(),
+      svg = await button.locator("svg").boundingBox();
+    assert.ok(b && svg && b.width >= 44 && b.height >= 44);
+    assert.ok(
+      Math.abs(b.x + b.width / 2 - svg.x - svg.width / 2) <= 1,
+      "search icon not horizontally centered",
+    );
+    assert.ok(
+      Math.abs(b.y + b.height / 2 - svg.y - svg.height / 2) <= 1,
+      "search icon not vertically centered",
+    );
+  };
+  try {
+    await ready(page);
+    for (const width of [320, 360, 375, 393, 430, 768, 1100, 1280]) {
+      await page.setViewportSize({ width, height: 700 });
+      await fit(page);
+      const entry = page
+        .locator("header")
+        .first()
+        .getByRole("link", { name: "Panelim", exact: true });
+      assert.equal(await entry.isVisible(), true);
+      const box = await entry.boundingBox();
+      assert.ok(
+        box.x >= 0 && box.x + box.width <= width + 1 && box.height >= 42,
+      );
+      if (width <= 620) await center();
+    }
+    pass(
+      "header: direct panel link fits 320–1280px; mobile search icon is centered with a 44px target",
+    );
+    for (const width of [320, 393]) {
+      await page.setViewportSize({ width, height: 700 });
+      await settle(page);
+      await page.goto(base + "/", { waitUntil: "load" });
+      const header = page.locator("header").first();
+      await header
+        .getByRole("link", { name: "Panelim", exact: true })
+        .waitFor();
+      await fit(page);
+      await settle(page);
+      await header.getByRole("link", { name: "Panelim", exact: true }).click();
+      await page
+        .getByRole("heading", { name: "Mühendislik masası", exact: true })
+        .waitFor();
+      await center();
+      await settle(page);
+      await page.screenshot({
+        path: `${output}/${engine}-mobile-panel-${width}.png`,
+      });
+      await page.getByRole("button", { name: "Araç ara", exact: true }).click();
+      await page
+        .getByRole("dialog", { name: "Tooldur arama", exact: true })
+        .waitFor();
+      await page.keyboard.press("Escape");
+      await page
+        .getByRole("dialog", { name: "Tooldur arama", exact: true })
+        .waitFor({ state: "hidden" });
+      await settle(page);
+      await page.getByRole("link", { name: /^Projelerim/ }).click();
+      await page
+        .getByRole("heading", { name: "Bu projede ne yapacağız?", exact: true })
+        .waitFor();
+      const back = page.getByRole("link", { name: "Panele dön", exact: true });
+      assert.equal(await back.getAttribute("href"), "/dashboard");
+      const bounds = await back.boundingBox();
+      assert.ok(
+        bounds.height >= 44 && bounds.y >= 0 && bounds.y + bounds.height <= 120,
+      );
+      await fit(page);
+      await settle(page);
+      await page.screenshot({
+        path: `${output}/${engine}-mobile-project-back-${width}.png`,
+      });
+      await back.click();
+      await page
+        .getByRole("heading", { name: "Mühendislik masası", exact: true })
+        .waitFor();
+      await page.getByLabel("Menü", { exact: true }).click();
+      const menu = page.getByRole("navigation", {
+        name: "Mobil menü",
+        exact: true,
+      });
+      assert.match(
+        await menu.locator(":scope > a").first().innerText(),
+        /Panelim/,
+      );
+      if (width === 320) {
+        const theme = menu.getByRole("button", { name: /temaya geç/ });
+        await theme.click();
+        assert.equal(
+          await page.locator("html").getAttribute("data-theme"),
+          "dark",
+        );
+        await theme.click();
+        assert.equal(
+          await page.locator("html").getAttribute("data-theme"),
+          "light",
+        );
+      }
+      await page.keyboard.press("Escape");
+      pass(
+        width +
+          "px: home → panel → search → projects → visible back button → panel; small-screen menu/theme work",
+      );
+    }
+    assert.deepEqual(state.writes, []);
+    assert.deepEqual(t.errors, []);
+  } finally {
+    await t.close();
+  }
+  const guest = await setup(browser, false);
+  try {
+    await guest.page.goto(base + "/", { waitUntil: "load" });
+    await guest.page
+      .locator("header")
+      .first()
+      .getByRole("link", { name: "Panelim", exact: true })
+      .waitFor();
+    await settle(guest.page);
+    await guest.page
+      .locator("header")
+      .first()
+      .getByRole("link", { name: "Panelim", exact: true })
+      .click();
+    await guest.page.waitForURL("**/giris?redirect=%2Fdashboard");
+    assert.deepEqual(guest.errors, []);
+    pass("guest: direct panel access opens login with dashboard return route");
+  } finally {
+    await guest.close();
+  }
+}
+
 (async () => {
   fs.mkdirSync(output, { recursive: true });
   const browser = await (engine === "webkit" ? webkit : chromium).launch({
@@ -476,6 +615,26 @@ async function fakeKeyboard(page, height = 330) {
     ...(engine === "chromium" ? { args: ["--no-sandbox"] } : {}),
   });
   try {
+    if (process.env.UI_TEST_MOBILE_NAV_ONLY === "1") {
+      await checkMobileNavigation(browser);
+      fs.writeFileSync(
+        `${output}/${engine}-mobile-nav-checks.json`,
+        JSON.stringify(
+          {
+            engine,
+            base,
+            checkedAt: new Date().toISOString(),
+            fixtureData: true,
+            transportSource: process.env.UI_TEST_SOURCE || null,
+            checks,
+          },
+          null,
+          2,
+        ),
+      );
+      console.log("PASSED", checks.length);
+      return;
+    }
     for (const theme of ["light", "dark"]) {
       const t = await setup(browser, true, theme),
         { page, state } = t;
