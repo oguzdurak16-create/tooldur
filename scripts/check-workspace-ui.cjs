@@ -44,6 +44,7 @@ const task = {
   termin: null,
 };
 const checks = [];
+const transportSettlers = new WeakMap();
 const pass = (message) => {
   checks.push(message);
   console.error("PASS", message);
@@ -112,6 +113,7 @@ async function setup(browser, signedIn = true, theme = "light", empty = false) {
   );
   const page = await ctx.newPage();
   const errors = [];
+  let activeRequests = 0;
   page.on("pageerror", (e) => errors.push(e.message));
   await page.routeWebSocket("**/realtime/v1/**", (ws) => {
     ws.onMessage((message) => {
@@ -146,6 +148,7 @@ async function setup(browser, signedIn = true, theme = "light", empty = false) {
     });
   });
   await page.route("**/*", async (route) => {
+    activeRequests += 1;
     try {
       const req = route.request(),
         url = new URL(req.url());
@@ -343,8 +346,25 @@ async function setup(browser, signedIn = true, theme = "light", empty = false) {
         )
       )
         throw e;
+    } finally {
+      activeRequests -= 1;
     }
   });
+  transportSettlers.set(page, async () => {
+    const deadline = Date.now() + 60000;
+    let stableSince = 0;
+    while (Date.now() < deadline) {
+      if (activeRequests === 0) {
+        stableSince ||= Date.now();
+        if (Date.now() - stableSince >= 300) return;
+      } else stableSince = 0;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    throw new Error(
+      "Browser transport still has " + activeRequests + " pending requests",
+    );
+  });
+
   return {
     ctx,
     page,
@@ -395,8 +415,13 @@ async function fit(page) {
     "page overflow",
   );
 }
+async function settle(page) {
+  // Routed requests can still be fetching upstream after browser networkidle.
+  await page.waitForLoadState("networkidle");
+  await transportSettlers.get(page)?.();
+}
 async function ready(page, route = "/dashboard") {
-  if (page.url() !== "about:blank") await page.waitForLoadState("networkidle");
+  if (page.url() !== "about:blank") await settle(page);
   await page.goto(base + route, { waitUntil: "load", timeout: 60000 });
   await page
     .getByRole("heading", {
@@ -404,7 +429,7 @@ async function ready(page, route = "/dashboard") {
       exact: true,
     })
     .waitFor();
-  await page.waitForLoadState("networkidle");
+  await settle(page);
 }
 async function fakeKeyboard(page, height = 330) {
   await page.evaluate((height) => {
@@ -460,11 +485,12 @@ async function fakeKeyboard(page, height = 330) {
           path: `${output}/${engine}-dashboard-${theme}.png`,
           fullPage: true,
         });
+        await settle(page);
         await page.getByRole("link", { name: /^Projelerim/ }).click();
         await page
           .getByRole("heading", { name: "Atölye tasarımı", exact: true })
           .waitFor();
-        await page.waitForLoadState("networkidle");
+        await settle(page);
         await page.goBack();
         await page
           .getByRole("heading", { name: "Mühendislik masası", exact: true })
@@ -476,6 +502,7 @@ async function fakeKeyboard(page, height = 330) {
         await page
           .locator('[data-dashboard] a[href="/arac/ohm-kanunu-hesaplama"]')
           .waitFor();
+        await settle(page);
         await page
           .getByRole("searchbox", { name: "Panelde araç ara" })
           .press("Enter");
@@ -484,7 +511,7 @@ async function fakeKeyboard(page, height = 330) {
           .getByRole("heading", { name: /Ohm Kanunu/ })
           .first()
           .waitFor();
-        await page.waitForLoadState("networkidle");
+        await settle(page);
         pass(theme + ": panel layout, real count responses, tool search");
         await ready(page, "/proje-yonetimi");
         await page.locator(".pm-task-card").first().waitFor();
@@ -683,7 +710,7 @@ async function fakeKeyboard(page, height = 330) {
         await page.waitForFunction(
           () => !document.querySelector('[data-dashboard] [role="alert"]'),
         );
-        await page.waitForLoadState("networkidle");
+        await settle(page);
         state.failRecent = true;
         await page.reload();
         await page
@@ -717,6 +744,7 @@ async function fakeKeyboard(page, height = 330) {
     try {
       await guest.page.goto(base + "/dashboard", { waitUntil: "load" });
       await guest.page.waitForURL("**/giris?redirect=%2Fdashboard");
+      await settle(guest.page);
       await guest.page.goto(base + "/proje-yonetimi", { waitUntil: "load" });
       await guest.page
         .getByRole("heading", { name: "Hesabınla giriş yap", exact: true })
