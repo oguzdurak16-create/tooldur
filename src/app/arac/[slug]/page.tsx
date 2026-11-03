@@ -17,7 +17,8 @@ import ToolEngagementBar from '@/components/ToolEngagementBar';
 import CalculationWorkbench from '@/components/CalculationWorkbench';
 import { isIndexableTool } from '@/lib/seoFocus';
 import styles from './ToolPage.module.css';
-export const revalidate = 86400;
+// Content comes from this deployment; refresh it when the source is published.
+export const revalidate = false;
 
 interface Props {
   params: Promise<{ slug: string }>;

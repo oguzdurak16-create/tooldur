@@ -14,7 +14,8 @@ import {
   type RouteKey,
 } from '@/lib/siteLanguage';
 
-export const revalidate = 86400;
+// Content comes from this deployment; refresh it when the source is published.
+export const revalidate = false;
 
 type PageParams = {
   locale: string;

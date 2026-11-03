@@ -18,6 +18,7 @@ const CalcLoading = () => (
 const dyn = (path: string) => dynamic(() => import(`@/components/calculators/${path}`), { loading: CalcLoading, ssr: false });
 
 const calculatorComponents: Record<string, ComponentType<any>> = {
+  'freze-devir-ilerleme-hesaplama': dyn('FrezeDevirCalculator'),
   'iso-gecme-tolerans-hesaplama': dyn('IsoToleransCalculator'),
   'civata-sikma-torku-hesaplama': dyn('CivataTorkCalculator'),
   'sac-bukum-acinim-hesaplama': dyn('SacBukumAcinimCalculator'),

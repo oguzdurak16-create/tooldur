@@ -33,5 +33,8 @@ jobs:
       - name: Audit SEO data integrity
         run: npm run seo:audit
 
+      - name: Verify calculator formulas
+        run: npm run test:calculations
+
       - name: Production build
         run: npm run build

@@ -99,6 +99,7 @@ export const categories: Category[] = [
 ];
 
 export const tools: Tool[] = [
+  { id: "freze-devir", slug: "freze-devir-ilerleme-hesaplama", name: "Freze Kesme Hızı, Devir ve İlerleme Hesaplama", shortName: "Freze Devir ve İlerleme", description: "Takım çapı, kesme hızı, diş adedi ve diş başına ilerleme ile iş mili devrini ve tabla ilerlemesini birimleriyle hesaplayın.", category: "makine", icon: "Cog", new: true, featured: true, keywords: ["freze devir hesaplama", "kesme hızı", "diş başına ilerleme", "tabla ilerlemesi"] },
   // Elektrik & Elektronik
   {
     id: "kablo-kesiti",

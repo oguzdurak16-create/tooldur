@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { ArrowRight, BookOpen, CalendarDays, Clock, Wrench } from 'lucide-react';
 import { blogPosts, getBlogPost } from '@/data/blogPosts';
 import { getBlogVisual } from '@/lib/visualAssets';
-export const revalidate = 86400;
+// Content comes from this deployment; refresh it when the source is published.
+export const revalidate = false;
 
 const BASE = 'https://www.tooldur.com';
 

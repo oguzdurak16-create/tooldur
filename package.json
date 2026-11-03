@@ -9,7 +9,7 @@
     "lint": "eslint src",
     "seo:audit": "node scripts/seo-data-audit.mjs",
     "lint:fix": "eslint src --fix",
-    "test:calculations": "node --experimental-strip-types scripts/check-calculator-inputs.mjs"
+    "test:calculations": "node --experimental-strip-types scripts/check-calculator-inputs.mjs && node --experimental-strip-types scripts/check-milling.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

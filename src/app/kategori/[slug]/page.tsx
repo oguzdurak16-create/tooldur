@@ -13,7 +13,8 @@ import { getCategoryVisual } from '@/lib/visualAssets';
 import { isIndexableCategory, isIndexableTool } from '@/lib/seoFocus';
 import styles from '@/components/CategoryPage.module.css';
 
-export const revalidate = 86400;
+// Content comes from this deployment; refresh it when the source is published.
+export const revalidate = false;
 
 interface Props {
   params: Promise<{ slug: string }>;

@@ -4,7 +4,8 @@ import { categories } from '@/data/tools';
 import { languageAlternates } from '@/lib/siteLanguage';
 import { getLocalizedCategory } from '@/lib/toolLocalization';
 import { isIndexableCategory } from '@/lib/seoFocus';
-export const revalidate = 86400;
+// Content comes from this deployment; refresh it when the source is published.
+export const revalidate = false;
 
 interface Props { params: Promise<{ slug: string }> }
 

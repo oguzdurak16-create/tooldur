@@ -726,6 +726,14 @@ function makeBaseContent(tool: Tool, categoryName?: string): ToolSeoContent {
 }
 
 export function getToolSeoContent(tool: Tool, categoryName?: string): ToolSeoContent {
+  if (tool.slug === 'freze-devir-ilerleme-hesaplama') return {
+    useCaseTitle: 'Kesme hızı ile tabla ilerlemesini ayrı hesaplayın',
+    intro: ['Kesme hızı Vc takımın kesici çevresinin hareketidir; iş mili devri n bir dakikadaki dönüş sayısıdır. Tabla ilerlemesi Vf ise takım ile parçanın göreli doğrusal ilerlemesidir.'],
+    sections: [{ heading: 'Formül ve birimler', body: ['D milimetre ve Vc metre/dakika girildiğinde n = 1000 × Vc / (π × D). Diş başına ilerleme fz mm/diş ve etkin diş sayısı z ile Vf = n × z × fz bulunur.'] }, { heading: 'Örnek ve uygulama sınırı', body: ['10 mm takım, 120 m/dak kesme hızı, 4 diş ve 0,05 mm/diş için yaklaşık 3819,72 dev/dak ve 763,94 mm/dak elde edilir. Bunlar örnektir; takım üreticisinin malzeme ve operasyon önerisini ve tezgâh limitlerini esas alın.'] }],
+    faq: [{ question: 'Diş sayısı neden tam sayı olmalı?', answer: 'z, kesmeye katılan etkin kesici diş adedidir; kesirli bir diş adedi ile bu formül kullanılmaz.' }, { question: 'Bu araç malzemeye göre hız önerir mi?', answer: 'Hayır. Kesme hızı ve talaş yükünü uygun takımın üretici verilerinden siz girmelisiniz.' }],
+    howTo: [{ name: 'Takım verilerini girin', text: 'Çapı mm, kesme hızını m/dak, ilerlemeyi mm/diş girin.' }, { name: 'Devir ve ilerlemeyi kontrol edin', text: 'Hesapla düğmesiyle bulunan dev/dak ve mm/dak sonuçlarını tezgâh ve takım limitleriyle karşılaştırın.' }],
+  };
+
   const base = makeBaseContent(tool, categoryName);
   const override = specific[tool.slug];
   if (!override) return base;
