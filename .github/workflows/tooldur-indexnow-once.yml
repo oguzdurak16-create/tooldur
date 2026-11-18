@@ -1,0 +1,41 @@
+name: Tooldur CAD IndexNow submission
+on:
+  push:
+    branches: [tooldur-indexnow-cad-20261118]
+permissions: {}
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify live pages and submit updated URLs
+        env:
+          PUBLIC_INDEXNOW_KEY: ca2a9ca83cc420a24865af222cb5eeab
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request, xml.etree.ElementTree as ET
+          base = 'https://www.tooldur.com'
+          key = os.environ['PUBLIC_INDEXNOW_KEY']
+          key_url = f'{base}/{key}.txt'
+          paths = ['/cad-viewer', '/en/cad-viewer', '/arac/sac-yerlesim-hesaplama']
+          urls = [base + path for path in paths]
+          def read(url):
+              with urllib.request.urlopen(url, timeout=18) as response:
+                  assert response.status == 200, (url, response.status)
+                  return response.read()
+          assert read(key_url).decode().strip() == key
+          entries = {e.text for e in ET.fromstring(read(base + '/sitemap.xml')).findall('{*}url/{*}loc')}
+          assert all(url in entries for url in urls)
+          for url in urls:
+              document = read(url).decode()
+              assert f'<link rel="canonical" href="{url}"' in document
+              assert 'name="robots" content="index, follow"' in document
+          assert read(base + '/cad-viewer/og').startswith(bytes([137, 80, 78, 71]))
+          body = json.dumps({'host': 'www.tooldur.com', 'key': key, 'keyLocation': key_url, 'urlList': urls}).encode()
+          request = urllib.request.Request('https://api.indexnow.org/indexnow', data=body, headers={'Content-Type': 'application/json; charset=utf-8'}, method='POST')
+          with urllib.request.urlopen(request, timeout=25) as response:
+              assert response.status in (200, 202)
+              print(f'IndexNow received {len(urls)} URLs with HTTP {response.status}.')
+              with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+                  print(f'IndexNow accepted 3 verified Tooldur URLs with HTTP {response.status}.', file=output)
+          PY
