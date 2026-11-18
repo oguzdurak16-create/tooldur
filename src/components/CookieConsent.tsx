@@ -223,10 +223,14 @@ export default function CookieConsent() {
       version: CONSENT_VERSION,
     };
 
-    try { localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(nextConsent)); }
+    try {
+      localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(nextConsent));
+      if (!nextConsent.analytics) localStorage.removeItem('tooldur-traffic-browser');
+    }
     catch { /* Apply this visit's choice even when persistent storage is blocked. */ }
     setConsent(nextConsent);
     updateGoogleConsent(nextConsent);
+    window.dispatchEvent(new Event('tooldur:analytics-consent'));
 
     if (nextConsent.analytics || nextConsent.advertising) {
       loadGoogleTags(nextConsent);

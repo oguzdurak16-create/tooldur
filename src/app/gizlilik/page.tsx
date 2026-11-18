@@ -99,7 +99,7 @@ export default function GizlilikPage() {
             <li style={S.li}>Proje yönetimi verileri: Proje/üyelik aktif olduğu sürece veya yetkili kullanıcı tarafından silinene kadar.</li>
             <li style={S.li}>Davet kayıtları: Davet süreci ve güvenlik/uyuşmazlık takibi için makul süre boyunca.</li>
             <li style={S.li}>Sunucu ve güvenlik logları: Teknik güvenlik için makul süre, olağan durumda 90 güne kadar.</li>
-            <li style={S.li}>Analitik verileri: Google Analytics ayarlarında belirlenen süre boyunca.</li>
+            <li style={S.li}>Analitik verileri: Google Analytics ayarlarında belirlenen süre boyunca. Tooldur günlük ziyaret ölçümünde kullanılan ve gün bazında özetlenen tarayıcı kayıtları 30 gün saklanır.</li>
           </ul>
         </div>
 

@@ -29,7 +29,14 @@ import {
   type ZeroSearchRecord,
 } from "@/lib/searchInsights";
 
-const analyticsReports = "https://analytics.google.com/analytics/web/#/p512942766/reports/reportinghub";
+type DailyTraffic = { day: string; visitors: number | null; sessions: number | null };
+
+const trafficDate = new Intl.DateTimeFormat("tr-TR", { timeZone: "Europe/Istanbul", day: "numeric", month: "long" });
+const trafficNumber = new Intl.NumberFormat("tr-TR");
+
+function formatTrafficCount(value: number | null) {
+  return value === null ? "—" : trafficNumber.format(value);
+}
 
 const categoryById = Object.fromEntries(categories.map((category) => [category.id, category]));
 
@@ -102,6 +109,8 @@ function csvEscape(value: string | number) {
 
 export default function TrafficDashboardPage() {
   const [loading, setLoading] = useState(true);
+  const [dailyTraffic, setDailyTraffic] = useState<DailyTraffic[]>([]);
+  const [dailyTrafficStatus, setDailyTrafficStatus] = useState("Ziyaret verileri yükleniyor…");
   const [zeroSearches, setZeroSearches] = useState<ZeroSearchRecord[]>([]);
   const [manualIdea, setManualIdea] = useState("");
   const [status, setStatus] = useState("");
@@ -121,6 +130,17 @@ export default function TrafficDashboardPage() {
 
       setZeroSearches(getZeroSearches());
       setLoading(false);
+
+      const { data, error } = await supabase.rpc("get_daily_traffic");
+      if (!active) return;
+      if (error) {
+        setDailyTrafficStatus(error.code === "42501"
+          ? "Günlük ziyaret sayılarını site yöneticisi görebilir."
+          : "Ziyaret verileri yüklenemedi. Sayfayı yenileyerek tekrar dene.");
+        return;
+      }
+      setDailyTraffic(data ?? []);
+      setDailyTrafficStatus("");
     };
 
     load();
@@ -275,20 +295,34 @@ export default function TrafficDashboardPage() {
         <section className="traffic-panel traffic-analytics" aria-labelledby="daily-traffic-title">
           <div className="traffic-panel-head">
             <div>
-              <span><BarChart3 size={14} /> Google Analytics</span>
+              <span><BarChart3 size={14} /> Ziyaret istatistikleri</span>
               <h2 id="daily-traffic-title">Günlük ziyaretçi ve oturumlar</h2>
             </div>
           </div>
-          <div className="traffic-analytics-copy">
-            <p>Raporlarda Tooldur mülkünü ve tarih aralığında <strong>Dün</strong> veya istediğin tek günü seç.</p>
-            <dl>
-              <div><dt>Toplam kullanıcı</dt><dd>O gün Analytics’in ölçtüğü tekil kullanıcı sayısı. Keşfet’te Serbest biçim raporuna Tarih boyutunu ve Toplam kullanıcı metriğini ekle.</dd></div>
-              <div><dt>Oturumlar</dt><dd>O gün başlayan ziyaret sayısı. Raporlar → Edinme → Trafik edinme tablosunda görünür.</dd></div>
-            </dl>
-            <a href={analyticsReports} target="_blank" rel="noopener noreferrer">
-              <ArrowUpRight size={16} aria-hidden="true" /> Tooldur Analytics raporlarını aç
-            </a>
-          </div>
+          {dailyTrafficStatus && <p className="traffic-count-note" role="status">{dailyTrafficStatus}</p>}
+          {dailyTraffic.length > 0 && (
+            <>
+              <table className="traffic-count-table">
+                <thead><tr><th scope="col">Gün</th><th scope="col">Tekil ziyaretçi</th><th scope="col">Oturum</th></tr></thead>
+                <tbody>
+                  {dailyTraffic.map((row, index) => (
+                    <tr key={row.day}>
+                      <th scope="row">
+                        {index === 0 ? "Bugün" : index === 1 ? "Dün" : trafficDate.format(new Date(row.day + "T12:00:00Z"))}
+                      </th>
+                      <td>{formatTrafficCount(row.visitors)}</td>
+                      <td>{formatTrafficCount(row.sessions)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="traffic-count-note">
+                Türkiye saatiyle son 14 gün. Tekil ziyaretçi, analitiğe izin veren tarayıcıları sayar.
+                Aynı tarayıcının 30 dakika aradan sonraki ziyareti yeni oturum sayılır.
+                Ölçüm başlamadan önceki günler — ile gösterilir.
+              </p>
+            </>
+          )}
         </section>
 
         <section className="traffic-stats" aria-label="Trafik özeti">
@@ -522,11 +556,11 @@ const pageCss = `
 .traffic-panel{border:1px solid var(--border,rgba(148,163,184,.14));border-radius:22px;background:var(--bg-card);padding:18px;box-shadow:0 20px 58px rgba(0,0,0,.18);}
 .traffic-panel.wide{min-width:0;}
 .traffic-analytics{margin-bottom:16px;}
-.traffic-analytics-copy{color:var(--ink-3);font-size:14px;line-height:1.55;}
-.traffic-analytics-copy p,.traffic-analytics-copy dd{margin:0;}
-.traffic-analytics-copy dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:8px 20px;margin:12px 0;}
-.traffic-analytics-copy dt{color:var(--ink);font-size:14px;font-weight:750;}
-.traffic-analytics-copy a{display:inline-flex;align-items:center;gap:7px;min-height:44px;color:var(--blue);font-weight:750;text-decoration:underline;text-underline-offset:3px;}
+.traffic-count-table{width:100%;border-collapse:collapse;font-size:14px;}
+.traffic-count-table th,.traffic-count-table td{padding:9px 5px;border-bottom:1px solid var(--border,rgba(148,163,184,.14));text-align:right;}
+.traffic-count-table th:first-child{text-align:left;}
+.traffic-count-table td{font-variant-numeric:tabular-nums;}
+.traffic-count-note{margin:12px 0 0;color:var(--ink-3);font-size:13px;line-height:1.5;}
 
 .traffic-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;}
 .traffic-panel-head span{display:inline-flex;align-items:center;gap:7px;margin-bottom:7px;color:var(--ink-4,#69748b);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;}

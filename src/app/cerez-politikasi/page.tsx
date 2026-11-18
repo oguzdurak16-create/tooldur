@@ -18,6 +18,7 @@ const S = {
 const cerezler = [
   { ad: 'tooldur_cookie_consent', kategori: 'Zorunlu', saglayici: 'Tooldur', amac: 'Çerez tercihlerinin saklanması', sure: 'Kalıcı / tercih değiştirilene kadar', riza: 'Gerekmez' },
   { ad: 'supabase-auth-token / oturum çerezleri', kategori: 'Zorunlu', saglayici: 'Supabase / Tooldur', amac: 'Kullanıcı oturumu ve güvenlik', sure: 'Oturum veya hesap açık kaldığı süre', riza: 'Gerekmez' },
+  { ad: 'tooldur-traffic-browser', kategori: 'Analitik', saglayici: 'Tooldur', amac: 'Yerel depolamadaki rastgele kimlikle günlük tekil tarayıcı ve oturum sayımı', sure: '30 gün', riza: 'Açık rıza gerekir' },
   { ad: '_ga, _ga_*', kategori: 'Analitik', saglayici: 'Google Analytics', amac: 'Anonimleştirilmiş ziyaret ve performans ölçümü', sure: 'Google ayarlarına göre, genellikle 2 yıla kadar', riza: 'Açık rıza gerekir' },
   { ad: '_gid, _gat', kategori: 'Analitik', saglayici: 'Google Analytics', amac: 'Ziyaret istatistikleri ve hız sınırlama', sure: 'Kısa süreli', riza: 'Açık rıza gerekir' },
   { ad: '__gads, __gpi, IDE, DSID ve benzeri', kategori: 'Reklam', saglayici: 'Google AdSense / Google Ads', amac: 'Reklam gösterimi, reklam ölçümü ve kişiselleştirme', sure: 'Google ayarlarına göre değişir', riza: 'Açık rıza gerekir' },

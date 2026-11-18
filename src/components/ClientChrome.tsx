@@ -10,6 +10,7 @@ import ToastBridge from "@/components/ToastBridge";
 import PwaManager from "@/components/PwaManager";
 import MervePushSetup from "@/components/MervePushSetup";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import TrafficMeasurement from "@/components/TrafficMeasurement";
 
 type Props = {
   area: "top" | "bottom";
@@ -30,6 +31,7 @@ export default function ClientChrome({ area }: Props) {
     return (
       <>
         <GoogleAnalytics />
+        <TrafficMeasurement />
         {!isHumanityTest && pathname !== "/proje-yonetimi" && <Header />}
         <CookieConsent />
       </>
