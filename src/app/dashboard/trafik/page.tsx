@@ -29,6 +29,8 @@ import {
   type ZeroSearchRecord,
 } from "@/lib/searchInsights";
 
+const analyticsReports = "https://analytics.google.com/analytics/web/#/p512942766/reports/reportinghub";
+
 const categoryById = Object.fromEntries(categories.map((category) => [category.id, category]));
 
 function formatDate(value: string) {
@@ -113,7 +115,7 @@ export default function TrafficDashboardPage() {
 
       if (!active) return;
       if (!session) {
-        window.location.href = "/giris?next=/dashboard/trafik";
+        window.location.replace("/giris?redirect=%2Fdashboard%2Ftrafik");
         return;
       }
 
@@ -269,6 +271,25 @@ export default function TrafficDashboardPage() {
             <CheckCircle2 size={16} /> {status}
           </div>
         )}
+
+        <section className="traffic-panel traffic-analytics" aria-labelledby="daily-traffic-title">
+          <div className="traffic-panel-head">
+            <div>
+              <span><BarChart3 size={14} /> Google Analytics</span>
+              <h2 id="daily-traffic-title">Günlük ziyaretçi ve oturumlar</h2>
+            </div>
+          </div>
+          <div className="traffic-analytics-copy">
+            <p>Raporlarda Tooldur mülkünü ve tarih aralığında <strong>Dün</strong> veya istediğin tek günü seç.</p>
+            <dl>
+              <div><dt>Toplam kullanıcı</dt><dd>O gün Analytics’in ölçtüğü tekil kullanıcı sayısı. Keşfet’te Serbest biçim raporuna Tarih boyutunu ve Toplam kullanıcı metriğini ekle.</dd></div>
+              <div><dt>Oturumlar</dt><dd>O gün başlayan ziyaret sayısı. Raporlar → Edinme → Trafik edinme tablosunda görünür.</dd></div>
+            </dl>
+            <a href={analyticsReports} target="_blank" rel="noopener noreferrer">
+              <ArrowUpRight size={16} aria-hidden="true" /> Tooldur Analytics raporlarını aç
+            </a>
+          </div>
+        </section>
 
         <section className="traffic-stats" aria-label="Trafik özeti">
           <div className="traffic-stat">
@@ -500,6 +521,13 @@ const pageCss = `
 .traffic-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,.65fr);gap:16px;margin-bottom:16px;}
 .traffic-panel{border:1px solid var(--border,rgba(148,163,184,.14));border-radius:22px;background:var(--bg-card);padding:18px;box-shadow:0 20px 58px rgba(0,0,0,.18);}
 .traffic-panel.wide{min-width:0;}
+.traffic-analytics{margin-bottom:16px;}
+.traffic-analytics-copy{color:var(--ink-3);font-size:14px;line-height:1.55;}
+.traffic-analytics-copy p,.traffic-analytics-copy dd{margin:0;}
+.traffic-analytics-copy dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:8px 20px;margin:12px 0;}
+.traffic-analytics-copy dt{color:var(--ink);font-size:14px;font-weight:750;}
+.traffic-analytics-copy a{display:inline-flex;align-items:center;gap:7px;min-height:44px;color:var(--blue);font-weight:750;text-decoration:underline;text-underline-offset:3px;}
+
 .traffic-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;}
 .traffic-panel-head span{display:inline-flex;align-items:center;gap:7px;margin-bottom:7px;color:var(--ink-4,#69748b);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;}
 .traffic-panel-head h2{margin:0;color:var(--ink,#f8fafc);font-size:22px;font-weight:950;}
