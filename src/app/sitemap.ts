@@ -124,5 +124,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...toolPages,
     ...blogPages,
     ...mgPages,
+    { url: `${BASE}/arac/sac-yerlesim-hesaplama`, lastModified: new Date('2026-11-18T00:00:00+03:00') },
   ];
 }
