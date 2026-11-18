@@ -1,7 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { Search, X } from 'lucide-react';
+import { ArrowRight, Box, Search, X } from 'lucide-react';
 import type { Locale } from '@/lib/siteLanguage';
 import { getLocalizedCategories, getLocalizedTools, getToolsPageCopy } from '@/lib/toolLocalization';
 import { normalizeSearchTerm, recordZeroSearch } from '@/lib/searchInsights';
@@ -60,6 +61,14 @@ export default function AllToolsClient({ locale = 'tr' }: Props) {
           <div><div className={styles.eyebrow}>{copy.badge}</div><h1>{copy.title}</h1><p>{labels.description}</p></div>
           <div className={styles.count}><strong>{filteredTools.length}</strong><span>{filtersActive ? copy.result : copy.tool}</span></div>
         </div>
+
+        {(locale === 'tr' || locale === 'en') && (
+          <Link className={styles.cadLink} href={locale === 'tr' ? '/cad-viewer' : '/en/cad-viewer'}>
+            <Box size={17} aria-hidden="true" />
+            {locale === 'tr' ? 'DWG ve STEP aç, ölçü al' : 'Open and measure DWG or STEP files'}
+            <ArrowRight size={15} aria-hidden="true" />
+          </Link>
+        )}
 
         <div className={styles.controlPanel}>
           <div className={styles.controlTop}>

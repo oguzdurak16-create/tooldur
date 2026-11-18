@@ -48,3 +48,7 @@
 @media (max-width: 1000px) { .grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .categoryGrid { grid-template-columns: repeat(3,minmax(0,1fr)); } }
 @media (max-width: 760px) { .hero { grid-template-columns: 1fr; } .controlPanel { top: 76px; } .controlTop { grid-template-columns: 1fr; } .actions { display: grid; grid-template-columns: 1fr 1fr; } .filter,.sortWrap,.sort { width: 100%; } }
 @media (max-width: 620px) { .page { padding-top: 24px; } .shell { width: calc(100% - 32px); } .hero h1 { font-size: clamp(28px, 8vw, 36px); } .hero p { font-size: 14px; } .chip { min-height: 44px; } .grid { grid-template-columns: 1fr; } .categoryGrid { grid-template-columns: repeat(2,minmax(0,1fr)); } .controlPanel { position: relative; top: auto; } }
+
+.cadLink { display: inline-flex; width: fit-content; max-width: 100%; min-height: 44px; align-items: center; gap: 8px; margin-bottom: 14px; padding: 8px 12px; border: 1px solid var(--border-mid); border-radius: 9px; background: var(--bg-card); color: var(--blue); font-size: 13px; font-weight: 700; text-decoration: none; }
+.cadLink:hover { border-color: var(--blue); }
+.cadLink svg { flex: 0 0 auto; }

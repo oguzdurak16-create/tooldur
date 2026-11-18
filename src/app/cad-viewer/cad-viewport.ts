@@ -6,11 +6,12 @@ export type Direction = 'default' | 'top' | 'front' | 'side';
 
 type Options = {
   model: CadModel;
+  canvasLabel: string;
   onPoint: (point: Coordinates) => void;
   isMeasuring: () => boolean;
 };
 
-export function createCadViewport(container: HTMLElement, { model, onPoint, isMeasuring }: Options) {
+export function createCadViewport(container: HTMLElement, { model, canvasLabel, onPoint, isMeasuring }: Options) {
   const arrays = model.kind === 'step' ? model.meshes.map(mesh => mesh.position) : [model.segments];
   const bounds = new THREE.Box3();
   const vector = new THREE.Vector3();
@@ -28,7 +29,7 @@ export function createCadViewport(container: HTMLElement, { model, onPoint, isMe
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, 1000);
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  renderer.domElement.setAttribute('aria-label', 'CAD çizimi');
+  renderer.domElement.setAttribute('aria-label', canvasLabel);
   container.append(renderer.domElement);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableRotate = model.kind === 'step';

@@ -44,6 +44,7 @@ export default function SheetLayoutPage() {
         <p>Plaka verimi, dolu plakadaki net parça alanının toplam plaka alanına oranıdır. Sipariş firesi son plaka eksik dolduğunda artabilir. Malzeme bedeli satın alınan tam plakalar üzerinden hesaplanır. Artan sacın yeniden kullanım değeri, kesim işçiliği ve KDV maliyete girmez.</p>
         <p>Bu hesap eş ölçüdeki dikdörtgenleri tek yönde sıralar. Aynı plakada yönleri karıştıran yerleşimler, farklı geometriler, lif yönü ve makinenin kesim koşulları için ayrıca kontrol gerekir.</p>
         <nav className={styles.links} aria-label="İlgili sac hesapları">
+          <Link href="/cad-viewer">DWG ve STEP çiziminden ölçü al</Link>
           <Link href="/arac/levha-agirlik-hesaplama">Sac ağırlık hesabı</Link>
           <Link href="/arac/sac-bukum-kesim-hesaplayici">Sac büküm ve kesim hesabı</Link>
         </nav>

@@ -5,19 +5,21 @@ import { Box, FileUp, Focus, MousePointer2, Ruler, RotateCcw } from 'lucide-reac
 import { formatSmartNumber } from '@/lib/calculator-utils';
 import type { CadModel, Coordinates, UnitId } from './cad-model';
 import { drawingUnit, units } from './cad-model';
+import { cadCopy, type CadLocale } from './cad-copy';
 import type { createCadViewport, Direction } from './cad-viewport';
 import styles from './CadViewer.module.css';
 
 const fileLimit = 35 * 1024 * 1024;
-const number = (value: number) => formatSmartNumber(value, 'tr-TR', 3);
 const orientations = [
-  { id: 'default', name: 'İzometrik' },
-  { id: 'top', name: 'Üst' },
-  { id: 'front', name: 'Ön' },
-  { id: 'side', name: 'Yan' },
+  { id: 'default', label: 'isometric' },
+  { id: 'top', label: 'top' },
+  { id: 'front', label: 'front' },
+  { id: 'side', label: 'side' },
 ] as const;
 
-export default function CadViewer() {
+export default function CadViewer({ locale = 'tr' }: { locale?: CadLocale }) {
+  const copy = cadCopy[locale];
+  const number = (value: number) => formatSmartNumber(value, locale === 'en' ? 'en-US' : 'tr-TR', 3);
   const container = useRef<HTMLDivElement>(null);
   const picker = useRef<HTMLInputElement>(null);
   const viewport = useRef<ReturnType<typeof createCadViewport> | null>(null);
@@ -50,13 +52,14 @@ export default function CadViewer() {
       if (cancelled) return;
       view = createCadViewport(target, {
         model,
+        canvasLabel: copy.canvas,
         isMeasuring: () => measuring.current,
         onPoint: point => setPoints(previous => previous.length === 1 ? [previous[0], point] : [point]),
       });
       viewport.current = view;
       setExtents(view.extents);
     }).catch(() => {
-      if (!cancelled) setError('Çizim görüntülenemedi. WebGL 2 destekleyen bir tarayıcı kullanmayı dene.');
+      if (!cancelled) setError(copy.webgl);
     });
 
     return () => {
@@ -64,7 +67,7 @@ export default function CadViewer() {
       view?.dispose();
       if (viewport.current === view) viewport.current = null;
     };
-  }, [model]);
+  }, [model, copy]);
 
   useEffect(() => {
     viewport.current?.mark(points);
@@ -84,11 +87,11 @@ export default function CadViewer() {
     setBusy(false);
     const extension = file.name.split('.').pop()?.toLowerCase();
     if (!extension || !['dwg', 'step', 'stp'].includes(extension)) {
-      setError('DWG, STEP veya STP uzantılı bir dosya seç.');
+      setError(copy.badExtension);
       return;
     }
     if (!file.size || file.size > fileLimit) {
-      setError('Dosya boş veya 35 MB sınırını aşıyor.');
+      setError(copy.badSize);
       return;
     }
 
@@ -117,21 +120,21 @@ export default function CadViewer() {
         ? new Worker('/cad-viewer/dwg.worker.js', { type: 'module' })
         : new Worker('/cad-viewer/step.worker.js');
       worker.current = reader;
-      reader.onerror = () => finish('CAD okuyucu başlatılamadı veya dosya işlenemedi.');
+      reader.onerror = () => finish(copy.workerError);
       reader.onmessage = ({ data: response }: MessageEvent<CadModel | { error: string }>) => {
         if (id !== loadId.current) return;
         if ('error' in response) {
-          finish(response.error);
+          finish(locale === 'tr' ? response.error : copy.formatError);
           return;
         }
         finish();
         setUnit(drawingUnit(response));
         setModel(response);
       };
-      timeout.current = setTimeout(() => finish('Dosya 60 saniye içinde çözümlenemedi.'), 60_000);
+      timeout.current = setTimeout(() => finish(copy.timeout), 60_000);
       reader.postMessage(data, [data]);
     } catch {
-      finish('Dosya okunamadı.');
+      finish(copy.readError);
     }
   }
 
@@ -141,18 +144,18 @@ export default function CadViewer() {
 
   const selectedUnit = units.find(item => item.id === unit) ?? units[0];
   const multiplier = selectedUnit.factor;
-  const outputUnit = unit === 'raw' ? 'çizim birimi' : 'mm';
+  const outputUnit = unit === 'raw' ? copy.raw : 'mm';
   const difference = points.length === 2 ? points[1].map((coordinate, axis) => (coordinate - points[0][axis]) * multiplier) : null;
   const distance = difference ? Math.hypot(...difference) : null;
 
   return (
-    <section className={styles.viewer} aria-label="CAD görüntüleme alanı">
+    <section className={styles.viewer} aria-label={copy.viewer}>
       <input
         ref={picker}
         type="file"
         accept=".dwg,.step,.stp"
         className={styles.fileInput}
-        aria-label="CAD dosyası seç"
+        aria-label={copy.fileInput}
         onChange={event => {
           const file = event.target.files?.[0];
           if (file) void load(file);
@@ -161,18 +164,18 @@ export default function CadViewer() {
       />
       <div className={styles.toolbar}>
         <button className={styles.open} type="button" onClick={() => picker.current?.click()}>
-          <FileUp size={17} aria-hidden /> Dosya aç
+          <FileUp size={17} aria-hidden /> {copy.open}
         </button>
         <div className={styles.tools}>
-          <button type="button" disabled={!extents} onClick={() => fit()}><Focus size={16} aria-hidden /> Sığdır</button>
-          <button type="button" disabled={!extents} aria-pressed={wantMeasure} onClick={() => changeMode(!wantMeasure)}><Ruler size={16} aria-hidden /> Mesafe ölç</button>
-          <button type="button" disabled={!points.length} onClick={() => setPoints([])}><RotateCcw size={15} aria-hidden /> Ölçüyü temizle</button>
+          <button type="button" disabled={!extents} onClick={() => fit()}><Focus size={16} aria-hidden /> {copy.fit}</button>
+          <button type="button" disabled={!extents} aria-pressed={wantMeasure} onClick={() => changeMode(!wantMeasure)}><Ruler size={16} aria-hidden /> {copy.measure}</button>
+          <button type="button" disabled={!points.length} onClick={() => setPoints([])}><RotateCcw size={15} aria-hidden /> {copy.clear}</button>
         </div>
-        {extents && model?.kind === 'step' && <label className={styles.unit}>Görünüş <select defaultValue="default" onChange={event => fit(event.target.value as Direction)}>
-          {orientations.map(item => <option value={item.id} key={item.id}>{item.name}</option>)}
+        {extents && model?.kind === 'step' && <label className={styles.unit}>{copy.view} <select defaultValue="default" onChange={event => fit(event.target.value as Direction)}>
+          {orientations.map(item => <option value={item.id} key={item.id}>{copy[item.label]}</option>)}
         </select></label>}
-        {extents && model?.kind === 'dwg' && <label className={styles.unit}>DWG birimi <select value={unit} onChange={event => setUnit(event.target.value as UnitId)}>
-          {units.map(item => <option value={item.id} key={item.id}>{item.label}</option>)}
+        {extents && model?.kind === 'dwg' && <label className={styles.unit}>{copy.unit} <select value={unit} onChange={event => setUnit(event.target.value as UnitId)}>
+          {units.map(item => <option value={item.id} key={item.id}>{item.id === 'raw' ? copy.raw : item.id === 'in' ? copy.inch : item.id === 'ft' ? copy.foot : item.label}</option>)}
         </select></label>}
       </div>
       {error && <p className={styles.error} role="alert">{error}</p>}
@@ -192,25 +195,25 @@ export default function CadViewer() {
         <div className={styles.canvas} ref={container} />
         {!extents && <div className={styles.empty}>
           <Box size={35} aria-hidden />
-          <strong>{busy ? 'Çizim açılıyor…' : model && !error ? 'Görüntü hazırlanıyor…' : 'DWG veya STEP dosyanı aç'}</strong>
-          <span>{busy ? name : 'Dosya seç veya buraya sürükle. En fazla 35 MB.'}</span>
-          {!busy && !model && <button type="button" onClick={() => picker.current?.click()}>Dosya seç</button>}
+          <strong>{busy ? copy.opening : model && !error ? copy.preparing : copy.empty}</strong>
+          <span>{busy ? name : copy.fileHelp}</span>
+          {!busy && !model && <button type="button" onClick={() => picker.current?.click()}>{copy.choose}</button>}
         </div>}
       </div>
       <div className={styles.status} aria-live="polite">
-        {extents && <div><strong>{name}</strong><span>Boyutlar {extents.map(value => number(value * multiplier)).join(' × ')} {outputUnit}</span></div>}
+        {extents && <div><strong>{name}</strong><span>{copy.dims} {extents.map(value => number(value * multiplier)).join(' × ')} {outputUnit}</span></div>}
         <div>
           <MousePointer2 size={16} aria-hidden />
-          <span>{wantMeasure ? (points.length === 1 ? 'İkinci noktayı seç.' : 'İki nokta seçerek mesafeyi ölç.') : 'Yakınlaştırmak için kaydır. Çizimi taşımak için sağ tuşla sürükle.'}</span>
+          <span>{wantMeasure ? (points.length === 1 ? copy.next : copy.start) : copy.navigate}</span>
         </div>
-        {difference && distance !== null && <div className={styles.measure}><strong>Mesafe {number(distance)} {outputUnit}</strong>
+        {difference && distance !== null && <div className={styles.measure}><strong>{copy.distance} {number(distance)} {outputUnit}</strong>
           <span>{difference.map((value, axis) => ['ΔX ', 'ΔY ', 'ΔZ '][axis] + number(value)).join(' · ')} {outputUnit}</span>
         </div>}
       </div>
       {extents && model?.kind === 'dwg' && model.omitted.length > 0 &&
-        <p className={styles.notice}>Bu DWG’de gösterilmeyen nesneler var: {model.omitted.join(', ')}.</p>}
+        <p className={styles.notice}>{copy.omitted} {model.omitted.join(', ')}.</p>}
       {extents && model?.kind === 'step' &&
-        <p className={styles.notice}>STEP mesafesi görüntülenen yüzey ağı üzerinden ölçülür. Eğri yüzeylerde yaklaşık sonuç verir.</p>}
+        <p className={styles.notice}>{copy.mesh}</p>}
     </section>
   );
 }

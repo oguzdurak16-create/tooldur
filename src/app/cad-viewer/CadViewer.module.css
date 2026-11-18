@@ -38,3 +38,6 @@
   .toolbar button { min-height: 44px; padding-inline: 8px; }
   .unit { margin-left: 0; }
 }
+
+.languageLink { display: inline-flex; float: right; padding: 8px 10px; color: var(--blue); border: 1px solid var(--border-mid); border-radius: 8px; margin: 0 0 6px 12px; font-size: 13px; }
+.details > section + section { margin-top: 20px; }
