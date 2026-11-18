@@ -45,3 +45,6 @@ next-env.d.ts
 *.tsbuildinfo
 .next/
 out/
+
+# Generated CAD parser assets
+/public/cad-engine/

@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
-    "build": "npm run lint && next build --webpack && node scripts/seo-data-audit.mjs",
+    "dev": "node scripts/prepare-cad-engine.mjs && next dev --webpack",
+    "build": "node scripts/prepare-cad-engine.mjs && npm run lint && next build --webpack && node scripts/seo-data-audit.mjs",
     "start": "next start",
     "lint": "eslint src",
     "seo:audit": "node scripts/seo-data-audit.mjs",
@@ -12,26 +12,30 @@
     "test:calculations": "node --experimental-strip-types scripts/check-calculator-inputs.mjs && node --experimental-strip-types scripts/check-milling.mjs"
   },
   "dependencies": {
+    "@mlightcad/libredwg-web": "0.9.0",
     "@supabase/supabase-js": "^2.39.0",
     "dompurify": "^3.4.9",
     "isomorphic-dompurify": "^2.16.0",
     "lucide-react": "^0.441.0",
     "next": "16.4.3",
+    "occt-import-js": "0.0.23",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "tesseract.js": "^6.0.1"
+    "tesseract.js": "^6.0.1",
+    "three": "0.183.2"
   },
   "devDependencies": {
+    "@next/eslint-plugin-next": "16.4.3",
     "@types/node": "^22.5.4",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "@types/three": "0.183.1",
     "autoprefixer": "^10.4.20",
     "eslint": "10.11.0",
+    "eslint-plugin-react-hooks": "7.1.1",
     "postcss": "^8.4.45",
     "tailwindcss": "^3.4.10",
     "typescript": "^5.6.2",
-    "@next/eslint-plugin-next": "16.4.3",
-    "eslint-plugin-react-hooks": "7.1.1",
     "typescript-eslint": "8.70.1"
   },
   "engines": {

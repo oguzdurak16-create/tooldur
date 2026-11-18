@@ -87,3 +87,24 @@
 }
 
 @media (prefers-reduced-motion: reduce) { .tool { transition: none; } }
+
+.viewerLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 48px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-mid);
+  border-radius: 10px;
+  background: var(--bg-card);
+  color: var(--blue);
+  text-decoration: none;
+}
+.viewerLink:hover { border-color: var(--blue); }
+.viewerLink > svg { flex: 0 0 auto; }
+.viewerLink strong, .viewerLink small { display: block; }
+.viewerLink strong { color: var(--ink); font-size: 13px; }
+.viewerLink small { color: var(--ink-3); font-size: 12px; }

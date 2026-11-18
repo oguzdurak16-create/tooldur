@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Download, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Box, Download, CheckCircle2 } from 'lucide-react';
 import TooldurSearchBox from '@/components/TooldurSearchBox';
 import { categories, tools } from '@/data/tools';
 import { mgStories } from '@/data/mgStories';
@@ -45,6 +45,11 @@ export default function Home() {
           <span className={styles.free}><CheckCircle2 size={16} /> {indexableTools.length} ücretsiz araç</span>
         </div>
         <TooldurSearchBox compact />
+        <Link className={styles.viewerLink} href="/cad-viewer">
+          <Box size={19} aria-hidden="true" />
+          <span><strong>DWG ve STEP görüntüleyici</strong><small>Dosyayı aç, çizimden ölçü al.</small></span>
+          <ArrowRight size={16} aria-hidden="true" />
+        </Link>
       </div>
     </section>
 
