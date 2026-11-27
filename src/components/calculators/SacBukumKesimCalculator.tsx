@@ -1,5 +1,7 @@
 'use client';
 
+import type { Locale } from '@/lib/siteLanguage';
+
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
@@ -110,16 +112,18 @@ function parseNum(value: string | number | undefined | null) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function fmt(value: number, digits = 2) {
-  if (!Number.isFinite(value)) return '0';
+export default function SacBukumKesimCalculator({ locale = 'tr' }: { locale?: Locale }) {
+  const tf = locale === 'en' ? 'tf' : 'ton';
+  const percent = (value: number) => locale === 'en' ? `${fmt(value, 1)}%` : `%${fmt(value, 1)}`;
+  const fmt = (value: number, digits = 2) => {
+    if (!Number.isFinite(value)) return '0';
 
-  return new Intl.NumberFormat('tr-TR', {
-    maximumFractionDigits: digits,
-    minimumFractionDigits: 0,
-  }).format(value);
-}
+    return new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'tr-TR', {
+      maximumFractionDigits: digits,
+      minimumFractionDigits: 0,
+    }).format(value);
+  };
 
-export default function SacBukumKesimCalculator() {
   const [tab, setTab] = useState<TabId>('abkant');
 
   const [materialKey, setMaterialKey] = useState('s235');
@@ -569,7 +573,7 @@ export default function SacBukumKesimCalculator() {
                           <td className="p-3">{fmt(row.designV, 1)} mm</td>
                           <td className="p-3">{fmt(row.designRi, 2)} mm</td>
                           <td className="p-3">{fmt(row.designMinFlange, 1)} mm</td>
-                          <td className="p-3">{fmt(row.designSafeForceTon, 1)} ton</td>
+                          <td className="p-3">{fmt(row.designSafeForceTon, 1)} {tf}</td>
                           <td className="p-3 text-[var(--muted-foreground)]">
                             {row.ratio === 6 && 'Küçük radius / yüksek tonaj'}
                             {row.ratio === 8 && 'Genel kullanım'}
@@ -684,14 +688,14 @@ export default function SacBukumKesimCalculator() {
               title="Abkant Sonucu"
               status={hesap.machineOk ? 'Makine uygun' : 'Kapasite kontrol et'}
               ok={hesap.machineOk}
-              main={`${fmt(hesap.safeBendTon, 1)} ton`}
-              sub={`Emniyetli tonaj · çıplak hesap ${fmt(hesap.bendForceTon, 1)} ton`}
+              main={`${fmt(hesap.safeBendTon, 1)} ${tf}`}
+              sub={`Emniyetli tonaj · çıplak hesap ${fmt(hesap.bendForceTon, 1)} ${tf}`}
               metrics={[
                 ['Kuvvet', `${fmt(hesap.bendForceKn, 1)} kN`],
-                ['Ton / metre', `${fmt(hesap.tonPerMeter, 1)} ton/m`],
-                ['Emniyetli ton / metre', `${fmt(hesap.safeTonPerMeter, 1)} ton/m`],
+                ['Ton / metre', `${fmt(hesap.tonPerMeter, 1)} ${tf}/m`],
+                ['Emniyetli ton / metre', `${fmt(hesap.safeTonPerMeter, 1)} ${tf}/m`],
                 ['V açıklığı', `${fmt(hesap.V, 1)} mm`],
-                ['Makine kullanımı', `%${fmt(hesap.machineUse, 1)}`],
+                ['Makine kullanımı', percent(hesap.machineUse)],
                 ['Tahmini Ri', `${fmt(hesap.suggestedRi, 2)} mm`],
                 ['Min. flanş', `${fmt(hesap.minFlange, 1)} mm`],
               ]}
@@ -717,7 +721,7 @@ export default function SacBukumKesimCalculator() {
                 ['Sac kalınlığı', `${fmt(hesap.t, 2)} mm`],
                 ['Tahmini iç radius', `${fmt(hesap.suggestedRi, 2)} mm`],
                 ['Minimum flanş', `${fmt(hesap.minFlange, 1)} mm`],
-                ['Gerekli tonaj', `${fmt(hesap.safeBendTon, 1)} ton`],
+                ['Gerekli tonaj', `${fmt(hesap.safeBendTon, 1)} ${tf}`],
                 ['Malzeme Rm', `${material.rm} MPa`],
                 ['Malzeme notu', material.note],
               ]}
@@ -737,9 +741,9 @@ export default function SacBukumKesimCalculator() {
                 ['Önerilen oran', `${hesap.recommendedDieRatio} × t`],
                 ['Tahmini iç radius', `${fmt(hesap.recommendedDesignRi, 2)} mm`],
                 ['Minimum flanş', `${fmt(hesap.recommendedMinFlange, 1)} mm`],
-                ['Emniyetli tonaj', `${fmt(hesap.recommendedSafeForceTon, 1)} ton`],
-                ['Gerekli kalıp yükü', `${fmt(hesap.recommendedSafeTonPerMeter, 1)} ton/m`],
-                ['Kalıp kapasite kullanımı', `%${fmt(hesap.recommendedToolLoadUse, 1)}`],
+                ['Emniyetli tonaj', `${fmt(hesap.recommendedSafeForceTon, 1)} ${tf}`],
+                ['Gerekli kalıp yükü', `${fmt(hesap.recommendedSafeTonPerMeter, 1)} ${tf}/m`],
+                ['Kalıp kapasite kullanımı', percent(hesap.recommendedToolLoadUse)],
                 ['Punch uç R aralığı', `${fmt(hesap.punchRadiusMin, 1)} - ${fmt(hesap.punchRadiusMax, 1)} mm`],
                 ['Alt kalıp omuz R', `${fmt(hesap.lowerDieShoulderRadiusMin, 1)} - ${fmt(hesap.lowerDieShoulderRadiusMax, 1)} mm`],
                 ['Gövde et kalınlığı', 'Kesit hesabı / FEA ile'],
@@ -776,14 +780,14 @@ export default function SacBukumKesimCalculator() {
               title="Giyotin Sonucu"
               status={hesap.shearOk ? 'Makine uygun' : 'Kapasite kontrol et'}
               ok={hesap.shearOk}
-              main={`${fmt(hesap.shearSafeTon, 1)} ton`}
-              sub={`Emniyetli kesme tonajı · açısız ${fmt(hesap.straightShearTon, 1)} ton`}
+              main={`${fmt(hesap.shearSafeTon, 1)} ${tf}`}
+              sub={`Emniyetli kesme tonajı · açısız ${fmt(hesap.straightShearTon, 1)} ${tf}`}
               metrics={[
-                ['Bıçak açılı tonaj', `${fmt(hesap.rakeShearTon, 1)} ton`],
+                ['Bıçak açılı tonaj', `${fmt(hesap.rakeShearTon, 1)} ${tf}`],
                 ['Efektif kesme boyu', `${fmt(hesap.effectiveCutLength, 1)} mm`],
                 ['Kesme dayanımı', `${material.shear} MPa`],
                 ['Önerilen boşluk', `${fmt(hesap.bladeClearance, 3)} mm / taraf`],
-                ['Makine kullanımı', `%${fmt(hesap.shearUse, 1)}`],
+                ['Makine kullanımı', percent(hesap.shearUse)],
                 ['Malzeme', material.name],
               ]}
               formula="F = τ × t × L · açılı bıçakta Leff = min(L, t / tanθ)"
@@ -796,12 +800,12 @@ export default function SacBukumKesimCalculator() {
               title="Hidrolik Sonuç"
               status="Silindir kuvveti"
               ok
-              main={`${fmt(hesap.pushTon, 1)} ton`}
+              main={`${fmt(hesap.pushTon, 1)} ${tf}`}
               sub="Toplam itme kuvveti"
               metrics={[
                 ['İtme kuvveti', `${fmt(hesap.pushKn, 1)} kN`],
                 ['Çekme kuvveti', `${fmt(hesap.pullKn, 1)} kN`],
-                ['Çekme tonajı', `${fmt(hesap.pullTon, 1)} ton`],
+                ['Çekme tonajı', `${fmt(hesap.pullTon, 1)} ${tf}`],
                 ['Piston alanı', `${fmt(hesap.pistonArea, 0)} mm²`],
                 ['Halka alanı', `${fmt(hesap.annularArea, 0)} mm²`],
                 ['Basınç', `${fmt(hesap.pBar, 0)} bar`],

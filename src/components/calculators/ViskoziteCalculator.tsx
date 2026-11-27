@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import type { Locale } from '@/lib/siteLanguage';
 import { useCalculationHistory } from '@/hooks/useCalculationHistory';
 import { generateDrawing } from '@/lib/drawingEngine';
 import TeknikCizimPanel from '@/components/TeknikCizimPanel';
@@ -34,7 +35,7 @@ type YagSonuc = {
   desc: string;
 };
 
-export default function ViskoziteCalculator() {
+export default function ViskoziteCalculator({ locale = 'tr' }: { locale?: Locale }) {
   const { saveCalculation } = useCalculationHistory();
 
   const [mode, setMode] = useState<Mode>('cevirici');
@@ -226,7 +227,7 @@ export default function ViskoziteCalculator() {
                     className="calc-panel w-full px-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/30"
                   >
                     {Object.entries(OILS).map(([k, v]) => (
-                      <option key={k}>{k} — {v.name}</option>
+                      <option key={k} value={k}>{k} — {v.name}</option>
                     ))}
                   </select>
                 </div>
@@ -273,7 +274,7 @@ export default function ViskoziteCalculator() {
                     {sonuc.yag.split('—')[0].trim()} @ {sonuc.T}°C
                   </p>
                   <p className="text-4xl font-bold text-blue-700 dark:text-blue-400">
-                    {formatSmartNumber(sonuc.nu, 'tr-TR', 2)}
+                    {formatSmartNumber(sonuc.nu, locale === 'en' ? 'en-US' : 'tr-TR', 2)}
                   </p>
                   <p className="text-sm text-blue-500 dark:text-blue-400">mm²/s (cSt)</p>
                   <p className="text-xs calc-muted mt-2">ASTM D341 Walther denklemi</p>

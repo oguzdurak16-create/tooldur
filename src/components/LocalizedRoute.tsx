@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import LocalizedSeoPage from '@/components/LocalizedSeoPage';
 import { blogPosts } from '@/data/blogPosts';
+import { getEnglishGuide } from '@/data/englishBlog';
 import { categories, tools } from '@/data/tools';
 import { getCopy, type LocalizedPageKey } from '@/lib/localizedContent';
 import {
@@ -15,14 +16,14 @@ import {
 } from '@/lib/siteLanguage';
 
 // Content comes from this deployment; refresh it when the source is published.
-export const revalidate = false;
+
 
 type PageParams = {
   locale: string;
   slug?: string[];
 };
 
-export const dynamicParams = true;
+
 
 const staticPageSegments: Array<{ route: RouteKey; slug: string[] }> = [
   { route: 'home', slug: [] },
@@ -98,11 +99,8 @@ function socialMetadata(locale: Locale, title: string, description: string, url:
   };
 }
 
-export function generateStaticParams() {
-  return [];
-}
 
-export async function generateMetadata({ params }: { params: Promise<PageParams> }): Promise<Metadata> {
+export async function localizedRouteMetadata({ params }: { params: Promise<PageParams> }): Promise<Metadata> {
   const resolvedParams = await params;
   if (!isGeneratedLocale(resolvedParams.locale)) return {};
 
@@ -151,15 +149,18 @@ export async function generateMetadata({ params }: { params: Promise<PageParams>
   if (route === 'blog-post') {
     const post = blogPosts.find((item) => item.slug === resolved.itemSlug);
     if (!post) return {};
+    const guide = locale === 'en' ? getEnglishGuide(post.slug) : undefined;
+    const title = guide?.title ?? post.title;
+    const description = guide?.summary ?? `${copy.blogIntro} ${post.description}`;
     return {
-      title: post.title,
+      title,
       robots,
-      description: `${copy.blogIntro} ${post.description}`,
+      description,
       alternates: {
         canonical: absoluteLocalizedUrl(locale, route, post.slug),
         languages: languageAlternates(route, post.slug),
       },
-      ...socialMetadata(locale, post.title, `${copy.blogIntro} ${post.description}`, absoluteLocalizedUrl(locale, route, post.slug)),
+      ...socialMetadata(locale, title, description, absoluteLocalizedUrl(locale, route, post.slug)),
     };
   }
 
@@ -177,7 +178,7 @@ export async function generateMetadata({ params }: { params: Promise<PageParams>
   };
 }
 
-export default async function LocalizedRoutePage({ params }: { params: Promise<PageParams> }) {
+export async function LocalizedRoutePage({ params }: { params: Promise<PageParams> }) {
   const resolvedParams = await params;
   if (!isGeneratedLocale(resolvedParams.locale)) {
     notFound();

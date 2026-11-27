@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { ArrowRight, BookOpen, Download, FolderKanban, Grid2X2, Hammer, Wrench } from 'lucide-react';
 import { blogPosts } from '@/data/blogPosts';
+import { getEnglishGuide } from '@/data/englishBlog';
+import { getLocalizedToolBySlug } from '@/lib/toolLocalization';
 import { categories, tools } from '@/data/tools';
 import { getCopy, type LocalizedPageKey } from '@/lib/localizedContent';
 import { getLocalizedPath, LANGUAGE_META, type Locale, type RouteKey } from '@/lib/siteLanguage';
@@ -164,6 +166,9 @@ function GenericPage({ locale, pageKey }: { locale: Locale; pageKey: LocalizedPa
           <Link href={getLocalizedPath(locale, secondaryRoute)} className="i18n-btn secondary">
             {page.secondary}
           </Link>
+          {locale === 'en' && pageKey === 'home' && (
+            <Link href={getLocalizedPath('en', 'cad-viewer')} className="i18n-btn secondary">DWG and STEP viewer</Link>
+          )}
         </div>
       </section>
 
@@ -293,13 +298,16 @@ function BlogPage({ locale }: { locale: Locale }) {
         <h2 className="i18n-section-title">{copy.labels.readArticle}</h2>
         <p className="i18n-section-text">{copy.blogIntro}</p>
         <div className="i18n-tool-list">
-          {blogPosts.map((post) => (
-            <Link key={post.slug} href={getLocalizedPath(locale, 'blog-post', post.slug)} className="i18n-tool">
-              <strong>{post.title}</strong>
-              <span>{post.description}</span>
-              <span>{post.category} · {post.readTime}</span>
-            </Link>
-          ))}
+          {blogPosts.map((post) => {
+            const guide = locale === 'en' ? getEnglishGuide(post.slug) : undefined;
+            return (
+              <Link key={post.slug} href={getLocalizedPath(locale, 'blog-post', post.slug)} className="i18n-tool">
+                <strong>{guide?.title ?? post.title}</strong>
+                <span>{guide?.summary ?? post.description}</span>
+                {locale !== 'en' && <span>{post.category} · {post.readTime}</span>}
+              </Link>
+            );
+          })}
         </div>
       </section>
     </Shell>
@@ -309,6 +317,36 @@ function BlogPage({ locale }: { locale: Locale }) {
 function BlogPostPage({ locale, slug }: { locale: Locale; slug?: string }) {
   const copy = getCopy(locale);
   const post = blogPosts.find((item) => item.slug === slug) || blogPosts[0];
+  const guide = locale === 'en' ? getEnglishGuide(post.slug) : undefined;
+  if (guide) {
+    const related = post.relatedTools.flatMap(({ href }) => {
+      const match = href.match(/^\/arac\/([^?#]+)(.*)$/);
+      const tool = match ? getLocalizedToolBySlug(match[1], 'en') : undefined;
+      return match && tool ? [{ name: tool.name, href: getLocalizedPath('en', 'tool', tool.slug) + match[2] }] : [];
+    });
+    return (
+      <Shell locale="en">
+        <article>
+          <header className="i18n-hero">
+            <Link className="i18n-btn secondary" href="/en/blog">All guides</Link>
+            <h1 className="i18n-title">{guide.title}</h1>
+            <p className="i18n-lead">{guide.summary}</p>
+          </header>
+          <div className="i18n-section">
+            {guide.paragraphs.map(paragraph => <p key={paragraph} className="i18n-section-text">{paragraph}</p>)}
+          </div>
+          {related.length > 0 && <section className="i18n-section">
+            <h2 className="i18n-section-title">Related calculators</h2>
+            <div className="i18n-tool-list">
+              {related.map(tool => <Link key={tool.href} href={tool.href} className="i18n-tool">{tool.name}</Link>)}
+            </div>
+          </section>}
+          <p className="i18n-note"><Link href={`/blog/${post.slug}`} lang="tr">Türkçe sürüm</Link></p>
+        </article>
+      </Shell>
+    );
+  }
+
   return (
     <Shell locale={locale}>
       <section className="i18n-hero">

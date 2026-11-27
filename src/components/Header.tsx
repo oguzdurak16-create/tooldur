@@ -26,6 +26,9 @@ export default function Header() {
 
   const locale = getLocaleFromPathname(pathname);
   const nav = UI_TEXT[locale].nav;
+  const en = locale === 'en';
+  const searchLabel = en ? 'Search tools' : 'Araç ara';
+  const languageLabel = en ? 'Choose language' : 'Dil seç';
   const homeHref = getLocalizedPath(locale, 'home');
   const toolsHref = getLocalizedPath(locale, 'tools');
   const blogHref = getLocalizedPath(locale, 'blog');
@@ -106,36 +109,36 @@ export default function Header() {
     <>
       <header className={styles.header}>
         <div className={styles.inner}>
-          <Link href={homeHref} className={styles.brand} aria-label="Tooldur ana sayfa">
+          <Link href={homeHref} className={styles.brand} aria-label={en ? 'Tooldur home' : 'Tooldur ana sayfa'}>
             <span className={styles.mark}>T</span>
             <span className={styles.brandText}><span className={styles.brandName}>tool<span>dur</span></span><span className={styles.brandTag}>engineering tools</span></span>
           </Link>
 
           <div className={`${styles.center} ${pathname === homeHref ? styles.homeCenter : ''}`}>
-            <nav className={styles.nav} aria-label="Ana menü">
+            <nav className={styles.nav} aria-label={en ? 'Main navigation' : 'Ana menü'}>
               {primaryLinks.map((item) => <Link key={item.href} href={item.href} className={`${styles.navLink} ${isActive(item.href) ? styles.active : ''}`}>{item.label}</Link>)}
             </nav>
-            <button type="button" className={styles.search} onClick={openSearch} aria-label="Araç ara"><Search size={16} /><span>Araç ara</span><kbd>Ctrl K</kbd></button>
+            <button type="button" className={styles.search} onClick={openSearch} aria-label={searchLabel}><Search size={16} /><span>{searchLabel}</span><kbd>Ctrl K</kbd></button>
           </div>
 
           <div className={styles.actions}>
             <Link href="/dashboard" className={styles.mobileAccount} aria-current={isActive('/dashboard') ? 'page' : undefined}>{nav.panel}</Link>
             <div className={styles.inlineTheme}><ThemeToggle /></div>
             <details className={styles.mobileMenu} ref={mobileMenuRef}>
-              <summary aria-label="Menü"><Menu size={20} aria-hidden="true" /></summary>
-              <nav aria-label="Mobil menü" className={styles.mobileNav}>
+              <summary aria-label={en ? 'Menu' : 'Menü'}><Menu size={20} aria-hidden="true" /></summary>
+              <nav aria-label={en ? 'Mobile navigation' : 'Mobil menü'} className={styles.mobileNav}>
                 <Link href="/dashboard" className={styles.mobilePanelEntry} onClick={() => { if (mobileMenuRef.current) mobileMenuRef.current.open = false; }}><LayoutDashboard size={18} aria-hidden="true" />{authReady && !user ? (locale === 'tr' ? 'Panele giriş' : nav.login) : nav.panel}</Link>
                 <Link href={getLocalizedPath(locale, 'project-management')}>{nav.projects}</Link>
                 {primaryLinks.map((item) => <Link key={item.href} href={item.href} aria-current={isActive(item.href) ? 'page' : undefined} onClick={() => { if (mobileMenuRef.current) mobileMenuRef.current.open = false; }}>{item.label}</Link>)}
                 <div className={styles.menuTheme}><span>{locale === 'tr' ? 'Görünüm' : 'Theme'}</span><ThemeToggle /></div>
-                <div className={styles.mobileLanguages} aria-label="Dil seç">
+                <div className={styles.mobileLanguages} aria-label={languageLabel}>
                   {LANGUAGES.map((item) => <button key={item.code} type="button" lang={item.code} aria-label={item.label} aria-pressed={locale === item.code} onClick={() => changeLanguage(item.code)}>{item.short}</button>)}
                 </div>
               </nav>
             </details>
             {authReady && user ? (
               <>
-                <Link href="/dashboard/butce" className={`${styles.action} ${styles.desktopAction}`} title="Harcama ve bütçe takibi"><WalletCards size={15} /> Bütçe</Link>
+                <Link href="/dashboard/butce" className={`${styles.action} ${styles.desktopAction}`} title={en ? 'Expense and budget tracking' : 'Harcama ve bütçe takibi'}><WalletCards size={15} /> {en ? 'Budget' : 'Bütçe'}</Link>
                 <Link href="/dashboard" className={`${styles.action} ${styles.actionPrimary} ${styles.desktopAction}`}><LayoutDashboard size={15} /> {nav.panel}</Link>
               </>
             ) : (
@@ -143,7 +146,7 @@ export default function Header() {
             )}
 
             <div ref={languageRef} className={styles.lang}>
-              <button ref={languageButtonRef} className={styles.iconButton} type="button" onClick={() => setLangOpen((value) => !value)} aria-controls="header-languages" aria-expanded={langOpen} aria-label="Dil seç"><Globe size={16} /><ChevronDown size={13} /></button>
+              <button ref={languageButtonRef} className={styles.iconButton} type="button" onClick={() => setLangOpen((value) => !value)} aria-controls="header-languages" aria-expanded={langOpen} aria-label={languageLabel}><Globe size={16} /><ChevronDown size={13} /></button>
               {langOpen && <div id="header-languages" className={styles.langMenu}>{LANGUAGES.map((item) => <button className={styles.langOption} type="button" key={item.code} onClick={() => changeLanguage(item.code)}><span>{item.label}</span><strong>{item.short}</strong></button>)}</div>}
             </div>
           </div>

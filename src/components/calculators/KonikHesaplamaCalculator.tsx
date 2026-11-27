@@ -1,5 +1,7 @@
 'use client';
 
+import type { Locale } from '@/lib/siteLanguage';
+
 import { useId, useMemo, useState } from 'react';
 import { Info, Ruler, Triangle } from 'lucide-react';
 import type { Tool } from '@/data/tools';
@@ -77,7 +79,7 @@ function resultFromRatio(D: number, L: number, ratioN: number): TaperResult | nu
   };
 }
 
-export default function KonikHesaplamaCalculator({ tool }: { tool?: Tool }) {
+export default function KonikHesaplamaCalculator({ tool, locale = 'tr' }: { tool?: Tool; locale?: Locale }) {
   const [mode, setMode] = useState<Mode>('diameters-length');
   const [bigDiameter, setBigDiameter] = useState('50');
   const [smallDiameter, setSmallDiameter] = useState('40');
@@ -134,7 +136,7 @@ export default function KonikHesaplamaCalculator({ tool }: { tool?: Tool }) {
     };
   }, [bigDiameter, includedAngle, length, mode, ratio, smallDiameter]);
 
-  const fmt = (value: number, digits = 3) => formatSmartNumber(value, 'tr-TR', digits);
+  const fmt = (value: number, digits = 3) => formatSmartNumber(value, locale === 'en' ? 'en-US' : 'tr-TR', digits);
 
   return (
     <div className="space-y-6">

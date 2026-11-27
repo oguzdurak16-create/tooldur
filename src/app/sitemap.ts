@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next';
 import { tools, categories } from '@/data/tools';
 import { bushingGuideDate, bushingGuidePath } from '@/data/bushingGuides';
 import { blogPosts } from '@/data/blogPosts';
+import { getEnglishGuide } from '@/data/englishBlog';
 import { mgStories, MG_SITE_PUBLISHED_AT } from '@/data/mgStories';
 import { getIndexableCategories, getIndexableTools } from '@/lib/seoFocus';
 import { BASE_URL, getLocalizedPath, type Locale } from '@/lib/siteLanguage';
@@ -103,12 +104,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   );
 
-  const blogPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
-    url: `${BASE}/blog/${post.slug}`,
-    lastModified: new Date(post.date),
-    changeFrequency: 'monthly' as const,
-    priority: 0.8,
-  }));
+  const blogPages: MetadataRoute.Sitemap = blogPosts.flatMap((post) => {
+    const locales: Locale[] = getEnglishGuide(post.slug) ? INDEXABLE_LOCALES : ['tr'];
+    return locales.map(locale => ({
+      url: `${BASE}${getLocalizedPath(locale, 'blog-post', post.slug)}`,
+      lastModified: new Date(post.date),
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+      ...(locales.length > 1 ? { alternates: languageAlternates('blog-post', post.slug) } : {}),
+    }));
+  });
 
   const mgPages: MetadataRoute.Sitemap = [
     { url: `${BASE}/muhendis-gozuyle`, lastModified: new Date(MG_SITE_PUBLISHED_AT), changeFrequency: 'weekly', priority: 0.83 },

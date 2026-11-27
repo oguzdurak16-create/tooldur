@@ -92,7 +92,7 @@ export default function MobileTabBar() {
 
   return (
     <div className={styles.root}>
-      <nav className={styles.bar} aria-label="Mobil hızlı menü">
+      <nav className={styles.bar} aria-label={locale === 'en' ? 'Mobile quick navigation' : 'Mobil hızlı menü'}>
         <div className={styles.inner}>
           <Link href={homeHref} className={`${styles.item} ${isActive(homeHref) ? styles.active : ''}`}><Home size={18} /><span>{nav.home}</span></Link>
           <Link href={toolsHref} className={`${styles.item} ${isActive(toolsHref) ? styles.active : ''}`}><Wrench size={18} /><span>{nav.tools}</span></Link>

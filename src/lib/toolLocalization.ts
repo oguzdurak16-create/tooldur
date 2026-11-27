@@ -193,6 +193,10 @@ export const TOOL_PAGE_LABELS: Record<Locale, {
 
 const TOOL_NAMES: Record<Exclude<Locale, 'tr'>, Record<string, ToolNameCopy>> = {
   en: {
+    'freze-devir': { name: 'Milling Speed and Feed Calculator', shortName: 'Milling Speed and Feed', description: 'Calculate spindle speed, table feed and feed per revolution from tool diameter, cutting speed, tooth count and feed per tooth.' },
+    'sac-bukum-kesim': { name: 'Sheet Metal Bending and Shearing Calculator', shortName: 'Sheet Metal Bending and Shearing', description: 'Estimate press brake tonnage, V-die opening, flat length, guillotine shear force and hydraulic cylinder force.' },
+    'viskozite': { name: 'Viscosity Converter and Oil Viscosity Calculator', shortName: 'Viscosity Converter', description: 'Convert dynamic and kinematic viscosity with fluid density, or estimate oil viscosity at a specified temperature.' },
+    'konik-hesaplama': { name: 'Lathe Taper and Angle Calculator', shortName: 'Lathe Taper', description: 'Calculate the taper half angle, included angle, diametral taper ratio or small diameter from the available dimensions.' },
     'burc-yuzey-basinci': { name: 'Bushing Pressure and PV Calculator', shortName: 'Bushing Pressure and PV', description: 'Calculate plain bearing pressure, sliding speed and PV under radial load for oscillatory or rotating motion.' },
     'burc-mil-boslugu': { name: 'Bushing and Shaft Clearance Calculator', shortName: 'Bushing Clearance', description: 'Find minimum and maximum diametral running clearance from the installed bore and shaft size limits.' },
     'kablo-kesiti': { name: 'Cable Size Calculator', shortName: 'Cable Size' },
@@ -232,7 +236,6 @@ const TOOL_NAMES: Record<Exclude<Locale, 'tr'>, Record<string, ToolNameCopy>> = 
     'disli-carki': { name: 'Gear Calculator', shortName: 'Gear' },
     'yay-hesaplama': { name: 'Spring Calculator', shortName: 'Spring' },
     'rulman-omru': { name: 'Bearing Life Calculator', shortName: 'Bearing Life' },
-    viskozite: { name: 'Viscosity Conversion', shortName: 'Viscosity' },
     'guc-verim': { name: 'Power and Efficiency Calculator', shortName: 'Efficiency' },
     'termal-iletim': { name: 'Thermal Conduction Calculator', shortName: 'Thermal Conduction' },
     'devir-frekans': { name: 'RPM-Frequency Conversion', shortName: 'RPM-Frequency' },

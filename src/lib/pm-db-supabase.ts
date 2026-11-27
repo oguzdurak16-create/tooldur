@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import type { Proje, Gorev, Yorum, UyeRef, Ek, PmAktivite, PmAktiviteTipi } from '../app/proje-yonetimi/pm-types';
+import type { Proje, Gorev, Yorum, UyeRef, Ek, PmAktivite, PmAktiviteTipi } from '@/app/(site)/proje-yonetimi/pm-types';
 
 /* ─── Tip dönüşümleri ──────────────────────────────────── */
 export function dbToProje(r: any): Proje {

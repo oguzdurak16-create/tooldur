@@ -22,6 +22,7 @@ export type RouteKey =
   | 'tools'
   | 'blog'
   | 'tooldurcad'
+  | 'cad-viewer'
   | 'support'
   | 'technical-call-library'
   | 'roadmap'
@@ -41,6 +42,7 @@ export const ROUTES: Record<RouteKey, { tr: string; international: string }> = {
   tools: { tr: '/araclar', international: 'tools' },
   blog: { tr: '/blog', international: 'blog' },
   tooldurcad: { tr: '/kurulum-indir', international: 'tooldurcad' },
+  'cad-viewer': { tr: '/cad-viewer', international: 'cad-viewer' },
   support: { tr: '/bizi-destekle', international: 'support' },
   'technical-call-library': { tr: '/teknik-cagri-kutuphanesi', international: 'technical-call-library' },
   roadmap: { tr: '/yol-haritasi', international: 'roadmap' },
@@ -120,6 +122,7 @@ export function getLocalizedPath(locale: Locale, route: RouteKey, slug?: string)
     return ROUTES[route]?.tr || '/';
   }
 
+  if (route === 'cad-viewer' && locale !== 'en') return '/cad-viewer';
   if (route === 'tool') return slug ? `/${locale}/tool/${slug}` : `/${locale}/tools`;
   if (route === 'category') return slug ? `/${locale}/category/${slug}` : `/${locale}/tools`;
   if (route === 'blog-post') return slug ? `/${locale}/blog/${slug}` : `/${locale}/blog`;

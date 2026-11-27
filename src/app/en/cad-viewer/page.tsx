@@ -1,4 +1,4 @@
-import CadLanding, { cadMetadata } from '../../cad-viewer/CadLanding';
+import CadLanding, { cadMetadata } from '@/app/(site)/cad-viewer/CadLanding';
 
 export const metadata = cadMetadata('en');
 

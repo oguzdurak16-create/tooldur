@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { ArrowRight, BookOpen, CalendarDays, Clock, Wrench } from 'lucide-react';
 import { blogPosts, getBlogPost } from '@/data/blogPosts';
 import { bushingBlogPosts, bushingSources } from '@/data/bushingGuides';
+import { getEnglishGuide } from '@/data/englishBlog';
+import { languageAlternates } from '@/lib/siteLanguage';
 import { getBlogVisual } from '@/lib/visualAssets';
 // Content comes from this deployment; refresh it when the source is published.
 export const revalidate = false;
@@ -27,7 +29,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: post.title,
     description: post.description,
     keywords: post.keywords,
-    alternates: { canonical: `${BASE}/blog/${post.slug}` },
+    alternates: {
+      canonical: `${BASE}/blog/${post.slug}`,
+      ...(getEnglishGuide(post.slug) ? { languages: languageAlternates('blog-post', post.slug) } : {}),
+    },
     openGraph: {
       title: post.title,
       description: post.description,

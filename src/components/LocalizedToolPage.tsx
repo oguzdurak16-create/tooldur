@@ -164,9 +164,9 @@ export default function LocalizedToolPage({ slug, locale }: Props) {
             <ToolEngagementBar slug={tool.slug} name={tool.name} locale={locale} />
           </div>
           <div className={styles.visual}>
-            <Image src={visual.src} alt={`${tool.name} – ${visual.alt}`} fill priority sizes="(max-width: 920px) 100vw, 430px" />
+            <Image src={visual.src} alt={locale === 'en' ? `Technical illustration for ${tool.name}` : `${tool.name} – ${visual.alt}`} fill priority sizes="(max-width: 920px) 100vw, 430px" />
             <div className={styles.visualTop}><span>Tooldur workspace</span><span>Free tool</span></div>
-            <div className={styles.caption}>{visual.caption}</div>
+            <div className={styles.caption}>{locale === 'en' ? tool.shortName : visual.caption}</div>
           </div>
         </div>
       </section>

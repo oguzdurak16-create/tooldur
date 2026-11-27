@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode, useEffect } from 'react';
+import { englishCalculatorCopy } from '@/lib/englishCalculatorCopy';
 import type { Locale } from '@/lib/siteLanguage';
 
 type Dict = Record<string, string>;
@@ -268,21 +269,22 @@ function normalizeEnglishNumbers(value: string) {
   return next;
 }
 
-function translateValue(value: string, dict: Dict) {
+function translateValue(value: string, dict: Dict, normalizeNumbers: boolean) {
   const trimmed = value.trim();
   if (!trimmed) return value;
 
-  let translated = dict[trimmed] || COMMON[trimmed] || trimmed;
+  const normalized = trimmed.replace(/\s+/g, ' ');
+  let translated = dict[normalized] || COMMON[normalized] || trimmed;
   const entries = Object.entries({ ...COMMON, ...dict }).sort((a, b) => b[0].length - a[0].length);
   for (const [source, target] of entries) {
     if (source && translated.includes(source)) translated = translated.split(source).join(target);
   }
 
-  translated = normalizeEnglishNumbers(translated);
+  if (normalizeNumbers) translated = normalizeEnglishNumbers(translated);
   return preserveSpacing(value, translated);
 }
 
-function translateRoot(root: HTMLElement, dict: Dict) {
+function translateRoot(root: HTMLElement, dict: Dict, normalizeNumbers: boolean) {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
     acceptNode(node) {
       const parent = node.parentElement;
@@ -295,7 +297,7 @@ function translateRoot(root: HTMLElement, dict: Dict) {
   const textNodes: Text[] = [];
   while (walker.nextNode()) textNodes.push(walker.currentNode as Text);
   for (const node of textNodes) {
-    const translated = translateValue(node.nodeValue || '', dict);
+    const translated = translateValue(node.nodeValue || '', dict, normalizeNumbers);
     if (translated !== node.nodeValue) node.nodeValue = translated;
   }
 
@@ -303,7 +305,7 @@ function translateRoot(root: HTMLElement, dict: Dict) {
     for (const attribute of ['placeholder', 'aria-label', 'title']) {
       const value = element.getAttribute(attribute);
       if (!value) continue;
-      const translated = translateValue(value, dict);
+      const translated = translateValue(value, dict, normalizeNumbers);
       if (translated !== value) element.setAttribute(attribute, translated);
     }
   });
@@ -313,13 +315,14 @@ export default function EngineeringCalculatorLocalization({ slug, locale = 'tr',
   useEffect(() => {
     if (locale !== 'en') return;
     const root = document.querySelector<HTMLElement>(`[data-engineering-localization="${slug}"]`);
-    const dict = DICTS[slug];
+    const nativeNumbers = englishCalculatorCopy[slug];
+    const dict = nativeNumbers ?? DICTS[slug];
     if (!root || !dict) return;
 
     let frame = 0;
     const run = () => {
       if (frame) window.cancelAnimationFrame(frame);
-      frame = window.requestAnimationFrame(() => translateRoot(root, dict));
+      frame = window.requestAnimationFrame(() => translateRoot(root, dict, !nativeNumbers));
     };
 
     run();

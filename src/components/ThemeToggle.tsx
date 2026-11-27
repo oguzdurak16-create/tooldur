@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from 'react';
+import { usePathname } from 'next/navigation';
+import { getLocaleFromPathname } from '@/lib/siteLanguage';
 import { Moon, Sun } from 'lucide-react';
 import styles from './Header.module.css';
 
@@ -38,7 +40,10 @@ export default function ThemeToggle() {
       window.dispatchEvent(new Event('tooldur:theme'));
     } catch { /* Keep the current theme if storage is unavailable. */ }
   }, []);
-  const label = dark ? 'Açık temaya geç / Switch to light theme' : 'Koyu temaya geç / Switch to dark theme';
+  const locale = getLocaleFromPathname(usePathname());
+  const label = locale === 'en'
+    ? (dark ? 'Switch to light theme' : 'Switch to dark theme')
+    : (dark ? 'Açık temaya geç / Switch to light theme' : 'Koyu temaya geç / Switch to dark theme');
   function toggle() {
     const theme = dark ? 'light' : 'dark';
     applyTheme(theme);

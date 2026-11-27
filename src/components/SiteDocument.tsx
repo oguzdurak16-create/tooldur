@@ -1,6 +1,6 @@
-/* eslint-disable @next/next/no-sync-scripts */
+/* eslint-disable @next/next/no-sync-scripts, @next/next/no-head-element */
 import type { Metadata } from 'next'
-import './globals.css'
+import '@/app/globals.css'
 import ClientChrome from '@/components/ClientChrome'
 import SiteMonetization from '@/components/SiteMonetization'
 
@@ -127,9 +127,9 @@ const documentLanguageBootstrap = `
   })();
 `;
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function SiteDocument({ children, lang = 'tr' }: { children: React.ReactNode; lang?: 'tr' | 'en' }) {
   return (
-    <html data-scroll-behavior="smooth" lang="tr" data-theme="light" suppressHydrationWarning>
+    <html data-scroll-behavior="smooth" lang={lang} data-theme="light" suppressHydrationWarning>
       <head>
         <script id="tooldur-theme" dangerouslySetInnerHTML={{ __html: `(function(){var theme='light';try{var saved=localStorage.getItem('td-theme');theme=saved==='dark'||saved==='light'?saved:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');}catch(e){}var root=document.documentElement;try{var consent=JSON.parse(localStorage.getItem('tooldur_cookie_consent')||'null');if(consent&&typeof consent==='object')root.dataset.tdConsentKnown='true';}catch(e){}root.dataset.theme=theme;root.classList.toggle('dark',theme==='dark');root.classList.toggle('light',theme==='light');root.style.colorScheme=theme;})();` }} />
         <script id="tooldur-document-language" dangerouslySetInnerHTML={{ __html: documentLanguageBootstrap }} />
@@ -174,7 +174,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-screen flex flex-col td-app-shell" suppressHydrationWarning>
-        <a className="td-skip-link" href="#td-main-content">İçeriğe geç</a>
+        <a className="td-skip-link" href="#td-main-content">{lang === 'en' ? 'Skip to content' : 'İçeriğe geç'}</a>
         <ClientChrome area="top" />
         <div id="td-main-content" className="flex-1">{children}</div>
         <SiteMonetization />

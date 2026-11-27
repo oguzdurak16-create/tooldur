@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import type { Gorev } from '../app/proje-yonetimi/pm-types';
+import type { Gorev } from '@/app/(site)/proje-yonetimi/pm-types';
 
 // Chrome Notification kaldırıldı - sadece in-app bildirim
 export function useBildirimler(_gorevler: Gorev[]) {}

@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { getLocaleFromPathname, getLocalizedPath } from '@/lib/siteLanguage';
 
 const PUBLISHER_ID = 'ca-pub-4491868887846507';
 
@@ -10,6 +11,8 @@ type AdWindow = Window & { adsbygoogle?: Array<Record<string, unknown>> };
 
 export default function SiteMonetization() {
   const pathname = usePathname();
+  const locale = getLocaleFromPathname(pathname);
+  const en = locale === 'en';
   const isWorkspace = pathname === '/dashboard' || pathname === '/proje-yonetimi';
   const slot = process.env.NEXT_PUBLIC_ADSENSE_CONTENT_SLOT?.trim();
 
@@ -26,11 +29,11 @@ export default function SiteMonetization() {
   if (pathname === '/insanlik-testi' || isWorkspace) return null;
 
   return (
-    <section aria-label="Tooldur destek ve reklam alanı" style={{ padding: '22px 16px 34px' }}>
+    <section aria-label={en ? 'Tooldur support and advertising' : 'Tooldur destek ve reklam alanı'} style={{ padding: '22px 16px 34px' }}>
       <div style={{ maxWidth: 1180, margin: '0 auto', display: 'grid', gap: 14 }}>
         {slot ? (
           <aside
-            aria-label="Reklam"
+            aria-label={en ? 'Advertisement' : 'Reklam'}
             style={{
               minHeight: 120,
               padding: 12,
@@ -40,7 +43,7 @@ export default function SiteMonetization() {
               overflow: 'hidden',
             }}
           >
-            <span style={{ display: 'block', marginBottom: 8, fontSize: 10, letterSpacing: '.12em', opacity: 0.55 }}>REKLAM</span>
+            <span style={{ display: 'block', marginBottom: 8, fontSize: 10, letterSpacing: '.12em', opacity: 0.55 }}>{en ? 'ADVERTISEMENT' : 'REKLAM'}</span>
             <ins
               className="adsbygoogle"
               style={{ display: 'block', minHeight: 90 }}
@@ -66,11 +69,11 @@ export default function SiteMonetization() {
           }}
         >
           <div>
-            <strong style={{ display: 'block', marginBottom: 5 }}>Tooldur işine yarıyorsa gelişimini destekle.</strong>
-            <span style={{ fontSize: 14, opacity: 0.72 }}>Yeni mühendislik araçları ve TooldurCAD geliştirmeleri ücretsiz kalmaya devam etsin.</span>
+            <strong style={{ display: 'block', marginBottom: 5 }}>{en ? 'Support Tooldur’s development' : 'Tooldur işine yarıyorsa gelişimini destekle.'}</strong>
+            <span style={{ fontSize: 14, opacity: 0.72 }}>{en ? 'Help keep new engineering tools and TooldurCAD updates free.' : 'Yeni mühendislik araçları ve TooldurCAD geliştirmeleri ücretsiz kalmaya devam etsin.'}</span>
           </div>
           <Link
-            href="/bizi-destekle"
+            href={en ? getLocalizedPath('en', 'support') : '/bizi-destekle'}
             style={{
               minHeight: 44,
               padding: '0 18px',
@@ -84,7 +87,7 @@ export default function SiteMonetization() {
               fontWeight: 900,
             }}
           >
-            Destek seçenekleri
+            {en ? 'Support options' : 'Destek seçenekleri'}
           </Link>
         </div>
       </div>
