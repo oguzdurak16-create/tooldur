@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowRight, BookOpen, CalendarDays, Clock, Wrench } from 'lucide-react';
 import { blogPosts, getBlogPost } from '@/data/blogPosts';
+import { bushingBlogPosts, bushingSources } from '@/data/bushingGuides';
 import { getBlogVisual } from '@/lib/visualAssets';
 // Content comes from this deployment; refresh it when the source is published.
 export const revalidate = false;
@@ -13,7 +14,7 @@ const BASE = 'https://www.tooldur.com';
 type PageProps = { params: Promise<{ slug: string }> };
 
 export function generateStaticParams() {
-  return [];
+  return bushingBlogPosts.map(post => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -234,6 +235,17 @@ export default async function BlogDetailPage({ params }: PageProps) {
               )}
             </section>
           ))}
+
+          {bushingBlogPosts.includes(post) && (
+            <section className="td-post-section">
+              <h2>Üretici kaynakları</h2>
+              <ul className="td-post-list">
+                {[bushingSources.skf, bushingSources.du, bushingSources.igus].map(source =>
+                  <li key={source.href}><a className="underline underline-offset-4" href={source.href}>{source.label}</a></li>
+                )}
+              </ul>
+            </section>
+          )}
 
           <section className="td-post-faq">
             <h2>Sık sorulan sorular</h2>

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import LocalizedToolPage from '@/components/LocalizedToolPage';
 import { languageAlternates } from '@/lib/siteLanguage';
 import { getLocalizedToolBySlug, getOriginalToolBySlug } from '@/lib/toolLocalization';
+import { tools } from '@/data/tools';
 import { isIndexableTool } from '@/lib/seoFocus';
 // Content comes from this deployment; refresh it when the source is published.
 export const revalidate = false;
@@ -9,7 +10,7 @@ export const revalidate = false;
 interface Props { params: Promise<{ slug: string }> }
 
 export function generateStaticParams() {
-  return [];
+  return tools.filter(tool => tool.slug.startsWith('burc-')).map(tool => ({ slug: tool.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

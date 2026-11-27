@@ -76,6 +76,40 @@ const categoryChecks: Record<string, string[]> = {
 };
 
 const specific: Record<string, Partial<ToolSeoContent>> = {
+  'burc-yuzey-basinci-pv-hesaplama': {
+    useCaseTitle: 'Kaymalı burçta yüzey basıncı ve PV nasıl hesaplanır?',
+    intro: ['Nominal radyal yüzey basıncı p = F / (d × L) formülüyle bulunur. F tek burca gelen kuvvettir. d kayma çapı, L ise etkili yataklama boyudur. N ve mm kullanıldığında sonuç MPa çıkar.'],
+    sections: [
+      { heading: 'Dönme ve salınımda kayma hızı', body: ['Dönmede v = π × (d / 1000) × rpm / 60. Salınımda uçtan uca tek yön açı θ girilir. Gidiş-dönüş yolu π × (d / 1000) × 2θ / 360 olur. Bu yolu çevrim süresine bölerek ortalama kayma hızını, basınçla çarparak PV değerini bulun.'] },
+      { heading: 'Pik yük ve hareket aynı anda oluyorsa', body: ['Hareket ve duruş süreleri farklıysa kayma hızını hareket süresine göre de değerlendirin. Malzemenin katalog basıncı ve PV değeri, yüzey, yağlama ve sıcaklık koşullarına bağlıdır. Mil eğilmesi ve kenar yükü ayrı kontrol gerektirir.'] },
+    ],
+    faq: [
+      { question: '5 ton-kuvvet kaç kN eder?', answer: '5 tf yaklaşık 49,03 kN eder. Ø20 mm iç çap ve 20 mm etkili boy için nominal radyal basınç 122,6 MPa’dır.' },
+      { question: 'Salınım açısı nasıl girilir?', answer: 'Milin bir uç konumdan diğer uç konuma tek yönlü açısını girin. Örneğin hareket −22,5° ile +22,5° arasındaysa 45° girilir.' },
+    ],
+    howTo: [
+      { name: 'Radyal kuvveti girin', text: 'Tek burca düşen kuvveti N, kN veya ton-kuvvet olarak seçin.' },
+      { name: 'Yatak geometrisini girin', text: 'Burç iç çapını ve etkili yataklama boyunu mm olarak girin.' },
+      { name: 'Hareketi tanımlayın', text: 'Dönme için devir, salınım için uçlar arası açı ve dakika başına tam çevrim girin.' },
+    ],
+  },
+  'burc-mil-boslugu-hesaplama': {
+    useCaseTitle: 'Montaj sonrası burç–mil çap boşluğu nasıl bulunur?',
+    intro: ['En küçük çap boşluğu = takılı burç iç çapı alt sınırı − mil üst sınırı. En büyük çap boşluğu = takılı burç iç çapı üst sınırı − mil alt sınırı.'],
+    sections: [
+      { heading: 'Takılı iç çapı esas alın', body: ['Sarımlı bir burcun iç çapı pres montajından sonra değişebilir. Katalogdaki montaj sonrası aralığı veya takılı parçanın ölçüm sınırlarını kullanın. Bir çalışma sıcaklığı için hesap yaparken iki parçanın çapını aynı sıcaklık koşulunda değerlendirin.'] },
+      { heading: 'Çapsal ve radyal boşluk', body: ['Araç çapsal farkı mikrometre olarak verir. Eşmerkezli durumda tek taraftaki radyal boşluk bunun yarısıdır. Çapsal farkın negatif olması sıkılık olduğunu gösterir.'] },
+    ],
+    faq: [
+      { question: 'Örnek burç ve mil ölçüleri ne sonuç verir?', answer: 'Takılı iç çap 20,020–20,050 mm ve mil 19,980–20,000 mm ise çapsal boşluk 20–70 µm aralığındadır.' },
+      { question: 'Pres öncesi burç iç çapı kullanılabilir mi?', answer: 'Çalışma boşluğu için pres montajından sonraki iç çap gerekir. Yuva deliği ve katalog montaj koşulları sonucu etkiler.' },
+    ],
+    howTo: [
+      { name: 'Montaj sonrası iç çapı girin', text: 'Takılı burcun en küçük ve en büyük iç çapını mm olarak girin.' },
+      { name: 'Mil çapını girin', text: 'Mil çapının alt ve üst sınırlarını mm olarak girin.' },
+      { name: 'Çap farkını inceleyin', text: 'En küçük ve en büyük çap boşluğunu µm olarak okuyun.' },
+    ],
+  },
   'sac-bukum-kesim-hesaplayici': {
     useCaseTitle: 'Sac büküm, V kalıp seçimi ve giyotin kesme ön hesabı',
     intro: [

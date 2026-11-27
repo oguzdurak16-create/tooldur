@@ -7,6 +7,10 @@ export type SearchableTool = Tool & {
 
 const aliasGroups: Array<{ terms: string[]; slugs: string[] }> = [
   {
+    terms: ['papburc', 'pap burc', 'agir yuk burcu', 'kaymali yatak', 'yaglamasiz burc', 'bronz burc', 'burc 20x22'],
+    slugs: ['burc-yuzey-basinci-pv-hesaplama', 'burc-mil-boslugu-hesaplama'],
+  },
+  {
     terms: ['metrik dis', 'metrik dis tablosu', 'kilavuz tablosu', 'kilavuz matkap caplari', 'dis dibi', 'm8 kilavuz', 'm6 kilavuz'],
     slugs: ['kilavuz-matkap-hesaplama'],
   },

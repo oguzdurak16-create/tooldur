@@ -99,6 +99,28 @@ export const categories: Category[] = [
 ];
 
 export const tools: Tool[] = [
+  {
+    id: 'burc-yuzey-basinci',
+    slug: 'burc-yuzey-basinci-pv-hesaplama',
+    name: 'Burç Yüzey Basıncı ve PV Hesaplama',
+    shortName: 'Burç Basıncı ve PV',
+    description: 'Tek burca gelen radyal yükten yüzey basıncını, dönme veya salınımdan kayma hızını ve PV değerini hesaplayın.',
+    category: 'makine',
+    icon: 'Cog',
+    new: true,
+    keywords: ['ağır yük burcu', 'PAP burç', 'yağlamasız burç', 'salınımlı mafsal', 'burç yük hesabı', 'plain bearing PV'],
+  },
+  {
+    id: 'burc-mil-boslugu',
+    slug: 'burc-mil-boslugu-hesaplama',
+    name: 'Burç–Mil Çalışma Boşluğu Hesaplama',
+    shortName: 'Burç–Mil Boşluğu',
+    description: 'Takılı burç iç çapı ve mil çapı sınırlarından minimum ve maksimum çap boşluğunu mikrometre cinsinden bulun.',
+    category: 'makine',
+    icon: 'Cog',
+    new: true,
+    keywords: ['burç boşluğu', 'PAP burç mil toleransı', 'burç pres montajı', 'burç ölçüleri', 'bushing clearance'],
+  },
   { id: "freze-devir", slug: "freze-devir-ilerleme-hesaplama", name: "Freze Kesme Hızı, Devir ve İlerleme Hesaplama", shortName: "Freze Devir ve İlerleme", description: "Takım çapı, kesme hızı, diş adedi ve diş başına ilerleme ile iş mili devrini ve tabla ilerlemesini birimleriyle hesaplayın.", category: "makine", icon: "Cog", new: true, featured: true, keywords: ["freze devir hesaplama", "kesme hızı", "diş başına ilerleme", "tabla ilerlemesi"] },
   // Elektrik & Elektronik
   {

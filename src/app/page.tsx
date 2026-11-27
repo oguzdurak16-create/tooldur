@@ -82,6 +82,10 @@ export default function Home() {
       <div className={styles.extra}><span className={styles.smallLabel}>SATINALMA İÇİN</span><h2>Sipariş ve faturayı karşılaştır.</h2><p>InvoiceGuard ile miktar ve birim fiyat farklarını tarayıcında kontrol et.</p><a href="https://invoiceguard.hatchable.site/?utm_source=tooldur&utm_medium=referral&utm_campaign=launch" target="_blank" rel="noopener noreferrer">InvoiceGuard’ı aç <ArrowRight size={16} /></a></div>
     </section>
 
+    <section className={`${styles.container} ${styles.extras}`} aria-labelledby="bushing-guide">
+      <div className={styles.extra}><h2 id="bushing-guide">Ağır yük burçları</h2><p>PAP, PTFE ve bronz burç seçimi, salınımda PV hesabı ve montaj sonrası mil boşluğu.</p><Link href="/burc-rehberi">Burç rehberini aç</Link></div>
+    </section>
+
     <section className={`${styles.container} ${styles.stories}`} aria-labelledby="stories-title">
       <div className={styles.sectionHeading}><div><span className={styles.smallLabel}>MÜHENDİS GÖZÜYLE</span><h2 id="stories-title">Biraz da nasıl çalıştığına bakalım.</h2></div><Link href="/muhendis-gozuyle">Tüm yazılar <ArrowRight size={16} /></Link></div>
       <div className={styles.storyGrid}>{mgStories.slice(0, 3).map((story) => <Link key={story.slug} href={'/muhendis-gozuyle/' + story.slug} className={styles.story}>

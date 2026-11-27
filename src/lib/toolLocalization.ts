@@ -193,6 +193,8 @@ export const TOOL_PAGE_LABELS: Record<Locale, {
 
 const TOOL_NAMES: Record<Exclude<Locale, 'tr'>, Record<string, ToolNameCopy>> = {
   en: {
+    'burc-yuzey-basinci': { name: 'Bushing Pressure and PV Calculator', shortName: 'Bushing Pressure and PV', description: 'Calculate plain bearing pressure, sliding speed and PV under radial load for oscillatory or rotating motion.' },
+    'burc-mil-boslugu': { name: 'Bushing and Shaft Clearance Calculator', shortName: 'Bushing Clearance', description: 'Find minimum and maximum diametral running clearance from the installed bore and shaft size limits.' },
     'kablo-kesiti': { name: 'Cable Size Calculator', shortName: 'Cable Size' },
     'voltaj-dusumu': { name: 'Voltage Drop Calculator', shortName: 'Voltage Drop' },
     'elektrik-fatura': { name: 'Electricity Bill Calculator', shortName: 'Electricity Bill' },

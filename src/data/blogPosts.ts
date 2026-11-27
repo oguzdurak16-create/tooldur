@@ -1,3 +1,4 @@
+import { bushingBlogPosts } from './bushingGuides';
 import { seoBlogExpansionPosts } from './seoBlogExpansion';
 
 export type BlogSection = {
@@ -612,6 +613,7 @@ export const blogPosts: BlogPost[] = [
   },
 
   ...seoBlogExpansionPosts,
+  ...bushingBlogPosts,
 ];
 
 export const getBlogPost = (slug: string) => blogPosts.find((post) => post.slug === slug);

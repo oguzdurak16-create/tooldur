@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { tools, categories } from '@/data/tools';
+import { bushingGuideDate, bushingGuidePath } from '@/data/bushingGuides';
 import { blogPosts } from '@/data/blogPosts';
 import { mgStories, MG_SITE_PUBLISHED_AT } from '@/data/mgStories';
 import { getIndexableCategories, getIndexableTools } from '@/lib/seoFocus';
@@ -14,8 +15,10 @@ type LocalizedRoute = Parameters<typeof getLocalizedPath>[1];
 // Update only after a meaningful content or SEO change.
 const SITE_RELEASE_DATE = new Date('2026-09-14T00:00:00+03:00');
 const CONTENT_RELEASE_DATE = new Date('2026-09-14T00:00:00+03:00');
-const HOME_RELEASE_DATE = new Date('2026-11-01T00:00:00Z');
+const HOME_RELEASE_DATE = new Date(bushingGuideDate);
 const TOOL_RELEASE_DATES: Record<string, Date> = {
+  'burc-yuzey-basinci-pv-hesaplama': new Date(bushingGuideDate),
+  'burc-mil-boslugu-hesaplama': new Date(bushingGuideDate),
   'freze-devir-ilerleme-hesaplama': new Date('2026-11-03T00:00:00Z'),
   'kilavuz-matkap-hesaplama': new Date('2026-10-05T00:00:00+03:00'),
   'konik-hesaplama': new Date('2026-09-29T00:00:00+03:00'),
@@ -120,6 +123,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...localizedStatic,
     ...trOnlyStatic,
+    { url: `${BASE}${bushingGuidePath}`, lastModified: new Date(bushingGuideDate) },
     ...categoryPages,
     ...toolPages,
     ...blogPages,

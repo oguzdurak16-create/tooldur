@@ -15,6 +15,7 @@ import { getToolVisual } from '@/lib/visualAssets';
 import PriorityToolQuickAnswer from '@/components/PriorityToolQuickAnswer';
 import ToolEngagementBar from '@/components/ToolEngagementBar';
 import CalculationWorkbench from '@/components/CalculationWorkbench';
+import { languageAlternates } from '@/lib/siteLanguage';
 import { isIndexableTool } from '@/lib/seoFocus';
 import styles from './ToolPage.module.css';
 // Content comes from this deployment; refresh it when the source is published.
@@ -96,7 +97,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: { card: 'summary_large_image', title, description, images: [visual.og] },
     robots: indexable ? { index: true, follow: true } : { index: false, follow: true },
-    alternates: { canonical: tool.slug === 'proje-yonetimi' ? '/proje-yonetimi' : `/arac/${tool.slug}` },
+    alternates: {
+      canonical: tool.slug === 'proje-yonetimi' ? '/proje-yonetimi' : `/arac/${tool.slug}`,
+      ...(tool.slug.startsWith('burc-') ? { languages: languageAlternates('tool', tool.slug) } : {}),
+    },
   };
 }
 
