@@ -83,7 +83,7 @@ export default function Home() {
     </section>
 
     <section className={`${styles.container} ${styles.extras}`} aria-labelledby="bushing-guide">
-      <div className={styles.extra}><h2 id="bushing-guide">Ağır yük burçları</h2><p>PAP, PTFE ve bronz burç seçimi, salınımda PV hesabı ve montaj sonrası mil boşluğu.</p><Link href="/burc-rehberi">Burç rehberini aç</Link></div>
+      <div className={`${styles.extra} ${styles.extraWide}`}><h2 id="bushing-guide">Ağır yük burçları</h2><p>PAP, PTFE ve bronz burç seçimi, salınımda PV hesabı ve montaj sonrası mil boşluğu.</p><Link href="/burc-rehberi">Burç rehberini aç</Link></div>
     </section>
 
     <section className={`${styles.container} ${styles.stories}`} aria-labelledby="stories-title">

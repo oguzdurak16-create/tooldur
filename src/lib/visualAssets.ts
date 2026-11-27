@@ -79,7 +79,23 @@ export function getToolVisual(categoryId?: string, slug = ''): SiteVisual {
   return getCategoryVisual(categoryId);
 }
 
-export function getBlogVisual(post: { title: string; category: string; keywords?: string[] }): SiteVisual {
+export function getBlogVisual(post: { slug: string; title: string; category: string; keywords?: string[] }): SiteVisual {
+  if (post.slug === 'pap-burc-olculeri-ptfe-pom-farki') {
+    return {
+      ...getToolVisual('makine', 'burc-mil-boslugu-hesaplama'),
+      og: '/visuals/topics/blog-pap-burc-og.webp',
+      alt: 'Preslenmiş burcun kesitinde gövde, burç, mil ve radyal boşluk',
+      caption: 'Montaj sonrası burç–mil boşluğu',
+    };
+  }
+  if (post.slug === 'agir-yuk-burcu-5-ton-salinimli-mafsal') {
+    return {
+      ...getToolVisual('makine', 'burc-yuzey-basinci-pv-hesaplama'),
+      og: '/visuals/topics/blog-agir-yuk-burcu-og.webp',
+      alt: 'Kaymalı burç kesitinde radyal kuvvet ve milin salınım yönü',
+      caption: 'Salınımlı mafsalda radyal yük ve yüzey basıncı',
+    };
+  }
   const text = [post.title, post.category, ...(post.keywords || [])].join(' ').toLocaleLowerCase('tr-TR');
   if (/(sac|büküm|bukum|açınım|acinim|kesim|levha)/.test(text)) return blogVisuals.sheetMetal;
   if (/(kılavuz|kilavuz|metrik diş|metrik dis|hatve|ön delik|on delik)/.test(text)) return getToolVisual('makine', 'kilavuz-matkap-hesaplama');
